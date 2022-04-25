@@ -1,0 +1,35 @@
+E:\Projects\Visual Studio Projects\TOGIRRO_ControlTesting\TOGIRRO_ControlTesting\bin\Debug\TOGIRRO_ControlTesting.exe.config
+E:\Projects\Visual Studio Projects\TOGIRRO_ControlTesting\TOGIRRO_ControlTesting\bin\Debug\TOGIRRO_ControlTesting.exe
+E:\Projects\Visual Studio Projects\TOGIRRO_ControlTesting\TOGIRRO_ControlTesting\bin\Debug\TOGIRRO_ControlTesting.pdb
+E:\Projects\Visual Studio Projects\TOGIRRO_ControlTesting\TOGIRRO_ControlTesting\obj\Debug\TOGIRRO_ControlTesting.csprojAssemblyReference.cache
+E:\Projects\Visual Studio Projects\TOGIRRO_ControlTesting\TOGIRRO_ControlTesting\obj\Debug\App.g.cs
+E:\Projects\Visual Studio Projects\TOGIRRO_ControlTesting\TOGIRRO_ControlTesting\obj\Debug\TOGIRRO_ControlTesting_MarkupCompile.cache
+E:\Projects\Visual Studio Projects\TOGIRRO_ControlTesting\TOGIRRO_ControlTesting\obj\Debug\TOGIRRO_ControlTesting_MarkupCompile.lref
+E:\Projects\Visual Studio Projects\TOGIRRO_ControlTesting\TOGIRRO_ControlTesting\obj\Debug\TOGIRRO_ControlTesting.g.resources
+E:\Projects\Visual Studio Projects\TOGIRRO_ControlTesting\TOGIRRO_ControlTesting\obj\Debug\TOGIRRO_ControlTesting.Properties.Resources.resources
+E:\Projects\Visual Studio Projects\TOGIRRO_ControlTesting\TOGIRRO_ControlTesting\obj\Debug\TOGIRRO_ControlTesting.csproj.GenerateResource.cache
+E:\Projects\Visual Studio Projects\TOGIRRO_ControlTesting\TOGIRRO_ControlTesting\obj\Debug\TOGIRRO_ControlTesting.csproj.CoreCompileInputs.cache
+E:\Projects\Visual Studio Projects\TOGIRRO_ControlTesting\TOGIRRO_ControlTesting\obj\Debug\TOGIRRO_ControlTesting.exe
+E:\Projects\Visual Studio Projects\TOGIRRO_ControlTesting\TOGIRRO_ControlTesting\obj\Debug\TOGIRRO_ControlTesting.pdb
+E:\Projects\Visual Studio Projects\TOGIRRO_ControlTesting\TOGIRRO_ControlTesting\obj\Debug\SubjectWindow.g.cs
+E:\Projects\Visual Studio Projects\TOGIRRO_ControlTesting\TOGIRRO_ControlTesting\obj\Debug\WorkWindow.g.cs
+E:\Projects\Visual Studio Projects\TOGIRRO_ControlTesting\TOGIRRO_ControlTesting\obj\Debug\SubjectWindow.baml
+E:\Projects\Visual Studio Projects\TOGIRRO_ControlTesting\TOGIRRO_ControlTesting\obj\Debug\WorkWindow.baml
+E:\Projects\Visual Studio Projects\TOGIRRO_ControlTesting\TOGIRRO_ControlTesting\obj\Debug\GeneratedInternalTypeHelper.g.cs
+F:\TOGIRRO_ControlTesting\TOGIRRO_ControlTesting\obj\Debug\TOGIRRO_ControlTesting.csproj.AssemblyReference.cache
+F:\TOGIRRO_ControlTesting\TOGIRRO_ControlTesting\obj\Debug\SubjectWindow.g.cs
+F:\TOGIRRO_ControlTesting\TOGIRRO_ControlTesting\obj\Debug\WorkWindow.g.cs
+F:\TOGIRRO_ControlTesting\TOGIRRO_ControlTesting\obj\Debug\App.g.cs
+F:\TOGIRRO_ControlTesting\TOGIRRO_ControlTesting\obj\Debug\TOGIRRO_ControlTesting_MarkupCompile.cache
+F:\TOGIRRO_ControlTesting\TOGIRRO_ControlTesting\obj\Debug\TOGIRRO_ControlTesting_MarkupCompile.lref
+F:\TOGIRRO_ControlTesting\TOGIRRO_ControlTesting\obj\Debug\TOGIRRO_ControlTesting.exe
+F:\TOGIRRO_ControlTesting\TOGIRRO_ControlTesting\obj\Debug\TOGIRRO_ControlTesting.pdb
+F:\TOGIRRO_ControlTesting\TOGIRRO_ControlTesting\bin\Debug\TOGIRRO_ControlTesting.exe.config
+F:\TOGIRRO_ControlTesting\TOGIRRO_ControlTesting\bin\Debug\TOGIRRO_ControlTesting.exe
+F:\TOGIRRO_ControlTesting\TOGIRRO_ControlTesting\bin\Debug\TOGIRRO_ControlTesting.pdb
+F:\TOGIRRO_ControlTesting\TOGIRRO_ControlTesting\obj\Debug\SubjectWindow.baml
+F:\TOGIRRO_ControlTesting\TOGIRRO_ControlTesting\obj\Debug\WorkWindow.baml
+F:\TOGIRRO_ControlTesting\TOGIRRO_ControlTesting\obj\Debug\TOGIRRO_ControlTesting.g.resources
+F:\TOGIRRO_ControlTesting\TOGIRRO_ControlTesting\obj\Debug\TOGIRRO_ControlTesting.Properties.Resources.resources
+F:\TOGIRRO_ControlTesting\TOGIRRO_ControlTesting\obj\Debug\TOGIRRO_ControlTesting.csproj.GenerateResource.cache
+F:\TOGIRRO_ControlTesting\TOGIRRO_ControlTesting\obj\Debug\TOGIRRO_ControlTesting.csproj.CoreCompileInputs.cache
