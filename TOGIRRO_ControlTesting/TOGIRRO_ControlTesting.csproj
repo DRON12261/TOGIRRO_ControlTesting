@@ -59,16 +59,8 @@
     <Compile Include="WorkWindow.xaml.cs">
       <DependentUpon>WorkWindow.xaml</DependentUpon>
     </Compile>
-    <Page Include="SubjectWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="SubjectWindow.xaml.cs">
-      <DependentUpon>SubjectWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
     <Page Include="WorkWindow.xaml">

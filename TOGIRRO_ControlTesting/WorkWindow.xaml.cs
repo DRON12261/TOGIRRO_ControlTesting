@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,33 +10,53 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
 namespace TOGIRRO_ControlTesting
 {
-    /// <summary>
-    /// Логика взаимодействия для WorkWindow.xaml
-    /// </summary>
-    public partial class WorkWindow : Window
-    {
+	/// <summary>
+	/// Логика взаимодействия для WorkWindow.xaml
+	/// </summary>
+	public partial class WorkWindow : Window
+	{
         public WorkWindow()
         {
             InitializeComponent();
 
 			//SubjectTree.ItemsSource = Workfield.ActiveSubjects;
-			CreateSubject_Type.ItemsSource = Enum.GetValues(typeof(SubjectType)).Cast<SubjectType>();
-			CreateSubject_Type.SelectedIndex = 0;
-
-			EditSubject_Type.ItemsSource = Enum.GetValues(typeof(SubjectType)).Cast<SubjectType>();
-			EditSubject_Type.SelectedIndex = 0;
 
 			Workfield.Init();
-			SubjectsList.ItemsSource = Workfield.Subjects;
 
-			QuestionList.ItemsSource = Workfield.Quastions;
+			Workfield.CurrentSubject = Workfield.Subjects[0];
+			Workfield.CurrentVariant = Workfield.CurrentSubject.Variants[0];
+			Workfield.CurrentQuestion = Workfield.CurrentVariant.Questions[0];
+
+			SubjectsList.ItemsSource = Workfield.Subjects;
+			QuestionList.ItemsSource = Workfield.CurrentVariant.Questions;
+
+			SubjectTypesCBox.ItemsSource = Workfield.SubjectTypes;
+			CreateSubject_Type.ItemsSource = Workfield.SubjectTypes;
+			EditSubject_Type.ItemsSource = Workfield.SubjectTypes;
+			SubjectTypesCBox.SelectedIndex = 0;
+			CreateSubject_Type.SelectedIndex = 0;
+			EditSubject_Type.SelectedIndex = 0;
 		}
+
+		public int GetIndexByElement(string value, string[] values)
+        {
+			for (int i = 0; i < values.Length; i++)
+            {
+				if (value == values[i])
+                {
+					return i;
+                }
+            }
+
+			return -1;
+        }
 
 		private void ButtonC_CreateSubject(object sender, RoutedEventArgs e)
 		{
@@ -48,12 +69,15 @@ namespace TOGIRRO_ControlTesting
 		private void ButtonC_EditSubject(object sender, RoutedEventArgs e)
 		{
 			Subject SelectedSubject = (Subject)SubjectsList.SelectedItem;
-			EditSubject_Name.Text = SelectedSubject.Name;
-			EditSubject_Description.Text = SelectedSubject.Description;
-			//EditSubject_Type.SelectedIndex = (int)(SelectedSubject.Type) - 1;
-			ICollectionView view = CollectionViewSource.GetDefaultView(Workfield.Subjects);
-			view.Refresh();
-			EditTab.IsSelected = true;
+			if (SelectedSubject != null)
+			{
+				EditSubject_Name.Text = SelectedSubject.Name;
+				EditSubject_Description.Text = SelectedSubject.Description;
+				EditSubject_Type.SelectedIndex = GetIndexByElement(SelectedSubject.Type, Workfield.SubjectTypes);
+				ICollectionView view = CollectionViewSource.GetDefaultView(Workfield.Subjects);
+				view.Refresh();
+				EditTab.IsSelected = true;
+			}
 		}
 
 		private void ButtonC_DeleteSubject(object sender, RoutedEventArgs e)
@@ -70,8 +94,6 @@ namespace TOGIRRO_ControlTesting
 				{
 					Name = CreateSubject_Name.Text.Trim(' '),
 					//Type = (SubjectType)(CreateSubject_Type.SelectedIndex + 1),
-					CreateDate = DateTime.Now,
-					ChangeDate = DateTime.Now,
 					Description = CreateSubject_Description.Text.Trim(' ')
 				});
 				ListTab.IsSelected = true;
@@ -98,12 +120,6 @@ namespace TOGIRRO_ControlTesting
 		private void ButtonC_EditSubject_Cancel(object sender, RoutedEventArgs e)
 		{
 			ListTab.IsSelected = true;
-		}
-
-		private void ButtonC_LaunchSubject(object sender, RoutedEventArgs e)
-		{
-			Subject SelectedSubject = (Subject)SubjectsList.SelectedItem;
-			Workfield.ActiveSubjects.Add(SelectedSubject);
 		}
 	}
 }

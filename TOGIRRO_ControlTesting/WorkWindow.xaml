@@ -3,9 +3,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:TOGIRRO_ControlTesting"
+        xmlns:local="clr-namespace:TOGIRRO_ControlTesting" xmlns:sys="clr-namespace:System;assembly=mscorlib"
         mc:Ignorable="d"
         Title="[TOGIRRO Control Testing] Рабочая область" Height="800" Width="1280" WindowStartupLocation="CenterScreen" Visibility="Visible" Background="White" FontSize="14">
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="64" MaxHeight="64"/>
@@ -22,11 +23,7 @@
                 <ColumnDefinition Width="64"/>
                 <ColumnDefinition Width="64"/>
                 <ColumnDefinition Width="64"/>
-                <ColumnDefinition Width="64"/>
-                <ColumnDefinition Width="64"/>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="64"/>
-                <ColumnDefinition Width="64"/>
             </Grid.ColumnDefinitions>
 
             <Button Margin="6" Grid.Column="0">
@@ -44,17 +41,43 @@
             <Button Margin="6" Grid.Column="4">
                 <Image Source="Icons/Print2.png"/>
             </Button>
-            <Button Margin="6" Grid.Column="8">
-                <Image Source="Icons/Settings.png"/>
-            </Button>
-            <Button Margin="6" Grid.Column="9">
-                <Image Source="Icons/About.png"/>
-            </Button>
+
+            <TabControl Grid.Column="5" Margin="0" Padding="0">
+                <TabControl.Resources>
+                    <Style TargetType="TabItem">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="TabItem"/>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </TabControl.Resources>
+                <TabItem>
+                    <Grid Margin="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="64"/>
+                            <ColumnDefinition Width="64"/>
+                            <ColumnDefinition Width="64"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Button Margin="6" Grid.Column="1">
+                            <Image Source="Icons/Settings.png"/>
+                        </Button>
+                        <Button Margin="6" Grid.Column="2">
+                            <Image Source="Icons/Settings.png"/>
+                        </Button>
+                        <Button Margin="6" Grid.Column="3">
+                            <Image Source="Icons/About.png"/>
+                        </Button>
+                    </Grid>
+                </TabItem>
+            </TabControl>
         </Grid>
 
         <Grid Grid.Row="2" Grid.Column="0">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="512" MaxWidth="512"/>
+                <ColumnDefinition Width="512" MaxWidth="1024"/>
                 <ColumnDefinition Width="5"/>
                 <ColumnDefinition />
                 <!--<ColumnDefinition Width="5"/>
@@ -81,16 +104,17 @@
                     <Grid Margin="10" Grid.Column="0" Grid.Row="0">
                         <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" MinHeight="28"></TextBox>
                     </Grid>
-                    <Grid Margin="10" Grid.Column="1" Grid.Row="0">
-                        <ComboBox VerticalAlignment="Center" MinHeight="28" >
-                            <ComboBoxItem>ЕГЭ</ComboBoxItem>
-                            <ComboBoxItem>ОГЭ</ComboBoxItem>
-                        </ComboBox>
+                    <Grid Margin="5" Grid.Column="1" Grid.Row="0">
+                        <ComboBox Name="SubjectTypesCBox" VerticalAlignment="Center" MinHeight="28"/>
                     </Grid>
                 </Grid>
 
-                <Grid Margin="10,0,0,10" Grid.Column="0" Grid.Row="1">
-                    <TabControl>
+                <Grid Margin="10,0,5,10" Grid.Column="0" Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="429*"/>
+                        <ColumnDefinition Width="68*"/>
+                    </Grid.ColumnDefinitions>
+                    <TabControl Grid.ColumnSpan="2">
                         <TabControl.Resources>
                             <Style TargetType="TabItem">
                                 <Setter Property="Template">
@@ -112,38 +136,100 @@
                             </ListView>
                         </TabItem>
                         <TabItem Name="CreateTab">
-                            <Grid Margin="10">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition />
-                                    <ColumnDefinition />
-                                </Grid.ColumnDefinitions>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="32"/>
-                                    <RowDefinition Height="32"/>
-                                    <RowDefinition Height="32"/>
-                                    <RowDefinition Height="96"/>
-                                    <RowDefinition Height="32"/>
-                                    <RowDefinition Height="32"/>
-                                    <RowDefinition />
-                                    <RowDefinition Height="64"/>
-                                </Grid.RowDefinitions>
+                            <ScrollViewer>
+                                <Grid Margin="10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="195*" />
+                                        <ColumnDefinition Width="43*"/>
+                                        <ColumnDefinition Width="238*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="24"/>
+                                        <RowDefinition Height="24"/>
+                                        <RowDefinition Height="24"/>
+                                        <RowDefinition Height="24"/>
+                                        <RowDefinition Height="24"/>
+                                        <RowDefinition Height="48"/>
+                                        <RowDefinition Height="24"/>
+                                        <RowDefinition Height="24"/>
+                                        <RowDefinition Height="24"/>
+                                        <RowDefinition Height="24"/>
+                                        <RowDefinition Height="24"/>
+                                        <RowDefinition Height="24"/>
+                                        <RowDefinition Height="24"/>
+                                        <RowDefinition Height="24"/>
+                                        <RowDefinition Height="24"/>
+                                        <RowDefinition Height="24"/>
+                                        <RowDefinition Height="24"/>
+                                        <RowDefinition Height="24"/>
+                                        <RowDefinition Height="24"/>
+                                        <RowDefinition Height="24"/>
+                                        <RowDefinition Height="24"/>
+                                        <RowDefinition Height="24"/>
+                                        <RowDefinition MinHeight="24"/>
+                                        <RowDefinition Height="64"/>
+                                    </Grid.RowDefinitions>
 
-                                <Label Content="Название" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"/>
-                                <TextBox Name="CreateSubject_Name" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" />
+                                    <Label Content="Код мероприятия" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Padding="10,0,0,0"/>
+                                    <TextBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,0,5,0"/>
 
-                                <Label Content="Описание" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"/>
-                                <TextBox Name="CreateSubject_Description" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" />
+                                    <Label Content="Код предмета" Grid.Row="0" Grid.Column="2" Grid.ColumnSpan="1" Padding="10,0,0,0"/>
+                                    <TextBox Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="1" Margin="5,0,0,0"/>
 
-                                <Label Content="Тип" Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2"/>
-                                <ComboBox Name="CreateSubject_Type" Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2" />
+                                    <Label Content="Название" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Padding="10,0,0,0"/>
+                                    <TextBox Name="CreateSubject_Name" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" />
 
-                                <Button Margin="0,0,5,0" Grid.Row="7" Grid.Column="0" Click="ButtonC_CreateSubject_Create">
-                                    <Image Source="Icons/Ok.png"/>
-                                </Button>
-                                <Button Margin="5,0,0,0" Grid.Row="7" Grid.Column="1" Click="ButtonC_CreateSubject_Cancel">
-                                    <Image Source="Icons/Cancel.png"/>
-                                </Button>
-                            </Grid>
+                                    <Label Content="Описание" Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" Padding="10,0,0,0"/>
+                                    <TextBox Name="CreateSubject_Description" Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="3" />
+
+                                    <Label Content="Тип" Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="3" Padding="10,0,0,0"/>
+                                    <ComboBox Name="CreateSubject_Type" Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="3" />
+
+                                    <Label Content="Минимальный балл" Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="2" Padding="10,0,0,0"/>
+                                    <TextBox Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,0,5,0"/>
+
+                                    <Label Content="Максимальный балл" Grid.Row="8" Grid.Column="2" Grid.ColumnSpan="1" Padding="10,0,0,0"/>
+                                    <TextBox Grid.Row="9" Grid.Column="2" Grid.ColumnSpan="1" Margin="5,0,0,0"/>
+
+                                    <Label Content="[Макс.б.] Выбор ответа (A)" Grid.Row="10" Grid.Column="0" Grid.ColumnSpan="2" Padding="10,0,0,0"/>
+                                    <TextBox Grid.Row="11" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,0,5,0"/>
+
+                                    <Label Content="[Макс.б.] Краткий ответ (B)" Grid.Row="10" Grid.Column="2" Grid.ColumnSpan="1" Padding="10,0,0,0"/>
+                                    <TextBox Grid.Row="11" Grid.Column="2" Grid.ColumnSpan="1" Margin="5,0,0,0"/>
+
+                                    <Label Content="[Макс.б.] Полный письменный (C)" Grid.Row="12" Grid.Column="0" Grid.ColumnSpan="2" Padding="10,0,0,0"/>
+                                    <TextBox Grid.Row="13" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,0,5,0"/>
+
+                                    <Label Content="[Макс.б.] Полный устный (D)" Grid.Row="12" Grid.Column="2" Grid.ColumnSpan="1" Padding="10,0,0,0"/>
+                                    <TextBox Grid.Row="13" Grid.Column="2" Grid.ColumnSpan="1" Margin="5,0,0,0"/>
+
+                                    <Label Content="Путь к папке с файлами КМ" Grid.Row="14" Grid.Column="0" Grid.ColumnSpan="3" Padding="10,0,0,0"/>
+                                    <TextBox Grid.Row="15" Grid.Column="0" Grid.ColumnSpan="3"/>
+
+                                    <Label Content="Имя бланк регистрации" Grid.Row="16" Grid.Column="0" Grid.ColumnSpan="2" Padding="10,0,0,0"/>
+                                    <TextBox Grid.Row="17" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,0,5,0"/>
+
+                                    <Label Content="Имя бланк ответов №1" Grid.Row="16" Grid.Column="2" Grid.ColumnSpan="1" Padding="10,0,0,0"/>
+                                    <TextBox Grid.Row="17" Grid.Column="2" Grid.ColumnSpan="1" Margin="5,0,0,0"/>
+
+                                    <Label Content="Имя бланк ответов №2" Grid.Row="18" Grid.Column="0" Grid.ColumnSpan="2" Padding="10,0,0,0"/>
+                                    <TextBox Grid.Row="19" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,0,5,0"/>
+
+                                    <Label Content="Имя файла протоколов" Grid.Row="18" Grid.Column="2" Grid.ColumnSpan="1" Padding="10,0,0,0"/>
+                                    <TextBox Grid.Row="19" Grid.Column="2" Grid.ColumnSpan="1" Margin="5,0,0,0"/>
+
+                                    <Label Content="Система оценивания" Grid.Row="20" Grid.Column="0" Grid.ColumnSpan="2" Padding="10,0,0,0"/>
+                                    <RadioButton GroupName="GradeSystem" Content="Балл" IsChecked="True" Grid.Row="21" Grid.Column="0" Grid.ColumnSpan="3"/>
+                                    <RadioButton GroupName="GradeSystem" Content="Оценка" Grid.Row="21" Grid.Column="1" Grid.ColumnSpan="3"/>
+
+                                    <Button Margin="0,0,5,0" Grid.Row="23" Grid.Column="0" Click="ButtonC_CreateSubject_Create" Grid.ColumnSpan="2">
+                                        <Image Source="Icons/Ok.png"/>
+                                    </Button>
+                                    <Button Margin="5,0,0,0" Grid.Row="23" Grid.Column="2" Click="ButtonC_CreateSubject_Cancel">
+                                        <Image Source="Icons/Cancel.png"/>
+                                    </Button>
+                                </Grid>
+                            </ScrollViewer>
                         </TabItem>
                         <TabItem Name="EditTab">
                             <Grid Margin="10">
@@ -188,7 +274,7 @@
                         <ColumnDefinition />
                         <ColumnDefinition />
                     </Grid.ColumnDefinitions>
-                    
+
                     <Grid Margin="10,0,10,10" Grid.Column="0">
                         <Button Click="ButtonC_CreateSubject">
                             <Image Source="Icons/Plus.png"/>
@@ -199,7 +285,7 @@
                             <Image Source="Icons/Edit.png"/>
                         </Button>
                     </Grid>
-                    <Grid Margin="10,0,0,10" Grid.Column="2">
+                    <Grid Margin="10,0,10,10" Grid.Column="2">
                         <Button Click="ButtonC_DeleteSubject">
                             <Image Source="Icons/Trash.png"/>
                         </Button>
@@ -211,8 +297,6 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="107*"/>
                     <RowDefinition Height="559*"/>
-                    <RowDefinition Height="5"/>
-                    <RowDefinition Height="300*"/>
                 </Grid.RowDefinitions>
                 <GridSplitter Height="5" Grid.Row="2" ResizeDirection="Rows" HorizontalAlignment="Stretch" ResizeBehavior="PreviousAndNext"/>
 
@@ -245,96 +329,19 @@
                         </Button>
                     </Grid>
 
-                    <ListView Name="QuestionList" Grid.ColumnSpan="2" Grid.Row="2">
+                    <ListView Name="QuestionList" Grid.ColumnSpan="2" Grid.Row="2" IsSynchronizedWithCurrentItem="True">
                         <ListView.View>
                             <GridView>
-                                <GridViewColumn Header="№" Width="50" DisplayMemberBinding="{Binding N1}" />
-                                <GridViewColumn Header="Тип" Width="200" DisplayMemberBinding="{Binding N2}" />
-                                <GridViewColumn Header="Максимальный балл" Width="160" DisplayMemberBinding="{Binding N3}" />
-                                <GridViewColumn Header="Эталонный ответ" Width="200" DisplayMemberBinding="{Binding N4}" />
+                                <GridViewColumn Header="№" Width="50" DisplayMemberBinding="{Binding Number}" />
+                                <GridViewColumn Header="Баллы за задание" Width="200" DisplayMemberBinding="{Binding RightAnswer}"/>
+                                <GridViewColumn Header="Максимальный балл" Width="160" DisplayMemberBinding="{Binding MaxScore}" />
+                                <GridViewColumn Header="Эталонный ответ" Width="200" DisplayMemberBinding="{Binding RightAnswer}" />
                             </GridView>
                         </ListView.View>
                     </ListView>
                 </Grid>
-
-                <Grid Grid.Row="3">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="32"/>
-                        <RowDefinition Height="32"/>
-                        <RowDefinition/>
-                    </Grid.RowDefinitions>
-
-                    <Label Content="Тип вопроса:" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"/>
-                    <ComboBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2">
-                        <ComboBoxItem>Одиночный выбор ответа</ComboBoxItem>
-                    </ComboBox>
-
-                    <TabControl Grid.Row="2">
-                        <TabControl.Resources>
-                            <Style TargetType="TabItem">
-                                <Setter Property="Template">
-                                    <Setter.Value>
-                                        <ControlTemplate TargetType="TabItem"/>
-                                    </Setter.Value>
-                                </Setter>
-                            </Style>
-                        </TabControl.Resources>
-                        <TabItem Name="SingleVibor">
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="32"/>
-                                    <RowDefinition Height="32"/>
-                                    <RowDefinition Height="32"/>
-                                    <RowDefinition Height="32"/>
-                                    <RowDefinition/>
-                                </Grid.RowDefinitions>
-
-                                <Label Grid.Row="0">Эталонный ответ</Label>
-                                <TextBox Grid.Row="1">2</TextBox>
-
-                                <Label Grid.Row="2">Максимальный балл</Label>
-                                <TextBox Grid.Row="3">1</TextBox>
-                            </Grid>
-                        </TabItem>
-                        <TabItem Name="ManyVibor">
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="32"/>
-                                    <RowDefinition Height="32"/>
-                                    <RowDefinition Height="32"/>
-                                    <RowDefinition Height="32"/>
-                                    <RowDefinition/>
-                                </Grid.RowDefinitions>
-
-                                <Label Grid.Row="0">Эталонный ответ</Label>
-                                <TextBox Grid.Row="1">2</TextBox>
-
-                                <Label Grid.Row="2">Максимальный балл</Label>
-                                <TextBox Grid.Row="3">1</TextBox>
-                            </Grid>
-                        </TabItem>
-                        <TabItem Name="Short">
-                            <Grid>
-
-                            </Grid>
-                        </TabItem>
-                        <TabItem Name="UstnoePismennoe">
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="32"/>
-                                    <RowDefinition Height="32"/>
-                                    <RowDefinition/>
-                                </Grid.RowDefinitions>
-
-                                <Label Grid.Row="0">Максимальный балл</Label>
-                                <TextBox Grid.Row="1">5</TextBox>
-                            </Grid>
-                        </TabItem>
-                    </TabControl>
-                    
-                </Grid>
             </Grid>
-            
+
             <!--<Grid Grid.Column="4" Grid.Row="0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="18"/>
