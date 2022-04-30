@@ -6,6 +6,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+/*
+Запилить вспомогательный класс для отображения в таблице ответов
+Реализовать шкалирование (Класс)
+Настроить таблицу шкалирования
+Настроить таблицу ответов
+Добавление изменение и удаление вариантов
+Добавление и удаление вопросов
+Поиск в предметах
+Привязка данных текущего предмета
+*/
+
 namespace TOGIRRO_ControlTesting
 {
     static class Workfield
@@ -17,105 +28,187 @@ namespace TOGIRRO_ControlTesting
         static public Variant CurrentVariant = null;
         static public Question CurrentQuestion = null;
 
-        static public string[] SubjectTypes = { "НЕ ОБОЗНАЧЕНО", "Тип 1", "Тип 2", "Тип 3", "Тип 4" };
-        static public string[] QuestionTypes = { "НЕ ОБОЗНАЧЕНО", "Тип 1", "Тип 2", "Тип 3", "Тип 4" };
+        //static public string[] SubjectTypes = { "НЕ ОБОЗНАЧЕНО", "Тип 1", "Тип 2", "Тип 3", "Тип 4" };
+        //static public string[] QuestionTypes = { "НЕ ОБОЗНАЧЕНО", "Тип 1", "Тип 2", "Тип 3", "Тип 4" };
+		//static public string[] CheckTypes = { "НЕ ОБОЗНАЧЕНО", "Тип 1", "Тип 2", "Тип 3", "Тип 4" };
 
-        static public void Init()
+		static public void Init()
         {
-            Subjects.Add(new Subject()
-            {
-                Name = "Русский язык",
-                Type = SubjectTypes[(int)SubjectType.Type1],
-                Description = "Русский язык. 11 класс. 2019 г."
-            });
+			Subjects.Add(new Subject()
+			{
+				Name = "Русский язык",
+				Type = SubjectTypeEnum.Type1,
+				Description = "Русский язык. 11 класс. 2019 г.",
+				IsMark = true
+			});
 			Subjects.Add(new Subject()
 			{
 				Name = "История",
-				Type = SubjectTypes[(int)SubjectType.Type1],
-				Description = "История. 11 класс. 2019 г."
+				Type = SubjectTypeEnum.Type1,
+				Description = "История. 11 класс. 2019 г.",
+				IsMark = true
 			});
 			Subjects.Add(new Subject()
 			{
 				Name = "Обществознание",
-				Type = SubjectTypes[(int)SubjectType.Type2],
-				Description = "Обществознание. 9 класс. 2020 г."
+				Type = SubjectTypeEnum.Type2,
+				Description = "Обществознание. 9 класс. 2020 г.",
+				IsMark = false
 			});
 
-            Subjects[0].Variants[0].Questions.Add(new Question(Subjects[0].Variants[0])
+            Subjects[0].Questions.Add(new Question(Subjects[0])
 			{
 				Number = 1,
-				Type = QuestionTypes[(int)QuestionType.Type1],
-				RightAnswer = "2",
+				QuestionType = QuestionTypeEnum.Type1,
 				MaxScore = 1
 			});
-            Subjects[0].Variants[0].Questions.Add(new Question(Subjects[0].Variants[0])
+            Subjects[0].Questions.Add(new Question(Subjects[0])
             {
                 Number = 2,
-                Type = QuestionTypes[(int)QuestionType.Type1],
-                RightAnswer = "3",
+				QuestionType = QuestionTypeEnum.Type1,
                 MaxScore = 1
             });
 
-            Questions = Subjects[0].Variants[0].Questions;
+            Questions = Subjects[0].Questions;
 		}
-    }
 
-    public enum SubjectType
+		static public IEnumerable<SubjectTypeEnum> SubjectTypeEnumValues
+		{
+			get { return Enum.GetValues(typeof(SubjectTypeEnum)).Cast<SubjectTypeEnum>(); }
+		}
+		static public IEnumerable<QuestionTypeEnum> QuestionTypeEnumValues
+		{
+			get { return Enum.GetValues(typeof(QuestionTypeEnum)).Cast<QuestionTypeEnum>(); }
+		}
+		static public IEnumerable<CheckTypeEnum> CheckTypeEnumValues
+		{
+			get { return Enum.GetValues(typeof(CheckTypeEnum)).Cast<CheckTypeEnum>(); }
+		}
+	}
+
+	[TypeConverter(typeof(DescriptionConverter))]
+	public enum SubjectTypeEnum
     {
+		[Description("НЕ ОБОЗНАЧЕНО")]
         UNDEFINED = 0,
-        Type1,
-        Type2,
-        Type3,
-        Type4
+		[Description("Тип 1")]
+		Type1,
+		[Description("Тип 2")]
+		Type2,
+		[Description("Тип 3")]
+		Type3,
+		[Description("Тип 4")]
+		Type4
     }
 
-    public enum QuestionType
+	[TypeConverter(typeof(DescriptionConverter))]
+	public enum QuestionTypeEnum
     {
-        UNDEFINED = 0,
-        Type1,
-        Type2,
-        Type3,
-        Type4
-    }
+		[Description("НЕ ОБОЗНАЧЕНО")]
+		UNDEFINED = 0,
+		[Description("Тип 1")]
+		Type1,
+		[Description("Тип 2")]
+		Type2,
+		[Description("Тип 3")]
+		Type3,
+		[Description("Тип 4")]
+		Type4
+	}
 
-    class Subject
+	[TypeConverter(typeof(DescriptionConverter))]
+	public enum CheckTypeEnum
+	{
+		[Description("НЕ ОБОЗНАЧЕНО")]
+		UNDEFINED = 0,
+		[Description("Тип 1")]
+		Type1,
+		[Description("Тип 2")]
+		Type2,
+		[Description("Тип 3")]
+		Type3,
+		[Description("Тип 4")]
+		Type4
+	}
+
+	class Subject
     {
-        public string Name { get; set; }
+		public short SubjectCode { get; set; }
+		public short EventCode { get; set; }
+		public short MinScore { get; set; }
+		public string Name { get; set; }
         public string Description { get; set; }
-        public string Type { get; set; }
+        public SubjectTypeEnum Type { get; set; }
+		public string ProjectFolderPath { get; set; }
+		public string RegistrationForm { get; set; }
+		public string AnswersForm1 { get; set; }
+		public string AnswersForm2 { get; set; }
+		public string LogFile { get; set; }
+		public bool IsMark { get; set; }
+
         public ObservableCollection<Variant> Variants = null;
+
+		public ObservableCollection<Question> Questions = null;
 
         public Subject()
         {
-            Variants = new ObservableCollection<Variant> { new Variant(this) };
-        }
+			SubjectCode = 0;		EventCode = 0;
+			MinScore = 0;
+			Name = "";				Description = "";
+			ProjectFolderPath = "";	RegistrationForm = "";
+			AnswersForm1 = "";		AnswersForm2 = "";
+			LogFile = "";			IsMark = false;
+			Type = SubjectTypeEnum.UNDEFINED;
+
+			Questions = new ObservableCollection<Question> { };
+			Variants = new ObservableCollection<Variant> { new Variant(this) };
+		}
     }
 
     class Variant
     {
-        public int Number { get; set; }
+        public string Name { get; set; }
+		public string VariantFilePath { get; set; }
         public Subject ParentSubject = null;
-        public ObservableCollection<Question> Questions = null;
+		public Answer[][] Answers = null;
 
         public Variant(Subject parentSubject)
         {
-            ParentSubject = parentSubject;
-			Questions = new ObservableCollection<Question> { };
+			Name = "";	VariantFilePath = "";	
+			ParentSubject = parentSubject;
+			Answers = new Answer[parentSubject.Questions.Count][];
         }
     }
 
-    class Question
-    {
-		public int Number { get; set; }
-        public string Type { get; set; }
-		public string RightAnswer { get; set; }
-        public int MaxScore { get; set; }
+	class Question
+	{
+		public short Number { get; set; }
+		public short Criterion { get; set; }
+		public string ValidChars { get; set; }
+		public QuestionTypeEnum QuestionType { get; set; }
+		public CheckTypeEnum CheckType { get; set; }
+		public short MaxScore { get; set; }
 
-		public Variant ParentChapter = null;
+		public Subject ParentSubject = null;
 
-		public Question(Variant parentVariant)
+		public Question(Subject parentSubject)
         {
-            ParentChapter = parentVariant;
-        }
+			Number = 0;			Criterion = 0;
+			ValidChars = "";	MaxScore = 0; 
+			ParentSubject = parentSubject;
+			CheckType = CheckTypeEnum.UNDEFINED;
+			QuestionType = QuestionTypeEnum.UNDEFINED;
+		}
     }
+
+	class Answer
+	{
+		public string RightAnswer { get; set; }
+		public short MaxScore { get; set; }
+
+		public Answer()
+		{
+			RightAnswer = "";	MaxScore = 0;
+		}
+	}
 }

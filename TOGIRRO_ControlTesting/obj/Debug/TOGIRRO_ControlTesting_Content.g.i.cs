@@ -8,6 +8,8 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/openfolder.png")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/pattern.png")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/scale.png")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/variant.png")]
 
 

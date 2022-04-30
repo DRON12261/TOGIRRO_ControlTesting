@@ -42,7 +42,7 @@
                 <Image Source="Icons/Print2.png"/>
             </Button>
 
-            <TabControl Grid.Column="5" Margin="0" Padding="0">
+            <TabControl Grid.Column="5" Margin="0,0,6,0" Padding="0">
                 <TabControl.Resources>
                     <Style TargetType="TabItem">
                         <Setter Property="Template">
@@ -61,15 +61,15 @@
                             <ColumnDefinition Width="64"/>
                         </Grid.ColumnDefinitions>
 
-                        <Button Margin="6" Grid.Column="1">
-                            <Image Source="Icons/Settings.png"/>
-                        </Button>
-                        <Button Margin="6" Grid.Column="2">
-                            <Image Source="Icons/Settings.png"/>
-                        </Button>
-                        <Button Margin="6" Grid.Column="3">
-                            <Image Source="Icons/About.png"/>
-                        </Button>
+                        <ToggleButton Name="EditQuestionsMode_Button" Margin="6" Grid.Column="1" Click="ButtonC_EditQuestionsMode">
+                            <Image Source="Icons/Pattern.png"/>
+                        </ToggleButton>
+                        <ToggleButton Name="EditScaleMode_Button" Margin="6" Grid.Column="2" Click="ButtonC_EditScaleMode">
+                            <Image Source="Icons/Scale.png"/>
+                        </ToggleButton>
+                        <ToggleButton Name="EditAnswersMode_Button" Margin="6" Grid.Column="3" Click="ButtonC_EditAnswersMode">
+                            <Image Source="Icons/Variant.png"/>
+                        </ToggleButton>
                     </Grid>
                 </TabItem>
             </TabControl>
@@ -124,7 +124,7 @@
                                 </Setter>
                             </Style>
                         </TabControl.Resources>
-                        <TabItem Name="ListTab">
+                        <TabItem Name="Subjects_ListTab">
                             <ListView Name="SubjectsList">
                                 <ListView.View>
                                     <GridView>
@@ -135,7 +135,7 @@
                                 </ListView.View>
                             </ListView>
                         </TabItem>
-                        <TabItem Name="CreateTab">
+                        <TabItem Name="Subjects_CreateTab">
                             <ScrollViewer>
                                 <Grid Margin="10">
                                     <Grid.ColumnDefinitions>
@@ -162,19 +162,15 @@
                                         <RowDefinition Height="24"/>
                                         <RowDefinition Height="24"/>
                                         <RowDefinition Height="24"/>
-                                        <RowDefinition Height="24"/>
-                                        <RowDefinition Height="24"/>
-                                        <RowDefinition Height="24"/>
-                                        <RowDefinition Height="24"/>
                                         <RowDefinition MinHeight="24"/>
                                         <RowDefinition Height="64"/>
                                     </Grid.RowDefinitions>
 
                                     <Label Content="Код мероприятия" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Padding="10,0,0,0"/>
-                                    <TextBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,0,5,0"/>
+                                    <TextBox Name="CreateSubject_EventCode" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,0,5,0" PreviewTextInput="NumberValidationTextBox"/>
 
                                     <Label Content="Код предмета" Grid.Row="0" Grid.Column="2" Grid.ColumnSpan="1" Padding="10,0,0,0"/>
-                                    <TextBox Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="1" Margin="5,0,0,0"/>
+                                    <TextBox Name="CreateSubject_SubjectCode" Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="1" Margin="5,0,0,0" PreviewTextInput="NumberValidationTextBox"/>
 
                                     <Label Content="Название" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Padding="10,0,0,0"/>
                                     <TextBox Name="CreateSubject_Name" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" />
@@ -186,84 +182,112 @@
                                     <ComboBox Name="CreateSubject_Type" Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="3" />
 
                                     <Label Content="Минимальный балл" Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="2" Padding="10,0,0,0"/>
-                                    <TextBox Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,0,5,0"/>
+                                    <TextBox Name="CreateSubject_MinScore" Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="3" PreviewTextInput="NumberValidationTextBox"/>
 
-                                    <Label Content="Максимальный балл" Grid.Row="8" Grid.Column="2" Grid.ColumnSpan="1" Padding="10,0,0,0"/>
-                                    <TextBox Grid.Row="9" Grid.Column="2" Grid.ColumnSpan="1" Margin="5,0,0,0"/>
+                                    <Label Content="Путь к папке с файлами КМ" Grid.Row="10" Grid.Column="0" Grid.ColumnSpan="3" Padding="10,0,0,0"/>
+                                    <TextBox Name="CreateSubject_ProjectFolderPath" Grid.Row="11" Grid.Column="0" Grid.ColumnSpan="3"/>
 
-                                    <Label Content="[Макс.б.] Выбор ответа (A)" Grid.Row="10" Grid.Column="0" Grid.ColumnSpan="2" Padding="10,0,0,0"/>
-                                    <TextBox Grid.Row="11" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,0,5,0"/>
+                                    <Label Content="Имя бланка регистрации" Grid.Row="12" Grid.Column="0" Grid.ColumnSpan="2" Padding="10,0,0,0"/>
+                                    <TextBox Name="CreateSubject_RegistrationForm" Grid.Row="13" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,0,5,0"/>
 
-                                    <Label Content="[Макс.б.] Краткий ответ (B)" Grid.Row="10" Grid.Column="2" Grid.ColumnSpan="1" Padding="10,0,0,0"/>
-                                    <TextBox Grid.Row="11" Grid.Column="2" Grid.ColumnSpan="1" Margin="5,0,0,0"/>
+                                    <Label Content="Имя бланка ответов №1" Grid.Row="12" Grid.Column="2" Grid.ColumnSpan="1" Padding="10,0,0,0"/>
+                                    <TextBox Name="CreateSubject_AnswersForm1" Grid.Row="13" Grid.Column="2" Grid.ColumnSpan="1" Margin="5,0,0,0"/>
 
-                                    <Label Content="[Макс.б.] Полный письменный (C)" Grid.Row="12" Grid.Column="0" Grid.ColumnSpan="2" Padding="10,0,0,0"/>
-                                    <TextBox Grid.Row="13" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,0,5,0"/>
+                                    <Label Content="Имя бланка ответов №2" Grid.Row="14" Grid.Column="0" Grid.ColumnSpan="2" Padding="10,0,0,0"/>
+                                    <TextBox Name="CreateSubject_AnswersForm2" Grid.Row="15" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,0,5,0"/>
 
-                                    <Label Content="[Макс.б.] Полный устный (D)" Grid.Row="12" Grid.Column="2" Grid.ColumnSpan="1" Padding="10,0,0,0"/>
-                                    <TextBox Grid.Row="13" Grid.Column="2" Grid.ColumnSpan="1" Margin="5,0,0,0"/>
+                                    <Label Content="Имя файла протоколов" Grid.Row="14" Grid.Column="2" Grid.ColumnSpan="1" Padding="10,0,0,0"/>
+                                    <TextBox Name="CreateSubject_LogFile" Grid.Row="15" Grid.Column="2" Grid.ColumnSpan="1" Margin="5,0,0,0"/>
 
-                                    <Label Content="Путь к папке с файлами КМ" Grid.Row="14" Grid.Column="0" Grid.ColumnSpan="3" Padding="10,0,0,0"/>
-                                    <TextBox Grid.Row="15" Grid.Column="0" Grid.ColumnSpan="3"/>
+                                    <Label Content="Система оценивания" Grid.Row="16" Grid.Column="0" Grid.ColumnSpan="2" Padding="10,0,0,0"/>
+                                    <RadioButton Name="CreateSubject_ScoreSystem" GroupName="GradeSystem" Content="Балл" IsChecked="True" Grid.Row="17" Grid.Column="0" Grid.ColumnSpan="3"/>
+                                    <RadioButton Name="CreateSubject_MarkSystem" GroupName="GradeSystem" Content="Оценка" Grid.Row="17" Grid.Column="1" Grid.ColumnSpan="3"/>
 
-                                    <Label Content="Имя бланк регистрации" Grid.Row="16" Grid.Column="0" Grid.ColumnSpan="2" Padding="10,0,0,0"/>
-                                    <TextBox Grid.Row="17" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,0,5,0"/>
-
-                                    <Label Content="Имя бланк ответов №1" Grid.Row="16" Grid.Column="2" Grid.ColumnSpan="1" Padding="10,0,0,0"/>
-                                    <TextBox Grid.Row="17" Grid.Column="2" Grid.ColumnSpan="1" Margin="5,0,0,0"/>
-
-                                    <Label Content="Имя бланк ответов №2" Grid.Row="18" Grid.Column="0" Grid.ColumnSpan="2" Padding="10,0,0,0"/>
-                                    <TextBox Grid.Row="19" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,0,5,0"/>
-
-                                    <Label Content="Имя файла протоколов" Grid.Row="18" Grid.Column="2" Grid.ColumnSpan="1" Padding="10,0,0,0"/>
-                                    <TextBox Grid.Row="19" Grid.Column="2" Grid.ColumnSpan="1" Margin="5,0,0,0"/>
-
-                                    <Label Content="Система оценивания" Grid.Row="20" Grid.Column="0" Grid.ColumnSpan="2" Padding="10,0,0,0"/>
-                                    <RadioButton GroupName="GradeSystem" Content="Балл" IsChecked="True" Grid.Row="21" Grid.Column="0" Grid.ColumnSpan="3"/>
-                                    <RadioButton GroupName="GradeSystem" Content="Оценка" Grid.Row="21" Grid.Column="1" Grid.ColumnSpan="3"/>
-
-                                    <Button Margin="0,0,5,0" Grid.Row="23" Grid.Column="0" Click="ButtonC_CreateSubject_Create" Grid.ColumnSpan="2">
+                                    <Button Margin="0,0,5,0" Grid.Row="19" Grid.Column="0" Click="ButtonC_CreateSubject_Create" Grid.ColumnSpan="2">
                                         <Image Source="Icons/Ok.png"/>
                                     </Button>
-                                    <Button Margin="5,0,0,0" Grid.Row="23" Grid.Column="2" Click="ButtonC_CreateSubject_Cancel">
+                                    <Button Margin="5,0,0,0" Grid.Row="19" Grid.Column="2" Click="ButtonC_CreateSubject_Cancel">
                                         <Image Source="Icons/Cancel.png"/>
                                     </Button>
                                 </Grid>
                             </ScrollViewer>
                         </TabItem>
-                        <TabItem Name="EditTab">
-                            <Grid Margin="10">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition />
-                                    <ColumnDefinition />
-                                </Grid.ColumnDefinitions>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="32"/>
-                                    <RowDefinition Height="32"/>
-                                    <RowDefinition Height="32"/>
-                                    <RowDefinition Height="96"/>
-                                    <RowDefinition Height="32"/>
-                                    <RowDefinition Height="32"/>
-                                    <RowDefinition />
-                                    <RowDefinition Height="64"/>
-                                </Grid.RowDefinitions>
+                        <TabItem Name="Subjects_EditTab">
+                            <ScrollViewer>
+                                <Grid Margin="10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="195*" />
+                                        <ColumnDefinition Width="43*"/>
+                                        <ColumnDefinition Width="238*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="24"/>
+                                        <RowDefinition Height="24"/>
+                                        <RowDefinition Height="24"/>
+                                        <RowDefinition Height="24"/>
+                                        <RowDefinition Height="24"/>
+                                        <RowDefinition Height="48"/>
+                                        <RowDefinition Height="24"/>
+                                        <RowDefinition Height="24"/>
+                                        <RowDefinition Height="24"/>
+                                        <RowDefinition Height="24"/>
+                                        <RowDefinition Height="24"/>
+                                        <RowDefinition Height="24"/>
+                                        <RowDefinition Height="24"/>
+                                        <RowDefinition Height="24"/>
+                                        <RowDefinition Height="24"/>
+                                        <RowDefinition Height="24"/>
+                                        <RowDefinition Height="24"/>
+                                        <RowDefinition Height="24"/>
+                                        <RowDefinition MinHeight="24"/>
+                                        <RowDefinition Height="64"/>
+                                    </Grid.RowDefinitions>
 
-                                <Label Content="Название" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"/>
-                                <TextBox Name="EditSubject_Name" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" />
+                                    <Label Content="Код мероприятия" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Padding="10,0,0,0"/>
+                                    <TextBox Name="EditSubject_EventCode" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,0,5,0" PreviewTextInput="NumberValidationTextBox"/>
 
-                                <Label Content="Описание" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"/>
-                                <TextBox Name="EditSubject_Description" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" />
+                                    <Label Content="Код предмета" Grid.Row="0" Grid.Column="2" Grid.ColumnSpan="1" Padding="10,0,0,0"/>
+                                    <TextBox Name="EditSubject_SubjectCode" Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="1" Margin="5,0,0,0" PreviewTextInput="NumberValidationTextBox"/>
 
-                                <Label Content="Тип" Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2"/>
-                                <ComboBox Name="EditSubject_Type" Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2" />
+                                    <Label Content="Название" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Padding="10,0,0,0"/>
+                                    <TextBox Name="EditSubject_Name" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" />
 
-                                <Button Margin="0,0,5,0" Grid.Row="7" Grid.Column="0" Click="ButtonC_EditSubject_Edit">
-                                    <Image Source="Icons/Ok.png"/>
-                                </Button>
-                                <Button Margin="5,0,0,0" Grid.Row="7" Grid.Column="1" Click="ButtonC_EditSubject_Cancel">
-                                    <Image Source="Icons/Cancel.png"/>
-                                </Button>
-                            </Grid>
+                                    <Label Content="Описание" Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" Padding="10,0,0,0"/>
+                                    <TextBox Name="EditSubject_Description" Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="3" />
+
+                                    <Label Content="Тип" Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="3" Padding="10,0,0,0"/>
+                                    <ComboBox Name="EditSubject_Type" Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="3" />
+
+                                    <Label Content="Минимальный балл" Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="2" Padding="10,0,0,0"/>
+                                    <TextBox Name="EditSubject_MinScore" Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="3" PreviewTextInput="NumberValidationTextBox"/>
+
+                                    <Label Content="Путь к папке с файлами КМ" Grid.Row="10" Grid.Column="0" Grid.ColumnSpan="3" Padding="10,0,0,0"/>
+                                    <TextBox Name="EditSubject_ProjectFolderPath" Grid.Row="11" Grid.Column="0" Grid.ColumnSpan="3"/>
+
+                                    <Label Content="Имя бланка регистрации" Grid.Row="12" Grid.Column="0" Grid.ColumnSpan="2" Padding="10,0,0,0"/>
+                                    <TextBox Name="EditSubject_RegistrationForm" Grid.Row="13" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,0,5,0"/>
+
+                                    <Label Content="Имя бланка ответов №1" Grid.Row="12" Grid.Column="2" Grid.ColumnSpan="1" Padding="10,0,0,0"/>
+                                    <TextBox Name="EditSubject_AnswersForm1" Grid.Row="13" Grid.Column="2" Grid.ColumnSpan="1" Margin="5,0,0,0"/>
+
+                                    <Label Content="Имя бланка ответов №2" Grid.Row="14" Grid.Column="0" Grid.ColumnSpan="2" Padding="10,0,0,0"/>
+                                    <TextBox Name="EditSubject_AnswersForm2" Grid.Row="15" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,0,5,0"/>
+
+                                    <Label Content="Имя файла протоколов" Grid.Row="14" Grid.Column="2" Grid.ColumnSpan="1" Padding="10,0,0,0"/>
+                                    <TextBox Name="EditSubject_LogFile" Grid.Row="15" Grid.Column="2" Grid.ColumnSpan="1" Margin="5,0,0,0"/>
+
+                                    <Label Content="Система оценивания" Grid.Row="16" Grid.Column="0" Grid.ColumnSpan="2" Padding="10,0,0,0"/>
+                                    <RadioButton Name="EditSubject_ScoreSystem" GroupName="GradeSystem" Content="Балл" IsChecked="True" Grid.Row="17" Grid.Column="0" Grid.ColumnSpan="3"/>
+                                    <RadioButton Name="EditSubject_MarkSystem" GroupName="GradeSystem" Content="Оценка" Grid.Row="17" Grid.Column="1" Grid.ColumnSpan="3"/>
+
+                                    <Button Margin="0,0,5,0" Grid.Row="19" Grid.Column="0" Click="ButtonC_EditSubject_Edit" Grid.ColumnSpan="2">
+                                        <Image Source="Icons/Ok.png"/>
+                                    </Button>
+                                    <Button Margin="5,0,0,0" Grid.Row="19" Grid.Column="2" Click="ButtonC_EditSubject_Cancel">
+                                        <Image Source="Icons/Cancel.png"/>
+                                    </Button>
+                                </Grid>
+                            </ScrollViewer>
                         </TabItem>
                     </TabControl>
                 </Grid>
@@ -293,54 +317,179 @@
                 </Grid>
             </Grid>
 
-            <Grid Margin="6" Grid.Column="2" Grid.Row="0">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="107*"/>
-                    <RowDefinition Height="559*"/>
-                </Grid.RowDefinitions>
-                <GridSplitter Height="5" Grid.Row="2" ResizeDirection="Rows" HorizontalAlignment="Stretch" ResizeBehavior="PreviousAndNext"/>
+            <TabControl Margin="6" Grid.Column="2" Grid.Row="0">
+                <TabControl.Resources>
+                    <Style TargetType="TabItem">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="TabItem"/>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </TabControl.Resources>
+                <TabItem Name="EditAnswersMode">
+                    <Grid Margin="0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="107*"/>
+                            <RowDefinition Height="559*"/>
+                        </Grid.RowDefinitions>
 
-                <Grid Grid.RowSpan="2">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition/>
-                        <ColumnDefinition/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="42"/>
-                        <RowDefinition Height="42"/>
-                        <RowDefinition/>
-                    </Grid.RowDefinitions>
+                        <Grid Grid.RowSpan="2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="42"/>
+                                <RowDefinition Height="42"/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
 
-                    <Label Grid.Row="0" Grid.Column="0" Margin="0,0,0,10">Русский язык</Label>
-                    <Label Grid.Row="0" Grid.Column="1" Margin="0,0,0,10">ЕГЭ</Label>
+                            <Label Grid.Row="0" Grid.Column="0" Margin="0,0,0,10">Русский язык</Label>
+                            <Label Grid.Row="0" Grid.Column="1" Margin="0,0,0,10">ЕГЭ</Label>
 
-                    <ComboBox Grid.Row="1" Grid.Column="0" Margin="0,0,10,10">
-                        <ComboBoxItem>Вариант 2</ComboBoxItem>
-                    </ComboBox>
-                    <Grid Grid.Row="1" Grid.Column="1" Margin="0,0,0,10">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition/>
-                            <ColumnDefinition Width="32"/>
-                        </Grid.ColumnDefinitions>
+                            <TabControl Grid.Row="1" Grid.Column="0" Margin="0,0,10,10" Padding="0">
+                                <TabControl.Resources>
+                                    <Style TargetType="TabItem">
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="TabItem"/>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </TabControl.Resources>
+                                <TabItem Name="SelectVariantMode">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition/>
+                                            <ColumnDefinition Width="32"/>
+                                            <ColumnDefinition Width="32"/>
+                                            <ColumnDefinition Width="32"/>
+                                        </Grid.ColumnDefinitions>
 
-                        <TextBox Grid.Column="0">Выберите путь к файлу варианта</TextBox>
-                        <Button Grid.Column="1">
-                            <Image Source="Icons/OpenFolder.png"/>
-                        </Button>
+                                        <ComboBox>
+                                            <ComboBoxItem>Вариант 2</ComboBoxItem>
+                                        </ComboBox>
+                                        <Button Grid.Column="1" Click="ButtonC_CreateVariant">
+                                            <Image Source="Icons/Plus.png"/>
+                                        </Button>
+                                        <Button Grid.Column="2" Click="ButtonC_EditVariantNameMode">
+                                            <Image Source="Icons/Edit.png"/>
+                                        </Button>
+                                        <Button Grid.Column="3" Click="ButtonC_DeleteVariant">
+                                            <Image Source="Icons/Delete.png"/>
+                                        </Button>
+                                    </Grid>
+                                </TabItem>
+                                <TabItem Name="EditVariantMode">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition/>
+                                            <ColumnDefinition Width="32"/>
+                                            <ColumnDefinition Width="32"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <TextBox/>
+                                        <Button Grid.Column="1" Click="ButtonC_EditVariantSuccess">
+                                            <Image Source="Icons/Ok.png"/>
+                                        </Button>
+                                        <Button Grid.Column="2" Click="ButtonC_EditVariantCancel">
+                                            <Image Source="Icons/Cancel.png"/>
+                                        </Button>
+                                    </Grid>
+                                </TabItem>
+                            </TabControl>
+                            
+                            <Grid Grid.Row="1" Grid.Column="1" Margin="0,0,0,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="32"/>
+                                </Grid.ColumnDefinitions>
+
+                                <TextBox Grid.Column="0">Выберите путь к файлу варианта</TextBox>
+                                <Button Grid.Column="1">
+                                    <Image Source="Icons/OpenFolder.png"/>
+                                </Button>
+                            </Grid>
+
+                            <ListView Name="AnswerList" Grid.ColumnSpan="2" Grid.Row="2">
+                                <ListView.View>
+                                    <GridView>
+                                        <GridViewColumn Header="№" Width="50" DisplayMemberBinding="{Binding Number}" />
+                                        <GridViewColumn Header="Номер в вар." DisplayMemberBinding="{Binding Number}" />
+                                        <GridViewColumn Header="Тип вопроса" Width="200"/>
+                                        <GridViewColumn Header="Эталонный ответ" Width="300"/>
+                                        <GridViewColumn Header="Балл" Width="100"/>
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+                        </Grid>
                     </Grid>
+                </TabItem>
+                <TabItem Name="EditScaleMode">
+                    <Grid Margin="0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="107*"/>
+                            <RowDefinition Height="559*"/>
+                        </Grid.RowDefinitions>
 
-                    <ListView Name="QuestionList" Grid.ColumnSpan="2" Grid.Row="2" IsSynchronizedWithCurrentItem="True">
-                        <ListView.View>
-                            <GridView>
-                                <GridViewColumn Header="№" Width="50" DisplayMemberBinding="{Binding Number}" />
-                                <GridViewColumn Header="Баллы за задание" Width="200" DisplayMemberBinding="{Binding RightAnswer}"/>
-                                <GridViewColumn Header="Максимальный балл" Width="160" DisplayMemberBinding="{Binding MaxScore}" />
-                                <GridViewColumn Header="Эталонный ответ" Width="200" DisplayMemberBinding="{Binding RightAnswer}" />
-                            </GridView>
-                        </ListView.View>
-                    </ListView>
-                </Grid>
-            </Grid>
+                        <Grid Grid.RowSpan="2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="42"/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+
+                            <Label Grid.Row="0" Grid.Column="0" Margin="0,0,0,10">Русский язык</Label>
+                            <Label Grid.Row="0" Grid.Column="1" Margin="0,0,0,10">ЕГЭ</Label>
+
+                            <DataGrid Name="ScaleList" Grid.ColumnSpan="2" Grid.Row="1" AutoGenerateColumns="False">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Первичный балл" Width="150"/>
+                                    <DataGridTextColumn Header="Оценка" Width="150"/>
+                                    <DataGridTextColumn Header="Итоговый Балл" Width="150"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Grid>
+                    </Grid>
+                </TabItem>
+                <TabItem Name="EditQuestionsMode">
+                    <Grid Margin="0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="107*"/>
+                            <RowDefinition Height="559*"/>
+                        </Grid.RowDefinitions>
+
+                        <Grid Grid.RowSpan="2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="42"/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+
+                            <Label Grid.Row="0" Grid.Column="0" Margin="0,0,0,10">Русский язык</Label>
+                            <Label Grid.Row="0" Grid.Column="1" Margin="0,0,0,10">ЕГЭ</Label>
+
+                            <DataGrid Name="QuestionList" Grid.ColumnSpan="2" Grid.Row="1" AutoGenerateColumns="False">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="№" Binding="{Binding Number}"/>
+                                    <DataGridTextColumn Header="Критерий" Binding="{Binding Criterion}" Width="100"/>
+                                    <DataGridTextColumn Header="Допустимые символы" Binding="{Binding ValidChars}" Width="200"/>
+                                    <DataGridComboBoxColumn Header="Тип вопроса" ItemsSource="{Binding Source={x:Static local:Workfield.QuestionTypeEnumValues}}" SelectedValueBinding="{Binding QuestionType}" Width="150"/>
+                                    <DataGridComboBoxColumn Header="Тип проверки" ItemsSource="{Binding Source={x:Static local:Workfield.CheckTypeEnumValues}}" SelectedValueBinding="{Binding CheckType}" Width="150"/>
+                                    <DataGridTextColumn Header="Максимальный балл" Binding="{Binding MaxScore}" Width="100"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Grid>
+                    </Grid>
+                </TabItem>
+            </TabControl>
 
             <!--<Grid Grid.Column="4" Grid.Row="0">
                 <Grid.RowDefinitions>

@@ -127,5 +127,10 @@
   <ItemGroup>
     <Resource Include="Icons\OpenFolder.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\Pattern.png" />
+    <Resource Include="Icons\Scale.png" />
+    <Resource Include="Icons\Variant.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
