@@ -36,6 +36,8 @@ namespace TOGIRRO_ControlTesting
 
 			SubjectsList.ItemsSource = Workfield.Subjects;
 			QuestionList.ItemsSource = Workfield.CurrentSubject.Questions;
+			ScaleList.ItemsSource = Workfield.CurrentSubject.ScaleSystem;
+			AnswerList.ItemsSource = Workfield.CurrentVariant.Answers;
 
 			SubjectTypesCBox.ItemsSource = Workfield.SubjectTypeEnumValues;
 			CreateSubject_Type.ItemsSource = Workfield.QuestionTypeEnumValues;

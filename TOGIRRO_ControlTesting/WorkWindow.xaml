@@ -412,17 +412,23 @@
                                 </Button>
                             </Grid>
 
-                            <ListView Name="AnswerList" Grid.ColumnSpan="2" Grid.Row="2">
-                                <ListView.View>
-                                    <GridView>
-                                        <GridViewColumn Header="№" Width="50" DisplayMemberBinding="{Binding Number}" />
-                                        <GridViewColumn Header="Номер в вар." DisplayMemberBinding="{Binding Number}" />
-                                        <GridViewColumn Header="Тип вопроса" Width="200"/>
-                                        <GridViewColumn Header="Эталонный ответ" Width="300"/>
-                                        <GridViewColumn Header="Балл" Width="100"/>
-                                    </GridView>
-                                </ListView.View>
-                            </ListView>
+                            <DataGrid Name="AnswerList" Grid.ColumnSpan="2" Grid.Row="2" AutoGenerateColumns="False" RowDetailsVisibilityMode="VisibleWhenSelected">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="№" Binding="{Binding Number}" Width="50"/>
+                                    <DataGridTextColumn Header="Номер в вар." Binding="{Binding InVariantNumber}" Width="100"/>
+                                    <DataGridComboBoxColumn Header="Тип вопроса" ItemsSource="{Binding Source={x:Static local:Workfield.QuestionTypeEnumValues}}" SelectedValueBinding="{Binding QuestionType}" Width="200"/>
+                                </DataGrid.Columns>
+                                <DataGrid.RowDetailsTemplate>
+                                    <DataTemplate>
+                                        <DataGrid Name="AnswersPerQuestionList" ItemsSource="{Binding Answers}" AutoGenerateColumns="False" CanUserDeleteRows="True" CanUserAddRows="True" GridLinesVisibility="Vertical">
+                                            <DataGrid.Columns>
+                                                <DataGridTextColumn Header="Эталонный ответ" Binding="{Binding RightAnswer}" Width="300"/>
+                                                <DataGridTextColumn Header="Балл" Binding="{Binding Score}" Width="100"/>
+                                            </DataGrid.Columns>
+                                        </DataGrid>
+                                    </DataTemplate>
+                                </DataGrid.RowDetailsTemplate>
+                            </DataGrid>
                         </Grid>
                     </Grid>
                 </TabItem>
@@ -448,9 +454,9 @@
 
                             <DataGrid Name="ScaleList" Grid.ColumnSpan="2" Grid.Row="1" AutoGenerateColumns="False">
                                 <DataGrid.Columns>
-                                    <DataGridTextColumn Header="Первичный балл" Width="150"/>
-                                    <DataGridTextColumn Header="Оценка" Width="150"/>
-                                    <DataGridTextColumn Header="Итоговый Балл" Width="150"/>
+                                    <DataGridTextColumn Header="Первичный балл" Binding="{Binding FirstScore}" Width="150" IsReadOnly="True"/>
+                                    <DataGridTextColumn Header="Оценка" Binding="{Binding Mark}" Width="150"/>
+                                    <DataGridTextColumn Header="Итоговый Балл" Binding="{Binding SecondScore}" Width="150"/>
                                 </DataGrid.Columns>
                             </DataGrid>
                         </Grid>

@@ -7,14 +7,16 @@ using System.Text;
 using System.Threading.Tasks;
 
 /*
-Запилить вспомогательный класс для отображения в таблице ответов
-Реализовать шкалирование (Класс)
-Настроить таблицу шкалирования
-Настроить таблицу ответов
+------Запилить вспомогательный класс для отображения в таблице ответов
+------Реализовать шкалирование (Класс)
+------Настроить таблицу шкалирования
+Отслеживание ввода в таблице шкалирования
+------Настроить таблицу ответов
 Добавление изменение и удаление вариантов
 Добавление и удаление вопросов
 Поиск в предметах
 Привязка данных текущего предмета
+Макс балл и алерты в трее
 */
 
 namespace TOGIRRO_ControlTesting
@@ -27,10 +29,6 @@ namespace TOGIRRO_ControlTesting
         static public Subject CurrentSubject = null;
         static public Variant CurrentVariant = null;
         static public Question CurrentQuestion = null;
-
-        //static public string[] SubjectTypes = { "НЕ ОБОЗНАЧЕНО", "Тип 1", "Тип 2", "Тип 3", "Тип 4" };
-        //static public string[] QuestionTypes = { "НЕ ОБОЗНАЧЕНО", "Тип 1", "Тип 2", "Тип 3", "Тип 4" };
-		//static public string[] CheckTypes = { "НЕ ОБОЗНАЧЕНО", "Тип 1", "Тип 2", "Тип 3", "Тип 4" };
 
 		static public void Init()
         {
@@ -87,7 +85,7 @@ namespace TOGIRRO_ControlTesting
 	}
 
 	[TypeConverter(typeof(DescriptionConverter))]
-	public enum SubjectTypeEnum
+	enum SubjectTypeEnum
     {
 		[Description("НЕ ОБОЗНАЧЕНО")]
         UNDEFINED = 0,
@@ -102,7 +100,7 @@ namespace TOGIRRO_ControlTesting
     }
 
 	[TypeConverter(typeof(DescriptionConverter))]
-	public enum QuestionTypeEnum
+	enum QuestionTypeEnum
     {
 		[Description("НЕ ОБОЗНАЧЕНО")]
 		UNDEFINED = 0,
@@ -117,7 +115,7 @@ namespace TOGIRRO_ControlTesting
 	}
 
 	[TypeConverter(typeof(DescriptionConverter))]
-	public enum CheckTypeEnum
+	enum CheckTypeEnum
 	{
 		[Description("НЕ ОБОЗНАЧЕНО")]
 		UNDEFINED = 0,
@@ -130,6 +128,20 @@ namespace TOGIRRO_ControlTesting
 		[Description("Тип 4")]
 		Type4
 	}
+
+	struct ScaleUnit
+    {
+		public short FirstScore { get; set; }
+		public string Mark { get; set; }
+		public short SecondScore { get; set; }
+
+		public ScaleUnit(short FirstScore = 0, string Mark = "-", short SecondScore = 0)
+        {
+			this.FirstScore = FirstScore;
+			this.Mark = Mark;
+			this.SecondScore = SecondScore;
+        }
+    }
 
 	class Subject
     {
@@ -145,6 +157,7 @@ namespace TOGIRRO_ControlTesting
 		public string AnswersForm2 { get; set; }
 		public string LogFile { get; set; }
 		public bool IsMark { get; set; }
+		public ObservableCollection<ScaleUnit> ScaleSystem { get; set; }
 
         public ObservableCollection<Variant> Variants = null;
 
@@ -162,6 +175,12 @@ namespace TOGIRRO_ControlTesting
 
 			Questions = new ObservableCollection<Question> { };
 			Variants = new ObservableCollection<Variant> { new Variant(this) };
+			ScaleSystem = new ObservableCollection<ScaleUnit>() { };
+			ScaleSystem.Add(new ScaleUnit(1, "2", 1));
+			ScaleSystem.Add(new ScaleUnit(2, "2", 2));
+			ScaleSystem.Add(new ScaleUnit(3, "3", 3));
+			ScaleSystem.Add(new ScaleUnit(4, "4", 4));
+			ScaleSystem.Add(new ScaleUnit(5, "5", 5));
 		}
     }
 
@@ -170,13 +189,13 @@ namespace TOGIRRO_ControlTesting
         public string Name { get; set; }
 		public string VariantFilePath { get; set; }
         public Subject ParentSubject = null;
-		public Answer[][] Answers = null;
+		public List<QuestionPost> Answers = null;
 
         public Variant(Subject parentSubject)
         {
 			Name = "";	VariantFilePath = "";	
 			ParentSubject = parentSubject;
-			Answers = new Answer[parentSubject.Questions.Count][];
+			Answers = new List<QuestionPost> { new QuestionPost(this), new QuestionPost(this) { Number = 23} };
         }
     }
 
@@ -201,14 +220,36 @@ namespace TOGIRRO_ControlTesting
 		}
     }
 
+	class QuestionPost
+    {
+		public short Number { get; set; }
+		public short InVariant { get; set; }
+		public QuestionTypeEnum QuestionType { get; set; }
+		public List<Answer> Answers { get; set; }
+
+		public Variant ParentVariant = null;
+
+		public QuestionPost(Variant parentVariant)
+        {
+			Number = 0;		InVariant = 0;
+			QuestionType = QuestionTypeEnum.UNDEFINED;
+			Answers = new List<Answer>() { };
+			ParentVariant = parentVariant;
+
+			Answers.Add(new Answer() { RightAnswer = "123", Score = 2 });
+			Answers.Add(new Answer() { RightAnswer = "123123", Score = 4 });
+			Answers.Add(new Answer() { RightAnswer = "2", Score = 3 });
+		}
+    }
+
 	class Answer
 	{
 		public string RightAnswer { get; set; }
-		public short MaxScore { get; set; }
+		public short Score { get; set; }
 
 		public Answer()
 		{
-			RightAnswer = "";	MaxScore = 0;
+			RightAnswer = "";	Score = 0;
 		}
 	}
 }
