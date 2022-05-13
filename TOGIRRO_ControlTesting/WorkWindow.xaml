@@ -12,7 +12,7 @@
             <RowDefinition Height="64" MaxHeight="64"/>
             <RowDefinition Height="5" />
             <RowDefinition />
-            <RowDefinition Height="22"/>
+            <RowDefinition Height="40"/>
         </Grid.RowDefinitions>
         <GridSplitter Height="5" Grid.Row="1" ResizeDirection="Rows" HorizontalAlignment="Stretch" ResizeBehavior="PreviousAndNext"/>
 
@@ -80,8 +80,6 @@
                 <ColumnDefinition Width="512" MaxWidth="1024"/>
                 <ColumnDefinition Width="5"/>
                 <ColumnDefinition />
-                <!--<ColumnDefinition Width="5"/>
-                <ColumnDefinition Width="96" MinWidth="96" MaxWidth="128"/>-->
             </Grid.ColumnDefinitions>
             <GridSplitter Width="5" Grid.Column="1" HorizontalAlignment="Stretch" ResizeBehavior="PreviousAndNext" />
 
@@ -102,10 +100,10 @@
                     </Grid.ColumnDefinitions>
 
                     <Grid Margin="10" Grid.Column="0" Grid.Row="0">
-                        <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" MinHeight="28"></TextBox>
+                        <TextBox Name="SearchBox" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" MinHeight="28" TextChanged="SearchBox_TextChanged"/>
                     </Grid>
                     <Grid Margin="5" Grid.Column="1" Grid.Row="0">
-                        <ComboBox Name="SubjectTypesCBox" VerticalAlignment="Center" MinHeight="28"/>
+                        <ComboBox Name="SearchTypes" VerticalAlignment="Center" MinHeight="28" SelectionChanged="SearchTypes_SelectionChanged"/>
                     </Grid>
                 </Grid>
 
@@ -125,15 +123,60 @@
                             </Style>
                         </TabControl.Resources>
                         <TabItem Name="Subjects_ListTab">
-                            <ListView Name="SubjectsList">
-                                <ListView.View>
-                                    <GridView>
-                                        <GridViewColumn Header="Название предмета" Width="180" DisplayMemberBinding="{Binding Name}" />
-                                        <GridViewColumn Header="Тип мероприятия" Width="160" DisplayMemberBinding="{Binding Type}" />
-                                        <GridViewColumn Header="Описание" Width="160" DisplayMemberBinding="{Binding Description}" />
-                                    </GridView>
-                                </ListView.View>
-                            </ListView>
+                            <DataGrid Name="SubjectsList" AutoGenerateColumns="False" RowDetailsVisibilityMode="VisibleWhenSelected" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True" SelectionChanged="SubjectsList_SelectionChanged">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Название предмета" Width="180" Binding="{Binding Name}"/>
+                                    <DataGridTextColumn Header="Тип мероприятия" Width="160" Binding="{Binding Type}"/>
+                                </DataGrid.Columns>
+                                <DataGrid.RowDetailsTemplate>
+                                    <DataTemplate>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition/>
+                                                <ColumnDefinition/>
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition/>
+                                                <RowDefinition/>
+                                                <RowDefinition/>
+                                                <RowDefinition/>
+                                                <RowDefinition/>
+                                                <RowDefinition/>
+                                                <RowDefinition/>
+                                                <RowDefinition/>
+                                                <RowDefinition/>
+                                            </Grid.RowDefinitions>
+
+                                            <Label Grid.Column="0" Grid.Row="0">Описание</Label>
+                                            <TextBox Grid.Column="1" Grid.Row="0" IsReadOnly="True" Text="{Binding Description}"></TextBox>
+
+                                            <Label Grid.Column="0" Grid.Row="1">Код предмета</Label>
+                                            <TextBox Grid.Column="1" Grid.Row="1" IsReadOnly="True" Text="{Binding SubjectCode}"></TextBox>
+
+                                            <Label Grid.Column="0" Grid.Row="2">Код мероприятия</Label>
+                                            <TextBox Grid.Column="1" Grid.Row="2" IsReadOnly="True" Text="{Binding EventCode}"></TextBox>
+
+                                            <Label Grid.Column="0" Grid.Row="3">Минимальный балл</Label>
+                                            <TextBox Grid.Column="1" Grid.Row="3" IsReadOnly="True" Text="{Binding MinScore}"></TextBox>
+
+                                            <Label Grid.Column="0" Grid.Row="4">Путь к папке с файлами КМ</Label>
+                                            <TextBox Grid.Column="1" Grid.Row="4" IsReadOnly="True" Text="{Binding ProjectFolderPath}"></TextBox>
+
+                                            <Label Grid.Column="0" Grid.Row="5">Имя бланка регистрации</Label>
+                                            <TextBox Grid.Column="1" Grid.Row="5" IsReadOnly="True" Text="{Binding RegistrationForm}"></TextBox>
+
+                                            <Label Grid.Column="0" Grid.Row="6">Имя бланка ответов №1</Label>
+                                            <TextBox Grid.Column="1" Grid.Row="6" IsReadOnly="True" Text="{Binding AnswersForm1}"></TextBox>
+
+                                            <Label Grid.Column="0" Grid.Row="7">Имя бланка ответов №2</Label>
+                                            <TextBox Grid.Column="1" Grid.Row="7" IsReadOnly="True" Text="{Binding AnswersForm2}"></TextBox>
+
+                                            <Label Grid.Column="0" Grid.Row="8">Имя файла протоколов</Label>
+                                            <TextBox Grid.Column="1" Grid.Row="8" IsReadOnly="True" Text="{Binding LogFile}"></TextBox>
+                                        </Grid>
+                                    </DataTemplate>
+                                </DataGrid.RowDetailsTemplate>
+                            </DataGrid>
                         </TabItem>
                         <TabItem Name="Subjects_CreateTab">
                             <ScrollViewer>
@@ -317,7 +360,7 @@
                 </Grid>
             </Grid>
 
-            <TabControl Margin="6" Grid.Column="2" Grid.Row="0">
+            <TabControl Name="MainField" Margin="6" Grid.Column="2" Grid.Row="0">
                 <TabControl.Resources>
                     <Style TargetType="TabItem">
                         <Setter Property="Template">
@@ -345,8 +388,8 @@
                                 <RowDefinition/>
                             </Grid.RowDefinitions>
 
-                            <Label Grid.Row="0" Grid.Column="0" Margin="0,0,0,10">Русский язык</Label>
-                            <Label Grid.Row="0" Grid.Column="1" Margin="0,0,0,10">ЕГЭ</Label>
+                            <Label Name="CurrentSubjectName1" Grid.Row="0" Grid.Column="0" Margin="0,0,0,10"></Label>
+                            <Label Name="CurrentSubjectType1" Grid.Row="0" Grid.Column="1" Margin="0,0,0,10"></Label>
 
                             <TabControl Grid.Row="1" Grid.Column="0" Margin="0,0,10,10" Padding="0">
                                 <TabControl.Resources>
@@ -361,22 +404,23 @@
                                 <TabItem Name="SelectVariantMode">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="64"/>
                                             <ColumnDefinition/>
                                             <ColumnDefinition Width="32"/>
                                             <ColumnDefinition Width="32"/>
                                             <ColumnDefinition Width="32"/>
                                         </Grid.ColumnDefinitions>
 
-                                        <ComboBox>
-                                            <ComboBoxItem>Вариант 2</ComboBoxItem>
+                                        <Label>Вариант:</Label>
+                                        <ComboBox Name="CurrentVariantCBox" DisplayMemberPath="Name" Grid.Column="1" SelectionChanged="CurrentVariantCBox_SelectionChanged" IsSynchronizedWithCurrentItem="True">
                                         </ComboBox>
-                                        <Button Grid.Column="1" Click="ButtonC_CreateVariant">
+                                        <Button Grid.Column="2" Click="ButtonC_CreateVariant">
                                             <Image Source="Icons/Plus.png"/>
                                         </Button>
-                                        <Button Grid.Column="2" Click="ButtonC_EditVariantNameMode">
+                                        <Button Grid.Column="3" Click="ButtonC_EditVariantNameMode">
                                             <Image Source="Icons/Edit.png"/>
                                         </Button>
-                                        <Button Grid.Column="3" Click="ButtonC_DeleteVariant">
+                                        <Button Grid.Column="4" Click="ButtonC_DeleteVariant">
                                             <Image Source="Icons/Delete.png"/>
                                         </Button>
                                     </Grid>
@@ -384,22 +428,24 @@
                                 <TabItem Name="EditVariantMode">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="64"/>
                                             <ColumnDefinition/>
                                             <ColumnDefinition Width="32"/>
                                             <ColumnDefinition Width="32"/>
                                         </Grid.ColumnDefinitions>
 
-                                        <TextBox/>
-                                        <Button Grid.Column="1" Click="ButtonC_EditVariantSuccess">
+                                        <Label>Вариант:</Label>
+                                        <TextBox Name="CurrentVariantTextbox" Grid.Column="1"/>
+                                        <Button Grid.Column="2" Click="ButtonC_EditVariantSuccess">
                                             <Image Source="Icons/Ok.png"/>
                                         </Button>
-                                        <Button Grid.Column="2" Click="ButtonC_EditVariantCancel">
+                                        <Button Grid.Column="3" Click="ButtonC_EditVariantCancel">
                                             <Image Source="Icons/Cancel.png"/>
                                         </Button>
                                     </Grid>
                                 </TabItem>
                             </TabControl>
-                            
+
                             <Grid Grid.Row="1" Grid.Column="1" Margin="0,0,0,10">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition/>
@@ -412,18 +458,19 @@
                                 </Button>
                             </Grid>
 
-                            <DataGrid Name="AnswerList" Grid.ColumnSpan="2" Grid.Row="2" AutoGenerateColumns="False" RowDetailsVisibilityMode="VisibleWhenSelected">
+                            <DataGrid Name="AnswerList" Grid.ColumnSpan="2" Grid.Row="2" AutoGenerateColumns="False" RowDetailsVisibilityMode="VisibleWhenSelected" CanUserAddRows="False" CanUserDeleteRows="False" IsSynchronizedWithCurrentItem="True">
                                 <DataGrid.Columns>
-                                    <DataGridTextColumn Header="№" Binding="{Binding Number}" Width="50"/>
-                                    <DataGridTextColumn Header="Номер в вар." Binding="{Binding InVariantNumber}" Width="100"/>
-                                    <DataGridComboBoxColumn Header="Тип вопроса" ItemsSource="{Binding Source={x:Static local:Workfield.QuestionTypeEnumValues}}" SelectedValueBinding="{Binding QuestionType}" Width="200"/>
+                                    <DataGridTextColumn Header="№" Binding="{Binding RelativeSource={RelativeSource AncestorType=DataGridRow}, Converter={local:RowToIndexConverter}}" Width="30" IsReadOnly="True"/>
+                                    <DataGridTextColumn Header="Номер в вар." Binding="{Binding InVariant}" Width="100" IsReadOnly="True"/>
+                                    <DataGridComboBoxColumn Header="Тип вопроса" ItemsSource="{Binding Source={x:Static local:Workfield.QuestionTypeEnumValues}}" SelectedValueBinding="{Binding QuestionType}" Width="200" IsReadOnly="True"/>
+                                    <DataGridTextColumn Header="Максимальный балл" Binding="{Binding MaxScore}" Width="200" IsReadOnly="True"/>
                                 </DataGrid.Columns>
                                 <DataGrid.RowDetailsTemplate>
                                     <DataTemplate>
-                                        <DataGrid Name="AnswersPerQuestionList" ItemsSource="{Binding Answers}" AutoGenerateColumns="False" CanUserDeleteRows="True" CanUserAddRows="True" GridLinesVisibility="Vertical">
+                                        <DataGrid Name="AnswersPerQuestionList" ItemsSource="{Binding Answers}" AutoGenerateColumns="False" CanUserDeleteRows="True" CanUserAddRows="True" GridLinesVisibility="Vertical" IsSynchronizedWithCurrentItem="True">
                                             <DataGrid.Columns>
-                                                <DataGridTextColumn Header="Эталонный ответ" Binding="{Binding RightAnswer}" Width="300"/>
-                                                <DataGridTextColumn Header="Балл" Binding="{Binding Score}" Width="100"/>
+                                                <DataGridTextColumn Header="Эталонный ответ" Binding="{Binding RightAnswer, UpdateSourceTrigger=PropertyChanged}" Width="300"/>
+                                                <local:DataGridNumericColumn Header="Балл" Binding="{Binding Score, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
                                             </DataGrid.Columns>
                                         </DataGrid>
                                     </DataTemplate>
@@ -449,14 +496,14 @@
                                 <RowDefinition/>
                             </Grid.RowDefinitions>
 
-                            <Label Grid.Row="0" Grid.Column="0" Margin="0,0,0,10">Русский язык</Label>
-                            <Label Grid.Row="0" Grid.Column="1" Margin="0,0,0,10">ЕГЭ</Label>
+                            <Label Name="CurrentSubjectName2" Grid.Row="0" Grid.Column="0" Margin="0,0,0,10"></Label>
+                            <Label Name="CurrentSubjectType2" Grid.Row="0" Grid.Column="1" Margin="0,0,0,10"></Label>
 
-                            <DataGrid Name="ScaleList" Grid.ColumnSpan="2" Grid.Row="1" AutoGenerateColumns="False">
+                            <DataGrid Name="ScaleList" Grid.ColumnSpan="2" Grid.Row="1" AutoGenerateColumns="False" CanUserDeleteRows="False" CanUserAddRows="False" IsSynchronizedWithCurrentItem="True" RowEditEnding="ScaleList_RowEditEnding">
                                 <DataGrid.Columns>
-                                    <DataGridTextColumn Header="Первичный балл" Binding="{Binding FirstScore}" Width="150" IsReadOnly="True"/>
-                                    <DataGridTextColumn Header="Оценка" Binding="{Binding Mark}" Width="150"/>
-                                    <DataGridTextColumn Header="Итоговый Балл" Binding="{Binding SecondScore}" Width="150"/>
+                                    <DataGridTextColumn Header="Первичный балл" Binding="{Binding FirstScore, UpdateSourceTrigger=PropertyChanged}" Width="150" IsReadOnly="True"/>
+                                    <local:DataGridNumericColumn Header="Оценка" Binding="{Binding Mark, UpdateSourceTrigger=PropertyChanged}" Width="150"/>
+                                    <local:DataGridNumericColumn Header="Итоговый Балл" Binding="{Binding SecondScore, UpdateSourceTrigger=PropertyChanged}" Width="150"/>
                                 </DataGrid.Columns>
                             </DataGrid>
                         </Grid>
@@ -479,83 +526,69 @@
                                 <RowDefinition/>
                             </Grid.RowDefinitions>
 
-                            <Label Grid.Row="0" Grid.Column="0" Margin="0,0,0,10">Русский язык</Label>
-                            <Label Grid.Row="0" Grid.Column="1" Margin="0,0,0,10">ЕГЭ</Label>
+                            <Label Name="CurrentSubjectName3" Grid.Row="0" Grid.Column="0" Margin="0,0,0,10"></Label>
+                            <Label Name="CurrentSubjectType3" Grid.Row="0" Grid.Column="1" Margin="0,0,0,10"></Label>
 
-                            <DataGrid Name="QuestionList" Grid.ColumnSpan="2" Grid.Row="1" AutoGenerateColumns="False">
+                            <DataGrid Name="QuestionList" Grid.ColumnSpan="2" Grid.Row="1" AutoGenerateColumns="False" CanUserAddRows="True" CanUserDeleteRows="True" CanUserReorderColumns="True" CanUserResizeColumns="True" CanUserSortColumns="True" AddingNewItem="QuestionList_AddingNewItem" CommandManager.PreviewCanExecute="QuestionList_PreviewCanExecute" RowEditEnding="QuestionList_RowEditEnding" IsSynchronizedWithCurrentItem="True">
                                 <DataGrid.Columns>
-                                    <DataGridTextColumn Header="№" Binding="{Binding Number}"/>
-                                    <DataGridTextColumn Header="Критерий" Binding="{Binding Criterion}" Width="100"/>
-                                    <DataGridTextColumn Header="Допустимые символы" Binding="{Binding ValidChars}" Width="200"/>
-                                    <DataGridComboBoxColumn Header="Тип вопроса" ItemsSource="{Binding Source={x:Static local:Workfield.QuestionTypeEnumValues}}" SelectedValueBinding="{Binding QuestionType}" Width="150"/>
-                                    <DataGridComboBoxColumn Header="Тип проверки" ItemsSource="{Binding Source={x:Static local:Workfield.CheckTypeEnumValues}}" SelectedValueBinding="{Binding CheckType}" Width="150"/>
-                                    <DataGridTextColumn Header="Максимальный балл" Binding="{Binding MaxScore}" Width="100"/>
+                                    <local:DataGridNumericColumn Header="№" Binding="{Binding Number, UpdateSourceTrigger=PropertyChanged}"/>
+                                    <DataGridTextColumn Header="Критерий" Binding="{Binding Criterion, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
+                                    <DataGridTextColumn Header="Допустимые символы" Binding="{Binding ValidChars, UpdateSourceTrigger=PropertyChanged}" Width="200"/>
+                                    <DataGridComboBoxColumn Header="Тип вопроса" ItemsSource="{Binding Source={x:Static local:Workfield.QuestionTypeEnumValues}}" SelectedValueBinding="{Binding QuestionType, UpdateSourceTrigger=PropertyChanged}" Width="150"/>
+                                    <DataGridComboBoxColumn Header="Тип проверки" ItemsSource="{Binding Source={x:Static local:Workfield.CheckTypeEnumValues}}" SelectedValueBinding="{Binding CheckType, UpdateSourceTrigger=PropertyChanged}" Width="150"/>
+                                    <local:DataGridNumericColumn Header="Максимальный балл" Binding="{Binding MaxScore, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
                                 </DataGrid.Columns>
                             </DataGrid>
                         </Grid>
                     </Grid>
                 </TabItem>
             </TabControl>
-
-            <!--<Grid Grid.Column="4" Grid.Row="0">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="18"/>
-                    <RowDefinition/>
-                    <RowDefinition/>
-                    <RowDefinition/>
-                    <RowDefinition Height="5"/>
-                    <RowDefinition Height="18"/>
-                    <RowDefinition/>
-                    <RowDefinition/>
-                    <RowDefinition/>
-                    <RowDefinition Height="5"/>
-                    <RowDefinition Height="18"/>
-                    <RowDefinition/>
-                    <RowDefinition/>
-                    <RowDefinition/>
-                </Grid.RowDefinitions>
-                <GridSplitter Height="5" Grid.Row="4" ResizeDirection="Rows" HorizontalAlignment="Stretch" IsEnabled="False"/>
-                <GridSplitter Height="5" Grid.Row="9" ResizeDirection="Rows" HorizontalAlignment="Stretch" IsEnabled="False"/>
-
-                <Label Grid.Row="0" HorizontalContentAlignment="Center" Margin="0" Padding="0">Вопросы</Label>
-                <Button Margin="6" Grid.Row="1">
-                    <Image Source="Icons/Plus.png"/>
-                </Button>
-                <Button Margin="6" Grid.Row="2">
-                    <Image Source="Icons/Edit.png"/>
-                </Button>
-                <Button Margin="6" Grid.Row="3">
-                    <Image Source="Icons/Delete.png"/>
-                </Button>
-                <Label Grid.Row="5" HorizontalContentAlignment="Center" Margin="0" Padding="0">Части</Label>
-                <Button Margin="6" Grid.Row="6">
-                    <Image Source="Icons/Plus.png"/>
-                </Button>
-                <Button Margin="6" Grid.Row="7">
-                    <Image Source="Icons/Edit.png"/>
-                </Button>
-                <Button Margin="6" Grid.Row="8">
-                    <Image Source="Icons/Delete.png"/>
-                </Button>
-                <Label Grid.Row="10" HorizontalContentAlignment="Center" Margin="0" Padding="0">Варианты</Label>
-                <Button Margin="6" Grid.Row="11">
-                    <Image Source="Icons/Plus.png"/>
-                </Button>
-                <Button Margin="6" Grid.Row="12">
-                    <Image Source="Icons/Edit.png"/>
-                </Button>
-                <Button Margin="6" Grid.Row="13">
-                    <Image Source="Icons/Delete.png"/>
-                </Button>
-            </Grid>-->
         </Grid>
 
         <StatusBar Grid.Column="0" Grid.Row="3">
             <StatusBarItem HorizontalAlignment="Left">
-                <TextBlock Text="Программа разработана студентами ТюмГУ Скочко Андреем и Чипак Данилой" />
+                <TextBlock Text="Программа разработана студентами ТюмГУ Скочко Андреем и Чипак Данилой. 2022 г." />
             </StatusBarItem>
             <StatusBarItem HorizontalAlignment="Right">
-                <TextBlock Text="2022г." />
+                <ListBox Name="AlertList" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Disabled" Padding="0" Margin="0" BorderBrush="Transparent" IsEnabled="True">
+                    <ListBox.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel IsItemsHost="True" />
+                        </ItemsPanelTemplate>
+                    </ListBox.ItemsPanel>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Grid>
+                                <Border BorderThickness="1" BorderBrush="DarkRed" Background="Red">
+                                    <Image Width="32" Source="{Binding Icon}" Margin="0" MouseEnter="Alert_MouseEnter"/>
+                                </Border>
+                                <Popup Name="AlertPopup" Placement="Top" StaysOpen="True" MouseLeave="AlertPopup_MouseLeave">
+                                    <Border BorderThickness="3" BorderBrush="DarkRed">
+                                        <Grid Background="AntiqueWhite">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition/>
+                                                <RowDefinition MinHeight="100"/>
+                                            </Grid.RowDefinitions>
+                                            <Border Grid.Row="0" BorderThickness="1" BorderBrush="DarkRed">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition/>
+                                                        <ColumnDefinition MinWidth="400"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Image Grid.Column="0" Width="48" Source="{Binding Icon}"/>
+                                                    <TextBlock Grid.Column="1" FontStretch="Expanded" FontSize="32" Foreground="DarkRed" Text="{Binding Header}"/>
+                                                </Grid>
+                                            </Border>
+                                            <Border Grid.Row="1" BorderThickness="1" BorderBrush="DarkRed">
+                                                <TextBlock Width="400" TextWrapping="Wrap" FontSize="16" Foreground="DarkRed" Text="{Binding Description}"/>
+                                            </Border>
+                                        </Grid>
+                                    </Border>
+                                </Popup>
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
             </StatusBarItem>
         </StatusBar>
     </Grid>
