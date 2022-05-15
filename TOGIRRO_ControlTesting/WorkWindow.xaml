@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TOGIRRO_ControlTesting" xmlns:sys="clr-namespace:System;assembly=mscorlib"
         mc:Ignorable="d"
+        Closing="WorkWindow_Closing"
         Title="[TOGIRRO Control Testing] Рабочая область" Height="800" Width="1280" WindowStartupLocation="CenterScreen" Visibility="Visible" Background="White" FontSize="14">
 
     <Grid>
