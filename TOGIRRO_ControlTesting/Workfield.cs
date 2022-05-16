@@ -21,6 +21,8 @@ using Microsoft.Data.SqlClient;
 ------Отслеживание ввода в таблице шкалирования
 ------Поиск в предметах
 Макс балл и алерты в трее
+Привязка к БД
+Разбаловка шаблона вопроса
 
 Ошибки:
 Непоследовательность итоговых баллов
@@ -78,10 +80,11 @@ namespace TOGIRRO_ControlTesting
 		static public ObservableCollection<Subject> Subjects = new ObservableCollection<Subject> { };
 		static public ObservableCollection<Subject> ActualSubjects = new ObservableCollection<Subject> { };
 
-		//Указатели на текущий предмет, вариант, вопрос и список ошибок
+		//Указатели на текущий предмет, вариант, шаблон вопроса, вопрос и список ошибок
 		static public Subject CurrentSubject = null;
 		static public Variant CurrentVariant = null;
-		static public AnswerCharacteristic CurrentQuestion = null;
+		static public AnswerCharacteristic CurrentAnswerCharacteristic = null;
+		static public Question CurrentQuestion = null;
 		static public ObservableCollection<Alert> CurrentAlerts = null;
 
 		//SQL подключение
@@ -177,6 +180,52 @@ namespace TOGIRRO_ControlTesting
 
 			Subjects[0].Alerts.Add(new Alert(AlertType.NoScoreForAnswer, "Описание ошибки"));
 			Subjects[1].Alerts.Add(new Alert(AlertType.NotEnoughScoreForQuestion, "Описание ошибки 2"));
+		}
+        #endregion
+
+        /*
+			Выгрузка предметов из базы данных
+		*/
+        #region
+		static public void LoadFromDB()
+        {
+			try
+			{
+				using (SqlCommand com = new SqlCommand("SELECT * FROM Subject", SQLConnection))
+				{
+					SQLConnection.Open();
+					using (SqlDataReader reader = com.ExecuteReader())
+					{
+						while (reader.Read())
+						{
+							Subjects.Add(new Subject()
+							{
+								SubjectID = reader.GetInt32(0),
+								SubjectCode = reader.GetInt16(1),
+								EventCode = reader.GetInt16(2),
+								MinScore = reader.GetInt16(3),
+								Name = reader.GetString(4),
+								Description = reader.GetString(5),
+								Type = (SubjectTypeEnum)reader.GetInt32(6),
+								ProjectFolderPath = reader.GetString(7),
+								RegistrationForm = reader.GetString(8),
+								AnswersForm1 = reader.GetString(9),
+								AnswersForm2 = reader.GetString(10),
+								LogFile = reader.GetString(11),
+								IsMark = reader.GetBoolean(12)
+							});
+						}
+					}
+					SQLConnection.Close();
+				}
+			}
+			catch (SqlException e)
+			{
+				SQLErrorWindow.SQLErrorTextBlock.Text = e.ToString();
+				WorkWindow.IsEnabled = false;
+				SQLErrorWindow.Show();
+				isFatalError = true;
+			}
 		}
         #endregion
 
@@ -399,13 +448,13 @@ namespace TOGIRRO_ControlTesting
 		public int VariantID { get; set; }
 		public string Name { get; set; }
 		public string VariantFilePath { get; set; }
-		public List<Question> Answers = null;
+		public List<Question> QuestionsPerVar = null;
 
 		public Variant()
 		{
 			VariantID = 0;
 			Name = ""; VariantFilePath = "";
-			Answers = new List<Question> { };
+			QuestionsPerVar = new List<Question> { };
 		}
 	}
 	#endregion

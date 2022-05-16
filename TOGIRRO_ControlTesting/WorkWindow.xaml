@@ -459,7 +459,7 @@
                                 </Button>
                             </Grid>
 
-                            <DataGrid Name="AnswerList" Grid.ColumnSpan="2" Grid.Row="2" AutoGenerateColumns="False" RowDetailsVisibilityMode="VisibleWhenSelected" CanUserAddRows="False" CanUserDeleteRows="False" IsSynchronizedWithCurrentItem="True">
+                            <DataGrid Name="AnswerList" Grid.ColumnSpan="2" Grid.Row="2" AutoGenerateColumns="False" RowDetailsVisibilityMode="VisibleWhenSelected" CanUserAddRows="False" CanUserDeleteRows="False" SelectionChanged="AnswerList_SelectionChanged" IsSynchronizedWithCurrentItem="True">
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="№" Binding="{Binding RelativeSource={RelativeSource AncestorType=DataGridRow}, Converter={local:RowToIndexConverter}}" Width="30" IsReadOnly="True"/>
                                     <DataGridTextColumn Header="Номер в вар." Binding="{Binding InVariant}" Width="100" IsReadOnly="True"/>
@@ -468,7 +468,7 @@
                                 </DataGrid.Columns>
                                 <DataGrid.RowDetailsTemplate>
                                     <DataTemplate>
-                                        <DataGrid Name="AnswersPerQuestionList" ItemsSource="{Binding Answers}" AutoGenerateColumns="False" CanUserDeleteRows="True" CanUserAddRows="True" GridLinesVisibility="Vertical" IsSynchronizedWithCurrentItem="True">
+                                        <DataGrid Name="AnswersPerQuestionList" ItemsSource="{Binding Answers}" AutoGenerateColumns="False" CanUserDeleteRows="True" CanUserAddRows="True" GridLinesVisibility="Vertical" AddingNewItem="AnswersPerQuestionList_AddingNewItem" CommandManager.PreviewCanExecute="AnswersPerQuestionList_PreviewCanExecute" RowEditEnding="AnswersPerQuestionList_RowEditEnding" IsSynchronizedWithCurrentItem="True">
                                             <DataGrid.Columns>
                                                 <DataGridTextColumn Header="Эталонный ответ" Binding="{Binding RightAnswer, UpdateSourceTrigger=PropertyChanged}" Width="300"/>
                                                 <local:DataGridNumericColumn Header="Балл" Binding="{Binding Score, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
