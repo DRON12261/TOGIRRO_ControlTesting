@@ -19,11 +19,11 @@
             </Grid.ColumnDefinitions>
 
             <Image Grid.Column="0" Source="Icons/Delete.png"/>
-            <TextBlock Grid.Column="1" Text="Не удалось подключиться к базе данных!" FontSize="36" TextWrapping="Wrap" TextAlignment="Center" VerticalAlignment="Center"/>
+            <TextBlock Grid.Column="1" Text="Непредвиденная ошибка!" FontSize="50" FontWeight="Bold" TextWrapping="Wrap" TextAlignment="Center" VerticalAlignment="Center"/>
         </Grid>
         <Grid Grid.Row="1">
             <ScrollViewer>
-                <TextBlock Name="SQLErrorTextBlock" Text="" TextWrapping="Wrap"/>
+                <TextBlock Name="SQLErrorTextBlock" Text="В ходе работы программы возник ряд необработанных исключений! Сделайте скриншот и обратитесь к техническому специалисту!" TextWrapping="Wrap"/>
             </ScrollViewer>
         </Grid>
     </Grid>

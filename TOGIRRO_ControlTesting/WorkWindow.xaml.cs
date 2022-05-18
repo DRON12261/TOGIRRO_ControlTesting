@@ -32,14 +32,24 @@ namespace TOGIRRO_ControlTesting
 			Workfield.Init();
 			Workfield.LoadFromDB();
 
-			SearchTypes.ItemsSource = Workfield.SubjectTypeEnumValues;
-			CreateSubject_Type.ItemsSource = Workfield.QuestionTypeEnumValues;
-			EditSubject_Type.ItemsSource = Workfield.CheckTypeEnumValues;
+			SearchTypes.ItemsSource = Workfield.SubjectTypes;
+			SearchTypes.SelectedValuePath = "Key";
+			SearchTypes.DisplayMemberPath = "Value";
+			CreateSubject_Type.ItemsSource = Workfield.SubjectTypes;
+			CreateSubject_Type.SelectedValuePath = "Key";
+			CreateSubject_Type.DisplayMemberPath = "Value";
+			EditSubject_Type.ItemsSource = Workfield.SubjectTypes;
+			EditSubject_Type.SelectedValuePath = "Key";
+			EditSubject_Type.DisplayMemberPath = "Value";
 			SearchTypes.SelectedIndex = 0;
 			CreateSubject_Type.SelectedIndex = 0;
 			EditSubject_Type.SelectedIndex = 0;
 
 			Workfield.CurrentSubject = null;
+			CreateSubjectMenu_Button.IsChecked = false;
+			EditSubjectMenu_Button.IsChecked = false;
+			EditSubjectMenu_Button.IsEnabled = false;
+			DeleteSubject_Button.IsEnabled = false;
 			MainField.IsEnabled = false;
 			SubjectsList.ItemsSource = Workfield.ActualSubjects;
 			AlertList.ItemsSource = Workfield.CurrentAlerts;
@@ -75,7 +85,15 @@ namespace TOGIRRO_ControlTesting
 		*/
 		private void ButtonC_CreateSubject(object sender, RoutedEventArgs e)
 		{
-			if (Subjects_CreateTab.IsSelected) { Subjects_ListTab.IsSelected = true; return; }
+			if (Subjects_CreateTab.IsSelected) 
+			{
+				CreateSubjectMenu_Button.IsChecked = false;
+				EditSubjectMenu_Button.IsChecked = false;
+				Subjects_ListTab.IsSelected = true; 
+				return; 
+			}
+			CreateSubjectMenu_Button.IsChecked = true;
+			EditSubjectMenu_Button.IsChecked = false;
 			CreateSubject_EventCode.Text = "";
 			CreateSubject_SubjectCode.Text = "";
 			CreateSubject_Name.Text = "";
@@ -96,15 +114,23 @@ namespace TOGIRRO_ControlTesting
 		*/
 		private void ButtonC_EditSubject(object sender, RoutedEventArgs e)
 		{
-			if (Subjects_EditTab.IsSelected) { Subjects_ListTab.IsSelected = true; return; }
+			if (Subjects_EditTab.IsSelected) 
+			{
+				CreateSubjectMenu_Button.IsChecked = false;
+				EditSubjectMenu_Button.IsChecked = false;
+				Subjects_ListTab.IsSelected = true; 
+				return; 
+			}
 			Subject SelectedSubject = (Subject)SubjectsList.SelectedItem;
 			if (SelectedSubject != null)
 			{
+				CreateSubjectMenu_Button.IsChecked = false;
+				EditSubjectMenu_Button.IsChecked = true;
 				EditSubject_EventCode.Text = SelectedSubject.EventCode.ToString();
 				EditSubject_SubjectCode.Text = SelectedSubject.SubjectCode.ToString();
 				EditSubject_Name.Text = SelectedSubject.Name;
 				EditSubject_Description.Text = SelectedSubject.Description;
-				EditSubject_Type.SelectedIndex = (int)SelectedSubject.Type-1;
+				EditSubject_Type.SelectedIndex = Workfield.KeyByValue<int, string>(Workfield.SubjectTypes, SelectedSubject.Type)-1;
 				EditSubject_MinScore.Text = SelectedSubject.MinScore.ToString();
 				EditSubject_ProjectFolderPath.Text = SelectedSubject.ProjectFolderPath;
 				EditSubject_RegistrationForm.Text = SelectedSubject.RegistrationForm;
@@ -134,12 +160,13 @@ namespace TOGIRRO_ControlTesting
 					Workfield.SQLConnection.Close();
 				}
 			}
-			catch (SqlException error)
+			catch (Exception error)
 			{
-				Workfield.SQLErrorWindow.SQLErrorTextBlock.Text = error.ToString();
+				Workfield.SQLErrorWindow.SQLErrorTextBlock.Text += "\n\n\n" + error.ToString();
 				Workfield.WorkWindow.IsEnabled = false;
 				Workfield.SQLErrorWindow.Show();
 				Workfield.isFatalError = true;
+				return;
 			}
 
 			Workfield.Subjects.Remove(Workfield.CurrentSubject);
@@ -155,6 +182,10 @@ namespace TOGIRRO_ControlTesting
 			ScaleList.ItemsSource = null;
 			ScaleList.Items.Refresh();
 			CurrentVariantCBox.ItemsSource = null;
+			CreateSubjectMenu_Button.IsChecked = false;
+			EditSubjectMenu_Button.IsChecked = false;
+			EditSubjectMenu_Button.IsEnabled = false;
+			DeleteSubject_Button.IsEnabled = false;
 			CurrentVariantCBox.SelectedIndex = -1;
 			CurrentVariantCBox.Items.Refresh();
 			CurrentSubjectName1.Content = "";
@@ -189,7 +220,7 @@ namespace TOGIRRO_ControlTesting
 					EventCode = eventCode,
 					Name = CreateSubject_Name.Text.Trim(' '),
 					Description = CreateSubject_Description.Text.Trim(' '),
-					Type = (SubjectTypeEnum)(CreateSubject_Type.SelectedIndex+1),
+					Type = Workfield.SubjectTypes[CreateSubject_Type.SelectedIndex+1],
 					MinScore = minScore,
 					ProjectFolderPath = CreateSubject_ProjectFolderPath.Text.Trim(' '),
 					RegistrationForm = CreateSubject_RegistrationForm.Text.Trim(' '),
@@ -206,7 +237,7 @@ namespace TOGIRRO_ControlTesting
 						"INSERT INTO Subject (SubjectCode, EventCode, MinScore, SubjectName, Description, ControlEvents_FK, " +
                         "ProjectFolderPath, RegistrationFormName, AnswersForm1Name, AnswersForm2Name, LogFileName, isMark) VALUES("
 						+newSubject.SubjectCode.ToString()+", "+newSubject.EventCode.ToString()+", "+newSubject.MinScore.ToString()
-						+", '"+newSubject.Name+"', '"+newSubject.Description+"', "+((int)newSubject.Type).ToString()+", '"+
+						+", '"+newSubject.Name+"', '"+newSubject.Description+"', "+(Workfield.KeyByValue<int, string>(Workfield.SubjectTypes, newSubject.Type)).ToString()+", '"+
 						newSubject.ProjectFolderPath+"', '"+newSubject.RegistrationForm+"', '"+newSubject.AnswersForm1+"', '"+
 						newSubject.AnswersForm2+"', '"+newSubject.LogFile+"', "+Convert.ToInt32(newSubject.IsMark).ToString()+")";
 					using (SqlCommand com = new SqlCommand(command, Workfield.SQLConnection))
@@ -216,12 +247,13 @@ namespace TOGIRRO_ControlTesting
 						Workfield.SQLConnection.Close();
 					}
 				}
-				catch (SqlException error)
+				catch (Exception error)
 				{
-					Workfield.SQLErrorWindow.SQLErrorTextBlock.Text = error.ToString();
+					Workfield.SQLErrorWindow.SQLErrorTextBlock.Text += "\n\n\n" + error.ToString();
 					Workfield.WorkWindow.IsEnabled = false;
 					Workfield.SQLErrorWindow.Show();
 					Workfield.isFatalError = true;
+					return;
 				}
 
 				try
@@ -239,15 +271,18 @@ namespace TOGIRRO_ControlTesting
 						Workfield.SQLConnection.Close();
 					}
 				}
-				catch (SqlException error)
+				catch (Exception error)
 				{
-					Workfield.SQLErrorWindow.SQLErrorTextBlock.Text = error.ToString();
+					Workfield.SQLErrorWindow.SQLErrorTextBlock.Text += "\n\n\n" + error.ToString();
 					Workfield.WorkWindow.IsEnabled = false;
 					Workfield.SQLErrorWindow.Show();
 					Workfield.isFatalError = true;
+					return;
 				}
 
 				Workfield.Subjects.Add(newSubject);
+				CreateSubjectMenu_Button.IsChecked = false;
+				EditSubjectMenu_Button.IsChecked = false;
 				Subjects_ListTab.IsSelected = true;
 				UpdateSubjectList();
 			}
@@ -258,6 +293,8 @@ namespace TOGIRRO_ControlTesting
 		*/
 		private void ButtonC_CreateSubject_Cancel(object sender, RoutedEventArgs e)
 		{
+			CreateSubjectMenu_Button.IsChecked = false;
+			EditSubjectMenu_Button.IsChecked = false;
 			Subjects_ListTab.IsSelected = true;
 		}
 
@@ -273,7 +310,7 @@ namespace TOGIRRO_ControlTesting
 				SelectedSubject.EventCode = short.Parse(EditSubject_EventCode.Text.Trim(' '));
 				SelectedSubject.Name = EditSubject_Name.Text.Trim(' ');
 				SelectedSubject.Description = EditSubject_Description.Text.Trim(' ');
-				SelectedSubject.Type = (SubjectTypeEnum)(EditSubject_Type.SelectedIndex+1);
+				SelectedSubject.Type = Workfield.SubjectTypes[EditSubject_Type.SelectedIndex+1];
 				SelectedSubject.MinScore = short.Parse(EditSubject_MinScore.Text.Trim(' '));
 				SelectedSubject.ProjectFolderPath = EditSubject_ProjectFolderPath.Text.Trim(' ');
 				SelectedSubject.RegistrationForm = EditSubject_RegistrationForm.Text.Trim(' ');
@@ -287,7 +324,7 @@ namespace TOGIRRO_ControlTesting
 					string command =
 						"UPDATE Subject SET SubjectCode="+SelectedSubject.SubjectCode.ToString()+", EventCode="
 						+SelectedSubject.EventCode.ToString()+", SubjectName='"+SelectedSubject.Name+"', Description='"
-						+SelectedSubject.Description+"', ControlEvents_FK="+((int)SelectedSubject.Type).ToString()+", " +
+						+SelectedSubject.Description+"', ControlEvents_FK="+ (Workfield.KeyByValue<int, string>(Workfield.SubjectTypes, SelectedSubject.Type)).ToString()+", " +
                         "MinScore="+SelectedSubject.MinScore.ToString()+", ProjectFolderPath='"+SelectedSubject.ProjectFolderPath
 						+"', RegistrationFormName='"+SelectedSubject.RegistrationForm+"', AnswersForm1Name='"
 						+SelectedSubject.AnswersForm1+"', AnswersForm2Name='"+SelectedSubject.AnswersForm2+"', LogFileName='"
@@ -300,12 +337,13 @@ namespace TOGIRRO_ControlTesting
 						Workfield.SQLConnection.Close();
 					}
 				}
-				catch (SqlException error)
+				catch (Exception error)
 				{
-					Workfield.SQLErrorWindow.SQLErrorTextBlock.Text = error.ToString();
+					Workfield.SQLErrorWindow.SQLErrorTextBlock.Text += "\n\n\n" + error.ToString();
 					Workfield.WorkWindow.IsEnabled = false;
 					Workfield.SQLErrorWindow.Show();
 					Workfield.isFatalError = true;
+					return;
 				}
 
 				Subjects_ListTab.IsSelected = true;
@@ -315,6 +353,8 @@ namespace TOGIRRO_ControlTesting
 				CurrentSubjectType2.Content = Workfield.CurrentSubject.Type;
 				CurrentSubjectName3.Content = Workfield.CurrentSubject.Name;
 				CurrentSubjectType3.Content = Workfield.CurrentSubject.Type;
+				CreateSubjectMenu_Button.IsChecked = false;
+				EditSubjectMenu_Button.IsChecked = false;
 				UpdateSubjectList();
 			}
 		}
@@ -324,6 +364,8 @@ namespace TOGIRRO_ControlTesting
 		*/
 		private void ButtonC_EditSubject_Cancel(object sender, RoutedEventArgs e)
 		{
+			CreateSubjectMenu_Button.IsChecked = false;
+			EditSubjectMenu_Button.IsChecked = false;
 			Subjects_ListTab.IsSelected = true;
 		}
 		#endregion
@@ -409,12 +451,13 @@ namespace TOGIRRO_ControlTesting
 					Workfield.SQLConnection.Close();
 				}
 			}
-			catch (SqlException error)
+			catch (Exception error)
 			{
-				Workfield.SQLErrorWindow.SQLErrorTextBlock.Text = error.ToString();
+				Workfield.SQLErrorWindow.SQLErrorTextBlock.Text += "\n\n\n" + error.ToString();
 				Workfield.WorkWindow.IsEnabled = false;
 				Workfield.SQLErrorWindow.Show();
 				Workfield.isFatalError = true;
+				return;
 			}
 
 			try
@@ -432,12 +475,13 @@ namespace TOGIRRO_ControlTesting
 					Workfield.SQLConnection.Close();
 				}
 			}
-			catch (SqlException error)
+			catch (Exception error)
 			{
-				Workfield.SQLErrorWindow.SQLErrorTextBlock.Text = error.ToString();
+				Workfield.SQLErrorWindow.SQLErrorTextBlock.Text += "\n\n\n" + error.ToString();
 				Workfield.WorkWindow.IsEnabled = false;
 				Workfield.SQLErrorWindow.Show();
 				Workfield.isFatalError = true;
+				return;
 			}
 
 			foreach (AnswerCharacteristic currentQuestion in Workfield.CurrentSubject.Questions)
@@ -454,7 +498,8 @@ namespace TOGIRRO_ControlTesting
 				{
 					string command =
 						"INSERT INTO Question (Variant_FK, QuestionType_FK, TaskNumber, AnswerCharacteristic_FK, MaxScore) VALUES("
-						+ Workfield.CurrentVariant.VariantID.ToString() + ", " + ((int)newQuestion.QuestionType).ToString() + ", "
+						+ Workfield.CurrentVariant.VariantID.ToString() + ", "
+						+ Workfield.KeyByValue<int, string>(Workfield.QuestionTypes, newQuestion.QuestionType).ToString() + ", "
 						+ newQuestion.InVariant.ToString() + ", " + newQuestion.QuestionTemplate.AnswerCharacteristicID.ToString()
 						+ ", " + newQuestion.QuestionTemplate.MaxScore.ToString() + ")";
 					using (SqlCommand com = new SqlCommand(command, Workfield.SQLConnection))
@@ -464,12 +509,13 @@ namespace TOGIRRO_ControlTesting
 						Workfield.SQLConnection.Close();
 					}
 				}
-				catch (SqlException error)
+				catch (Exception error)
 				{
-					Workfield.SQLErrorWindow.SQLErrorTextBlock.Text = error.ToString();
+					Workfield.SQLErrorWindow.SQLErrorTextBlock.Text += "\n\n\n" + error.ToString();
 					Workfield.WorkWindow.IsEnabled = false;
 					Workfield.SQLErrorWindow.Show();
 					Workfield.isFatalError = true;
+					return;
 				}
 
 				try
@@ -487,12 +533,13 @@ namespace TOGIRRO_ControlTesting
 						Workfield.SQLConnection.Close();
 					}
 				}
-				catch (SqlException error)
+				catch (Exception error)
 				{
-					Workfield.SQLErrorWindow.SQLErrorTextBlock.Text = error.ToString();
+					Workfield.SQLErrorWindow.SQLErrorTextBlock.Text += "\n\n\n" + error.ToString();
 					Workfield.WorkWindow.IsEnabled = false;
 					Workfield.SQLErrorWindow.Show();
 					Workfield.isFatalError = true;
+					return;
 				}
 			}
 			CurrentVariantTextbox.Text = Workfield.CurrentVariant.Name;
@@ -518,12 +565,13 @@ namespace TOGIRRO_ControlTesting
 					Workfield.SQLConnection.Close();
 				}
 			}
-			catch (SqlException error)
+			catch (Exception error)
 			{
-				Workfield.SQLErrorWindow.SQLErrorTextBlock.Text = error.ToString();
+				Workfield.SQLErrorWindow.SQLErrorTextBlock.Text += "\n\n\n" + error.ToString();
 				Workfield.WorkWindow.IsEnabled = false;
 				Workfield.SQLErrorWindow.Show();
 				Workfield.isFatalError = true;
+				return;
 			}
 
 			Workfield.CurrentSubject.Variants.Remove(currentVariant);
@@ -562,12 +610,13 @@ namespace TOGIRRO_ControlTesting
 					Workfield.SQLConnection.Close();
 				}
 			}
-			catch (SqlException error)
+			catch (Exception error)
 			{
-				Workfield.SQLErrorWindow.SQLErrorTextBlock.Text = error.ToString();
+				Workfield.SQLErrorWindow.SQLErrorTextBlock.Text += "\n\n\n" + error.ToString();
 				Workfield.WorkWindow.IsEnabled = false;
 				Workfield.SQLErrorWindow.Show();
 				Workfield.isFatalError = true;
+				return;
 			}
 
 			CurrentVariantTextbox.Text = "";
@@ -645,21 +694,58 @@ namespace TOGIRRO_ControlTesting
 								Number = reader.GetInt16(2),
 								Criterion = reader.GetString(3),
 								ValidChars = reader.GetString(4),
-								QuestionType = (QuestionTypeEnum)reader.GetInt32(5),
-								CheckType = (CheckTypeEnum)reader.GetInt32(6),
+								QuestionType = Workfield.QuestionTypes[reader.GetInt32(5)],
+								CheckType = Workfield.CheckTypes[reader.GetInt32(6)],
 								MaxScore = reader.GetInt16(7)
                             });
 						}
 					}
 					Workfield.SQLConnection.Close();
 				}
+
+				
 			}
-			catch (SqlException error)
+			catch (Exception error)
 			{
-				Workfield.SQLErrorWindow.SQLErrorTextBlock.Text = error.ToString();
+				Workfield.SQLErrorWindow.SQLErrorTextBlock.Text += "\n\n\n" + error.ToString();
 				Workfield.WorkWindow.IsEnabled = false;
 				Workfield.SQLErrorWindow.Show();
 				Workfield.isFatalError = true;
+				return;
+			}
+			foreach (AnswerCharacteristic currentAnswerCharacteristic in currentSubject.Questions)
+            {
+				currentAnswerCharacteristic.Errors = new List<ErrorScaleUnit>() { };
+				try
+				{
+					string command =
+						"SELECT * FROM ErrorScaleUnit WHERE AnswerCharacteristic_FK=" + currentAnswerCharacteristic.AnswerCharacteristicID.ToString();
+					using (SqlCommand com = new SqlCommand(command, Workfield.SQLConnection))
+					{
+						Workfield.SQLConnection.Open();
+						using (SqlDataReader reader = com.ExecuteReader())
+						{
+							while (reader.Read())
+							{
+								currentAnswerCharacteristic.Errors.Add(new ErrorScaleUnit()
+								{
+									ErrorScaleUnitID = reader.GetInt32(0),
+									ErrorCount = reader.GetInt16(1),
+									Score = reader.GetInt16(2)
+								});
+							}
+						}
+						Workfield.SQLConnection.Close();
+					}
+				}
+				catch (Exception error)
+				{
+					Workfield.SQLErrorWindow.SQLErrorTextBlock.Text += "\n\n\n" + error.ToString();
+					Workfield.WorkWindow.IsEnabled = false;
+					Workfield.SQLErrorWindow.Show();
+					Workfield.isFatalError = true;
+					return;
+				}
 			}
 
 			currentSubject.Variants = new ObservableCollection<Variant>() { };
@@ -685,12 +771,13 @@ namespace TOGIRRO_ControlTesting
 					Workfield.SQLConnection.Close();
 				}
 			}
-			catch (SqlException error)
+			catch (Exception error)
 			{
-				Workfield.SQLErrorWindow.SQLErrorTextBlock.Text = error.ToString();
+				Workfield.SQLErrorWindow.SQLErrorTextBlock.Text += "\n\n\n" + error.ToString();
 				Workfield.WorkWindow.IsEnabled = false;
 				Workfield.SQLErrorWindow.Show();
 				Workfield.isFatalError = true;
+				return;
 			}
 
 			foreach (Variant currentVariant in currentSubject.Variants)
@@ -721,6 +808,7 @@ namespace TOGIRRO_ControlTesting
 								currentVariant.QuestionsPerVar.Add(new Question(templateQuestion)
 								{
 									QuestionID = reader.GetInt32(0),
+									QuestionType = Workfield.QuestionTypes[reader.GetInt32(2)],
 									InVariant = (short)reader.GetInt32(3),
 									MaxScore = (short)reader.GetInt32(5)
 								});
@@ -729,12 +817,13 @@ namespace TOGIRRO_ControlTesting
 						Workfield.SQLConnection.Close();
 					}
 				}
-				catch (SqlException error)
+				catch (Exception error)
 				{
-					Workfield.SQLErrorWindow.SQLErrorTextBlock.Text = error.ToString();
+					Workfield.SQLErrorWindow.SQLErrorTextBlock.Text += "\n\n\n" + error.ToString();
 					Workfield.WorkWindow.IsEnabled = false;
 					Workfield.SQLErrorWindow.Show();
 					Workfield.isFatalError = true;
+					return;
 				}
 
 				foreach (Question currentQuestion in currentVariant.QuestionsPerVar)
@@ -762,12 +851,13 @@ namespace TOGIRRO_ControlTesting
 							Workfield.SQLConnection.Close();
 						}
 					}
-					catch (SqlException error)
+					catch (Exception error)
 					{
-						Workfield.SQLErrorWindow.SQLErrorTextBlock.Text = error.ToString();
+						Workfield.SQLErrorWindow.SQLErrorTextBlock.Text += "\n\n\n" + error.ToString();
 						Workfield.WorkWindow.IsEnabled = false;
 						Workfield.SQLErrorWindow.Show();
 						Workfield.isFatalError = true;
+						return;
 					}
 				}
 			}
@@ -795,12 +885,13 @@ namespace TOGIRRO_ControlTesting
 					Workfield.SQLConnection.Close();
 				}
 			}
-			catch (SqlException error)
+			catch (Exception error)
 			{
-				Workfield.SQLErrorWindow.SQLErrorTextBlock.Text = error.ToString();
+				Workfield.SQLErrorWindow.SQLErrorTextBlock.Text += "\n\n\n" + error.ToString();
 				Workfield.WorkWindow.IsEnabled = false;
 				Workfield.SQLErrorWindow.Show();
 				Workfield.isFatalError = true;
+				return;
 			}
 
 			Workfield.CurrentAlerts = currentSubject.Alerts;
@@ -831,6 +922,8 @@ namespace TOGIRRO_ControlTesting
 			CurrentVariantCBox.SelectedIndex = 0;
 			CurrentVariantCBox.Items.Refresh();
 			AnswerList.Items.Refresh();
+			EditSubjectMenu_Button.IsEnabled = true;
+			DeleteSubject_Button.IsEnabled = true;
 			MainField.IsEnabled = true;
 		}
 
@@ -845,7 +938,8 @@ namespace TOGIRRO_ControlTesting
 
 			foreach (Subject curSubject in Workfield.Subjects)
 			{
-				if (curSubject.Name.ToLower().Contains(searchName) && ((SubjectTypeEnum)SearchTypes.SelectedItem == SubjectTypeEnum.UNDEFINED || ((SubjectTypeEnum)SearchTypes.SelectedItem != SubjectTypeEnum.UNDEFINED) && curSubject.Type == (SubjectTypeEnum)SearchTypes.SelectedItem))
+				//if (curSubject.Name.ToLower().Contains(searchName) && ((SubjectTypeEnum)SearchTypes.SelectedItem == SubjectTypeEnum.UNDEFINED || ((SubjectTypeEnum)SearchTypes.SelectedItem != SubjectTypeEnum.UNDEFINED) && curSubject.Type == (SubjectTypeEnum)SearchTypes.SelectedItem))
+				if (curSubject.Name.ToLower().Contains(searchName) && (((KeyValuePair<int, string>)SearchTypes.SelectedItem).Value == Workfield.SubjectTypes[1] || (((KeyValuePair<int, string>)SearchTypes.SelectedItem).Value != Workfield.SubjectTypes[1]) && curSubject.Type == ((KeyValuePair<int, string>)SearchTypes.SelectedItem).Value))
 				{
 					Workfield.ActualSubjects.Add(curSubject);
 				}
@@ -890,8 +984,7 @@ namespace TOGIRRO_ControlTesting
 			try
 			{
 				string command =
-					"INSERT INTO AnswerCharacteristic (Subject_FK, QuestionType_FK, CheckType_FK) VALUES("+Workfield.CurrentSubject.SubjectID.ToString()+", "
-					+((int)QuestionTypeEnum.UNDEFINED).ToString()+", "+((int)CheckTypeEnum.UNDEFINED).ToString()+")";
+					"INSERT INTO AnswerCharacteristic (Subject_FK, QuestionType_FK, CheckType_FK) VALUES("+Workfield.CurrentSubject.SubjectID.ToString()+", 1, 1)";
 				using (SqlCommand com = new SqlCommand(command, Workfield.SQLConnection))
 				{
 					Workfield.SQLConnection.Open();
@@ -899,12 +992,13 @@ namespace TOGIRRO_ControlTesting
 					Workfield.SQLConnection.Close();
 				}
 			}
-			catch (SqlException error)
+			catch (Exception error)
 			{
-				Workfield.SQLErrorWindow.SQLErrorTextBlock.Text = error.ToString();
+				Workfield.SQLErrorWindow.SQLErrorTextBlock.Text += "\n\n\n" + error.ToString();
 				Workfield.WorkWindow.IsEnabled = false;
 				Workfield.SQLErrorWindow.Show();
 				Workfield.isFatalError = true;
+				return;
 			}
 
 			try
@@ -922,12 +1016,13 @@ namespace TOGIRRO_ControlTesting
 					Workfield.SQLConnection.Close();
 				}
 			}
-			catch (SqlException error)
+			catch (Exception error)
 			{
-				Workfield.SQLErrorWindow.SQLErrorTextBlock.Text = error.ToString();
+				Workfield.SQLErrorWindow.SQLErrorTextBlock.Text += "\n\n\n" + error.ToString();
 				Workfield.WorkWindow.IsEnabled = false;
 				Workfield.SQLErrorWindow.Show();
 				Workfield.isFatalError = true;
+				return;
 			}
 
 			foreach (Variant currentVariant in Workfield.CurrentSubject.Variants)
@@ -942,7 +1037,7 @@ namespace TOGIRRO_ControlTesting
 				{
 					string command =
 						"INSERT INTO Question (Variant_FK, QuestionType_FK, TaskNumber, AnswerCharacteristic_FK) VALUES(" + currentVariant.VariantID.ToString()
-						+ ", " + ((int)newQuestion.QuestionType).ToString() + ", " + newQuestion.InVariant.ToString() + ", "
+						+ ", " + Workfield.KeyByValue<int, string>(Workfield.QuestionTypes, newQuestion.QuestionType).ToString() + ", " + newQuestion.InVariant.ToString() + ", "
 						+ newQuestion.QuestionTemplate.AnswerCharacteristicID.ToString() + ")";
 					using (SqlCommand com = new SqlCommand(command, Workfield.SQLConnection))
 					{
@@ -951,7 +1046,7 @@ namespace TOGIRRO_ControlTesting
 						Workfield.SQLConnection.Close();
 					}
 				}
-				catch (SqlException error)
+				catch (Exception error)
 				{
 					Workfield.SQLErrorWindow.SQLErrorTextBlock.Text = error.ToString();
 					Workfield.WorkWindow.IsEnabled = false;
@@ -974,12 +1069,13 @@ namespace TOGIRRO_ControlTesting
 						Workfield.SQLConnection.Close();
 					}
 				}
-				catch (SqlException error)
+				catch (Exception error)
 				{
-					Workfield.SQLErrorWindow.SQLErrorTextBlock.Text = error.ToString();
+					Workfield.SQLErrorWindow.SQLErrorTextBlock.Text += "\n\n\n" + error.ToString();
 					Workfield.WorkWindow.IsEnabled = false;
 					Workfield.SQLErrorWindow.Show();
 					Workfield.isFatalError = true;
+					return;
 				}
 			}
 			AnswerList.Items.Refresh();
@@ -993,6 +1089,9 @@ namespace TOGIRRO_ControlTesting
 			DataGrid grid = (DataGrid)sender;
 			if (e.Command == DataGrid.DeleteCommand)
 			{
+				Workfield.focusedControl = FocusManager.GetFocusedElement(this);
+				if (Workfield.focusedControl is DataGridCell && ((DataGridCell)Workfield.focusedControl).DataContext is ErrorScaleUnit) return;
+
 				AnswerCharacteristic currentQuestion = grid.SelectedItem as AnswerCharacteristic;
 
 				foreach (Variant currentVariant in Workfield.CurrentSubject.Variants)
@@ -1024,12 +1123,13 @@ namespace TOGIRRO_ControlTesting
 						Workfield.SQLConnection.Close();
 					}
 				}
-				catch (SqlException error)
+				catch (Exception error)
 				{
-					Workfield.SQLErrorWindow.SQLErrorTextBlock.Text = error.ToString();
+					Workfield.SQLErrorWindow.SQLErrorTextBlock.Text += "\n\n\n" + error.ToString();
 					Workfield.WorkWindow.IsEnabled = false;
 					Workfield.SQLErrorWindow.Show();
 					Workfield.isFatalError = true;
+					return;
 				}
 
 				AnswerList.Items.Refresh();
@@ -1045,12 +1145,13 @@ namespace TOGIRRO_ControlTesting
 						Workfield.SQLConnection.Close();
 					}
 				}
-				catch (SqlException error)
+				catch (Exception error)
 				{
-					Workfield.SQLErrorWindow.SQLErrorTextBlock.Text = error.ToString();
+					Workfield.SQLErrorWindow.SQLErrorTextBlock.Text += "\n\n\n" + error.ToString();
 					Workfield.WorkWindow.IsEnabled = false;
 					Workfield.SQLErrorWindow.Show();
 					Workfield.isFatalError = true;
+					return;
 				}
 
 				Workfield.CurrentSubject.Questions.Remove(currentQuestion);
@@ -1082,12 +1183,13 @@ namespace TOGIRRO_ControlTesting
 							Workfield.SQLConnection.Close();
 						}
 					}
-					catch (SqlException error)
+					catch (Exception error)
 					{
-						Workfield.SQLErrorWindow.SQLErrorTextBlock.Text = error.ToString();
+						Workfield.SQLErrorWindow.SQLErrorTextBlock.Text += "\n\n\n" + error.ToString();
 						Workfield.WorkWindow.IsEnabled = false;
 						Workfield.SQLErrorWindow.Show();
 						Workfield.isFatalError = true;
+						return;
 					}
 
 					ScaleList.Items.Refresh();
@@ -1110,8 +1212,8 @@ namespace TOGIRRO_ControlTesting
 				{
 					string command =
 						"UPDATE AnswerCharacteristic SET TaskNumber="+currentQuestion.Number.ToString()+", Criterion='"+currentQuestion.Criterion+"', AllowedChars='"
-						+currentQuestion.ValidChars+"', QuestionType_FK="+((int)currentQuestion.QuestionType).ToString()+", CheckType_FK="
-						+((int)currentQuestion.CheckType).ToString()+", MaxScore="+currentQuestion.MaxScore.ToString()+" WHERE AnswerCharacteristic_ID="
+						+currentQuestion.ValidChars+"', QuestionType_FK="+Workfield.KeyByValue<int, string>(Workfield.QuestionTypes, currentQuestion.QuestionType).ToString()+", CheckType_FK="
+						+Workfield.KeyByValue<int, string>(Workfield.CheckTypes, currentQuestion.CheckType).ToString()+", MaxScore="+currentQuestion.MaxScore.ToString()+" WHERE AnswerCharacteristic_ID="
 						+currentQuestion.AnswerCharacteristicID.ToString();
 					using (SqlCommand com = new SqlCommand(command, Workfield.SQLConnection))
 					{
@@ -1120,12 +1222,13 @@ namespace TOGIRRO_ControlTesting
 						Workfield.SQLConnection.Close();
 					}
 				}
-				catch (SqlException error)
+				catch (Exception error)
 				{
-					Workfield.SQLErrorWindow.SQLErrorTextBlock.Text = error.ToString();
+					Workfield.SQLErrorWindow.SQLErrorTextBlock.Text += "\n\n\n" + error.ToString();
 					Workfield.WorkWindow.IsEnabled = false;
 					Workfield.SQLErrorWindow.Show();
 					Workfield.isFatalError = true;
+					return;
 				}
 
 				foreach (Variant currentVariant in Workfield.CurrentSubject.Variants)
@@ -1142,7 +1245,8 @@ namespace TOGIRRO_ControlTesting
 							{
 								string command =
 									"UPDATE Question SET TaskNumber='" + currentQuestion.Number.ToString() + "', QuestionType_FK="
-									+ ((int)currentQuestion.QuestionType).ToString() + ", MaxScore=" + currentQuestion.MaxScore.ToString()
+									+ Workfield.KeyByValue<int, string>(Workfield.QuestionTypes, currentQuestion.QuestionType).ToString()
+									+ ", MaxScore=" + currentQuestion.MaxScore.ToString()
 									+ " WHERE Question_ID=" + questionPost.QuestionID.ToString() + " AND Variant_FK="+currentVariant.VariantID.ToString();
 								using (SqlCommand com = new SqlCommand(command, Workfield.SQLConnection))
 								{
@@ -1151,12 +1255,13 @@ namespace TOGIRRO_ControlTesting
 									Workfield.SQLConnection.Close();
 								}
 							}
-							catch (SqlException error)
+							catch (Exception error)
 							{
-								Workfield.SQLErrorWindow.SQLErrorTextBlock.Text = error.ToString();
+								Workfield.SQLErrorWindow.SQLErrorTextBlock.Text += "\n\n\n" + error.ToString();
 								Workfield.WorkWindow.IsEnabled = false;
 								Workfield.SQLErrorWindow.Show();
 								Workfield.isFatalError = true;
+								return;
 							}
 						}
 					}
@@ -1189,12 +1294,13 @@ namespace TOGIRRO_ControlTesting
 							Workfield.SQLConnection.Close();
 						}
 					}
-					catch (SqlException error)
+					catch (Exception error)
 					{
-						Workfield.SQLErrorWindow.SQLErrorTextBlock.Text = error.ToString();
+						Workfield.SQLErrorWindow.SQLErrorTextBlock.Text += "\n\n\n" + error.ToString();
 						Workfield.WorkWindow.IsEnabled = false;
 						Workfield.SQLErrorWindow.Show();
 						Workfield.isFatalError = true;
+						return;
 					}
 
 					ScaleList.Items.Refresh();
@@ -1218,12 +1324,13 @@ namespace TOGIRRO_ControlTesting
 								Workfield.SQLConnection.Close();
 							}
 						}
-						catch (SqlException error)
+						catch (Exception error)
 						{
-							Workfield.SQLErrorWindow.SQLErrorTextBlock.Text = error.ToString();
+							Workfield.SQLErrorWindow.SQLErrorTextBlock.Text += "\n\n\n" + error.ToString();
 							Workfield.WorkWindow.IsEnabled = false;
 							Workfield.SQLErrorWindow.Show();
 							Workfield.isFatalError = true;
+							return;
 						}
 					}
 					ScaleList.Items.Refresh();
@@ -1240,16 +1347,6 @@ namespace TOGIRRO_ControlTesting
 		//------------------------------------------------------------------------------------------------------------------------------------
 		#region
 		/*
-			Событие выбора вопроса в DataGrid
-		*/
-		private void AnswerList_SelectionChanged(object sender, SelectionChangedEventArgs e)
-		{
-			if (!(AnswerList.CurrentItem is Question currentQuestion)) return;
-
-			Workfield.CurrentQuestion = currentQuestion;
-		}
-
-		/*
 			Событие добавления нового эталонного ответа в DataGrid 
 		*/
 		private void AnswersPerQuestionList_AddingNewItem(object sender, AddingNewItemEventArgs e)
@@ -1257,10 +1354,12 @@ namespace TOGIRRO_ControlTesting
 			e.NewItem = new Answer();
 			Answer newAnswer = e.NewItem as Answer;
 
+			Question currentQuestion = AnswerList.SelectedItem as Question;
+
 			try
 			{
 				string command =
-					"INSERT INTO Answer (Question_FK, RightAnswer, Score) VALUES(" + Workfield.CurrentQuestion.QuestionID.ToString() + ", '"
+					"INSERT INTO Answer (Question_FK, RightAnswer, Score) VALUES(" + currentQuestion.QuestionID.ToString() + ", '"
 					+ newAnswer.RightAnswer + "', " + newAnswer.Score.ToString() + ")";
 				using (SqlCommand com = new SqlCommand(command, Workfield.SQLConnection))
 				{
@@ -1269,12 +1368,13 @@ namespace TOGIRRO_ControlTesting
 					Workfield.SQLConnection.Close();
 				}
 			}
-			catch (SqlException error)
+			catch (Exception error)
 			{
-				Workfield.SQLErrorWindow.SQLErrorTextBlock.Text = error.ToString();
+				Workfield.SQLErrorWindow.SQLErrorTextBlock.Text += "\n\n\n" + error.ToString();
 				Workfield.WorkWindow.IsEnabled = false;
 				Workfield.SQLErrorWindow.Show();
 				Workfield.isFatalError = true;
+				return;
 			}
 
 			try
@@ -1292,12 +1392,13 @@ namespace TOGIRRO_ControlTesting
 					Workfield.SQLConnection.Close();
 				}
 			}
-			catch (SqlException error)
+			catch (Exception error)
 			{
-				Workfield.SQLErrorWindow.SQLErrorTextBlock.Text = error.ToString();
+				Workfield.SQLErrorWindow.SQLErrorTextBlock.Text += "\n\n\n" + error.ToString();
 				Workfield.WorkWindow.IsEnabled = false;
 				Workfield.SQLErrorWindow.Show();
 				Workfield.isFatalError = true;
+				return;
 			}
 		}
 
@@ -1322,12 +1423,13 @@ namespace TOGIRRO_ControlTesting
 						Workfield.SQLConnection.Close();
 					}
 				}
-				catch (SqlException error)
+				catch (Exception error)
 				{
-					Workfield.SQLErrorWindow.SQLErrorTextBlock.Text = error.ToString();
+					Workfield.SQLErrorWindow.SQLErrorTextBlock.Text += "\n\n\n" + error.ToString();
 					Workfield.WorkWindow.IsEnabled = false;
 					Workfield.SQLErrorWindow.Show();
 					Workfield.isFatalError = true;
+					return;
 				}
 			}
 		}
@@ -1340,12 +1442,13 @@ namespace TOGIRRO_ControlTesting
 			if (e.EditAction == DataGridEditAction.Commit)
 			{
 				Answer currentAnswer = e.Row.Item as Answer;
+				Question currentQuestion = AnswerList.SelectedItem as Question;
 
 				try
 				{
 					string command =
 						"UPDATE Answer SET RightAnswer='" + currentAnswer.RightAnswer + "', Score="
-						+ currentAnswer.Score.ToString() + " WHERE Question_FK=" + Workfield.CurrentQuestion.QuestionID.ToString()
+						+ currentAnswer.Score.ToString() + " WHERE Question_FK=" + currentQuestion.QuestionID.ToString()
 						+ " AND Answer_ID=" + currentAnswer.AnswerID.ToString();
 					using (SqlCommand com = new SqlCommand(command, Workfield.SQLConnection))
 					{
@@ -1354,12 +1457,13 @@ namespace TOGIRRO_ControlTesting
 						Workfield.SQLConnection.Close();
 					}
 				}
-				catch (SqlException error)
+				catch (Exception error)
 				{
-					Workfield.SQLErrorWindow.SQLErrorTextBlock.Text = error.ToString();
+					Workfield.SQLErrorWindow.SQLErrorTextBlock.Text += "\n\n\n" + error.ToString();
 					Workfield.WorkWindow.IsEnabled = false;
 					Workfield.SQLErrorWindow.Show();
 					Workfield.isFatalError = true;
+					return;
 				}
 			}
 		}
@@ -1398,28 +1502,159 @@ namespace TOGIRRO_ControlTesting
 						Workfield.SQLConnection.Close();
 					}
 				}
-				catch (SqlException error)
+				catch (Exception error)
 				{
-					Workfield.SQLErrorWindow.SQLErrorTextBlock.Text = error.ToString();
+					Workfield.SQLErrorWindow.SQLErrorTextBlock.Text += "\n\n\n" + error.ToString();
 					Workfield.WorkWindow.IsEnabled = false;
 					Workfield.SQLErrorWindow.Show();
 					Workfield.isFatalError = true;
+					return;
 				}
 			}
 		}
-        #endregion
-        //------------------------------------------------------------------------------------------------------------------------------------
+		#endregion
+		//------------------------------------------------------------------------------------------------------------------------------------
 
 
 
-        //------------------------------------------------------------------------------------------------------------------------------------
-        //---Обработка ошибок предметов-------------------------------------------------------------------------------------------------------
-        //------------------------------------------------------------------------------------------------------------------------------------
-        #region
-        /*
+		//------------------------------------------------------------------------------------------------------------------------------------
+		//---Создание, редактирование и удаление разбаловки ошибок----------------------------------------------------------------------------
+		//------------------------------------------------------------------------------------------------------------------------------------
+		#region
+		/*
+			Событие добавления нового юнита разбаловки ошибок в DataGrid
+		*/
+		private void ErrorsPerQuestionList_AddingNewItem(object sender, AddingNewItemEventArgs e)
+		{
+			e.NewItem = new ErrorScaleUnit();
+			ErrorScaleUnit newErrorScaleUnit = e.NewItem as ErrorScaleUnit;
+
+			AnswerCharacteristic currentAnswerCharacteristic = QuestionList.SelectedItem as AnswerCharacteristic;
+
+			try
+			{
+				string command =
+					"INSERT INTO ErrorScaleUnit (AnswerCharacteristic_FK, ErrorCount, Score) VALUES(" + currentAnswerCharacteristic.AnswerCharacteristicID.ToString() + ", '"
+					+ newErrorScaleUnit.ErrorCount + "', " + newErrorScaleUnit.Score.ToString() + ")";
+				using (SqlCommand com = new SqlCommand(command, Workfield.SQLConnection))
+				{
+					Workfield.SQLConnection.Open();
+					com.ExecuteNonQuery();
+					Workfield.SQLConnection.Close();
+				}
+			}
+			catch (Exception error)
+			{
+				Workfield.SQLErrorWindow.SQLErrorTextBlock.Text += "\n\n\n" + error.ToString();
+				Workfield.WorkWindow.IsEnabled = false;
+				Workfield.SQLErrorWindow.Show();
+				Workfield.isFatalError = true;
+				return;
+			}
+
+			try
+			{
+				string command =
+					"SELECT MAX(ErrorScaleUnit_ID) FROM ErrorScaleUnit";
+				using (SqlCommand com = new SqlCommand(command, Workfield.SQLConnection))
+				{
+					Workfield.SQLConnection.Open();
+					using (SqlDataReader reader = com.ExecuteReader())
+					{
+						reader.Read();
+						((ErrorScaleUnit)e.NewItem).ErrorScaleUnitID = reader.GetInt32(0);
+					}
+					Workfield.SQLConnection.Close();
+				}
+			}
+			catch (Exception error)
+			{
+				Workfield.SQLErrorWindow.SQLErrorTextBlock.Text += "\n\n\n" + error.ToString();
+				Workfield.WorkWindow.IsEnabled = false;
+				Workfield.SQLErrorWindow.Show();
+				Workfield.isFatalError = true;
+				return;
+			}
+		}
+
+		/*
+			Событие удаления юнита разбаловки ошибок в DataGrid
+		*/
+		private void ErrorsPerQuestionList_PreviewCanExecute(object sender, CanExecuteRoutedEventArgs e)
+		{
+			DataGrid grid = (DataGrid)sender;
+			if (e.Command == DataGrid.DeleteCommand)
+			{
+				ErrorScaleUnit currentErrorScaleUnit = grid.SelectedItem as ErrorScaleUnit;
+
+				try
+				{
+					string command =
+						"DELETE FROM ErrorScaleUnit WHERE ErrorScaleUnit_ID=" + currentErrorScaleUnit.ErrorScaleUnitID.ToString();
+					using (SqlCommand com = new SqlCommand(command, Workfield.SQLConnection))
+					{
+						Workfield.SQLConnection.Open();
+						com.ExecuteNonQuery();
+						Workfield.SQLConnection.Close();
+					}
+				}
+				catch (Exception error)
+				{
+					Workfield.SQLErrorWindow.SQLErrorTextBlock.Text += "\n\n\n" + error.ToString();
+					Workfield.WorkWindow.IsEnabled = false;
+					Workfield.SQLErrorWindow.Show();
+					Workfield.isFatalError = true;
+					return;
+				}
+			}
+		}
+
+		/*
+			Событие подтверждения редактирования юнита разбаловки ошибок в DataGrid
+		*/
+		private void ErrorsPerQuestionList_RowEditEnding(object sender, DataGridRowEditEndingEventArgs e)
+		{
+			if (e.EditAction == DataGridEditAction.Commit)
+			{
+				ErrorScaleUnit currentErrorScaleUnit = e.Row.Item as ErrorScaleUnit;
+				AnswerCharacteristic currentAnswerCharacteristic = QuestionList.SelectedItem as AnswerCharacteristic;
+
+				try
+				{
+					string command =
+						"UPDATE ErrorScaleUnit SET ErrorCount=" + currentErrorScaleUnit.ErrorCount + ", Score="
+						+ currentErrorScaleUnit.Score.ToString() + " WHERE AnswerCharacteristic_FK=" + currentAnswerCharacteristic.AnswerCharacteristicID.ToString()
+						+ " AND ErrorScaleUnit_ID=" + currentErrorScaleUnit.ErrorScaleUnitID.ToString();
+					using (SqlCommand com = new SqlCommand(command, Workfield.SQLConnection))
+					{
+						Workfield.SQLConnection.Open();
+						com.ExecuteNonQuery();
+						Workfield.SQLConnection.Close();
+					}
+				}
+				catch (Exception error)
+				{
+					Workfield.SQLErrorWindow.SQLErrorTextBlock.Text += "\n\n\n" + error.ToString();
+					Workfield.WorkWindow.IsEnabled = false;
+					Workfield.SQLErrorWindow.Show();
+					Workfield.isFatalError = true;
+					return;
+				}
+			}
+		}
+		#endregion
+		//------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+		//------------------------------------------------------------------------------------------------------------------------------------
+		//---Обработка ошибок предметов-------------------------------------------------------------------------------------------------------
+		//------------------------------------------------------------------------------------------------------------------------------------
+		#region
+		/*
 			Событие наведения мыши на иконку ошибки
 		*/
-        private void Alert_MouseEnter(object sender, MouseEventArgs e)
+		private void Alert_MouseEnter(object sender, MouseEventArgs e)
 		{
 			Image AlertImage = sender as Image;
 			Border AlertBorder = AlertImage.Parent as Border;

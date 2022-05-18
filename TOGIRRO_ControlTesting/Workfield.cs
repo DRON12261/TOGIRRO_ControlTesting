@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
+using System.Windows;
 using Microsoft.Data.SqlClient;
 
 /*
@@ -21,8 +22,9 @@ using Microsoft.Data.SqlClient;
 ------Отслеживание ввода в таблице шкалирования
 ------Поиск в предметах
 Макс балл и алерты в трее
-Привязка к БД
-Разбаловка шаблона вопроса
+------Привязка к БД
+------Разбаловка шаблона вопроса
+Довести до ума интерфейс
 
 Ошибки:
 Непоследовательность итоговых баллов
@@ -80,6 +82,8 @@ namespace TOGIRRO_ControlTesting
 		static public ObservableCollection<Subject> Subjects = new ObservableCollection<Subject> { };
 		static public ObservableCollection<Subject> ActualSubjects = new ObservableCollection<Subject> { };
 
+		static public IInputElement focusedControl = null;
+
 		//Указатели на текущий предмет, вариант, шаблон вопроса, вопрос и список ошибок
 		static public Subject CurrentSubject = null;
 		static public Variant CurrentVariant = null;
@@ -92,12 +96,40 @@ namespace TOGIRRO_ControlTesting
 		static public SqlConnection SQLConnection = null;
 		static public bool isFatalError = false;
 
-        /*
+		//Перечисления
+		static public Dictionary<int, string> SubjectTypes = new Dictionary<int, string>() { };
+		static public Dictionary<int, string> QuestionTypes = new Dictionary<int, string>() { };
+		static public Dictionary<int, string> CheckTypes = new Dictionary<int, string>() { };
+
+		/*
+			Получение ключа по значению из Dictionary
+		*/
+		#region
+		public static T KeyByValue<T, W>(this Dictionary<T, W> dict, W val)
+		{
+			T key = default;
+			foreach (KeyValuePair<T, W> pair in dict)
+			{
+				if (EqualityComparer<W>.Default.Equals(pair.Value, val))
+				{
+					key = pair.Key;
+					break;
+				}
+			}
+			return key;
+		}
+		#endregion
+
+		/*
 			Инициализация параметров
 		*/
-        #region
-        static public void Init()
+		#region
+		static public void Init()
 		{
+			SubjectTypes.Add(1, "НЕ ОБОЗНАЧЕНО");
+			QuestionTypes.Add(1, "НЕ ОБОЗНАЧЕНО");
+			CheckTypes.Add(1, "НЕ ОБОЗНАЧЕНО");
+
 			INIReader ConfigFile = new INIReader("Config/Config.ini");
 			SQLBuilder.DataSource = ConfigFile.Read("DataSource", "SQL");
 			SQLBuilder.IntegratedSecurity = bool.Parse(ConfigFile.Read("IntegratedSecurity", "SQL"));
@@ -112,25 +144,77 @@ namespace TOGIRRO_ControlTesting
 
 			try
 			{
-				using (SqlCommand com = new SqlCommand("SELECT * FROM AlertType", SQLConnection))
+				using (SqlCommand com = new SqlCommand("SELECT * FROM ControlEvent", SQLConnection))
 				{
 					SQLConnection.Open();
 					using (SqlDataReader reader = com.ExecuteReader())
 					{
 						while (reader.Read())
 						{
-							SQLErrorWindow.SQLErrorTextBlock.Text += reader.GetInt32(0).ToString() + " " + reader.GetString(1) + "\n";
+							if (reader.GetInt32(0) == 1) continue;
+							SubjectTypes.Add(reader.GetInt32(0), reader.GetString(1));
 						}
 					}
 					SQLConnection.Close();
 				}
 			}
-			catch (SqlException e)
+			catch (Exception e)
 			{
-				SQLErrorWindow.SQLErrorTextBlock.Text = e.ToString();
+				SQLErrorWindow.SQLErrorTextBlock.Text += "\n\n\n" + e.ToString();
 				WorkWindow.IsEnabled = false;
 				SQLErrorWindow.Show();
 				isFatalError = true;
+				return;
+			}
+
+			try
+			{
+				using (SqlCommand com = new SqlCommand("SELECT * FROM QuestionType", SQLConnection))
+				{
+					SQLConnection.Open();
+					using (SqlDataReader reader = com.ExecuteReader())
+					{
+						while (reader.Read())
+						{
+							if (reader.GetInt32(0) == 1) continue;
+							QuestionTypes.Add(reader.GetInt32(0), reader.GetString(1));
+						}
+					}
+					SQLConnection.Close();
+				}
+			}
+			catch (Exception e)
+			{
+				SQLErrorWindow.SQLErrorTextBlock.Text += "\n\n\n" + e.ToString();
+				WorkWindow.IsEnabled = false;
+				SQLErrorWindow.Show();
+				isFatalError = true;
+				return;
+			}
+
+			try
+			{
+				using (SqlCommand com = new SqlCommand("SELECT * FROM CheckType", SQLConnection))
+				{
+					SQLConnection.Open();
+					using (SqlDataReader reader = com.ExecuteReader())
+					{
+						while (reader.Read())
+						{
+							if (reader.GetInt32(0) == 1) continue;
+							CheckTypes.Add(reader.GetInt32(0), reader.GetString(1));
+						}
+					}
+					SQLConnection.Close();
+				}
+			}
+			catch (Exception e)
+			{
+				SQLErrorWindow.SQLErrorTextBlock.Text += "\n\n\n" + e.ToString();
+				WorkWindow.IsEnabled = false;
+				SQLErrorWindow.Show();
+				isFatalError = true;
+				return;
 			}
 
 			ActualSubjects = Subjects;
@@ -143,43 +227,6 @@ namespace TOGIRRO_ControlTesting
         #region
         static public void PreLoad()
         {
-			Subjects.Add(new Subject()
-			{
-				Name = "Русский язык",
-				Type = SubjectTypeEnum.Type1,
-				Description = "Русский язык. 11 класс. 2019 г.",
-				IsMark = true
-			});
-			Subjects.Add(new Subject()
-			{
-				Name = "История",
-				Type = SubjectTypeEnum.Type1,
-				Description = "История. 11 класс. 2019 г.",
-				IsMark = true
-			});
-			Subjects.Add(new Subject()
-			{
-				Name = "Обществознание",
-				Type = SubjectTypeEnum.Type2,
-				Description = "Обществознание. 9 класс. 2020 г.",
-				IsMark = false
-			});
-
-			Subjects[0].Questions.Add(new AnswerCharacteristic()
-			{
-				Number = 1,
-				QuestionType = QuestionTypeEnum.Type1,
-				MaxScore = 1
-			});
-			Subjects[0].Questions.Add(new AnswerCharacteristic()
-			{
-				Number = 2,
-				QuestionType = QuestionTypeEnum.Type1,
-				MaxScore = 1
-			});
-
-			Subjects[0].Alerts.Add(new Alert(AlertType.NoScoreForAnswer, "Описание ошибки"));
-			Subjects[1].Alerts.Add(new Alert(AlertType.NotEnoughScoreForQuestion, "Описание ошибки 2"));
 		}
         #endregion
 
@@ -206,7 +253,7 @@ namespace TOGIRRO_ControlTesting
 								MinScore = reader.GetInt16(3),
 								Name = reader.GetString(4),
 								Description = reader.GetString(5),
-								Type = (SubjectTypeEnum)reader.GetInt32(6),
+								Type = SubjectTypes[reader.GetInt32(6)],
 								ProjectFolderPath = reader.GetString(7),
 								RegistrationForm = reader.GetString(8),
 								AnswersForm1 = reader.GetString(9),
@@ -219,12 +266,13 @@ namespace TOGIRRO_ControlTesting
 					SQLConnection.Close();
 				}
 			}
-			catch (SqlException e)
+			catch (Exception e)
 			{
-				SQLErrorWindow.SQLErrorTextBlock.Text = e.ToString();
+				SQLErrorWindow.SQLErrorTextBlock.Text += "\n\n\n" + e.ToString();
 				WorkWindow.IsEnabled = false;
 				SQLErrorWindow.Show();
 				isFatalError = true;
+				return;
 			}
 		}
         #endregion
@@ -268,9 +316,6 @@ namespace TOGIRRO_ControlTesting
 			Итераторы перечислений (для корректного вывода описания перечислений)
 		*/
         #region
-        static public IEnumerable<SubjectTypeEnum> SubjectTypeEnumValues => Enum.GetValues(typeof(SubjectTypeEnum)).Cast<SubjectTypeEnum>();
-		static public IEnumerable<QuestionTypeEnum> QuestionTypeEnumValues => Enum.GetValues(typeof(QuestionTypeEnum)).Cast<QuestionTypeEnum>();
-		static public IEnumerable<CheckTypeEnum> CheckTypeEnumValues => Enum.GetValues(typeof(CheckTypeEnum)).Cast<CheckTypeEnum>();
 		static public IEnumerable<AlertType> AlertTypeValues => Enum.GetValues(typeof(AlertType)).Cast<AlertType>();
         #endregion
     }
@@ -283,70 +328,6 @@ namespace TOGIRRO_ControlTesting
     //===Вспомогательные классы для БД========================================================================================================
     //========================================================================================================================================
     #region
-
-    //----------------------------------------------------------------------------------------------------------------------------------------
-    //---Перечисление для типов контрольных мероприятий---------------------------------------------------------------------------------------
-    //----------------------------------------------------------------------------------------------------------------------------------------
-    #region
-    [TypeConverter(typeof(DescriptionConverter))]
-	enum SubjectTypeEnum
-	{
-		[Description("НЕ ОБОЗНАЧЕНО")]
-		UNDEFINED = 1,
-		[Description("Тип 1")]
-		Type1,
-		[Description("Тип 2")]
-		Type2,
-		[Description("Тип 3")]
-		Type3,
-		[Description("Тип 4")]
-		Type4
-	}
-	#endregion
-	//----------------------------------------------------------------------------------------------------------------------------------------
-
-	//----------------------------------------------------------------------------------------------------------------------------------------
-	//---Перечисление для типов вопросов------------------------------------------------------------------------------------------------------
-	//----------------------------------------------------------------------------------------------------------------------------------------
-	#region
-	[TypeConverter(typeof(DescriptionConverter))]
-	enum QuestionTypeEnum
-	{
-		[Description("НЕ ОБОЗНАЧЕНО")]
-		UNDEFINED = 1,
-		[Description("Тип 1")]
-		Type1,
-		[Description("Тип 2")]
-		Type2,
-		[Description("Тип 3")]
-		Type3,
-		[Description("Тип 4")]
-		Type4
-	}
-	#endregion
-	//----------------------------------------------------------------------------------------------------------------------------------------
-
-	//----------------------------------------------------------------------------------------------------------------------------------------
-	//---Перечисление для типов проверок------------------------------------------------------------------------------------------------------
-	//----------------------------------------------------------------------------------------------------------------------------------------
-	#region
-	[TypeConverter(typeof(DescriptionConverter))]
-	enum CheckTypeEnum
-	{
-		[Description("НЕ ОБОЗНАЧЕНО")]
-		UNDEFINED = 1,
-		[Description("Тип 1")]
-		Type1,
-		[Description("Тип 2")]
-		Type2,
-		[Description("Тип 3")]
-		Type3,
-		[Description("Тип 4")]
-		Type4
-	}
-	#endregion
-	//----------------------------------------------------------------------------------------------------------------------------------------
-
 	//----------------------------------------------------------------------------------------------------------------------------------------
 	//---Перечисление для типов ошибок--------------------------------------------------------------------------------------------------------
 	//----------------------------------------------------------------------------------------------------------------------------------------
@@ -406,13 +387,30 @@ namespace TOGIRRO_ControlTesting
 		public short MinScore { get; set; }
 		public string Name { get; set; }
 		public string Description { get; set; }
-		public SubjectTypeEnum Type { get; set; }
+		public string Type { get; set; }
 		public string ProjectFolderPath { get; set; }
 		public string RegistrationForm { get; set; }
 		public string AnswersForm1 { get; set; }
 		public string AnswersForm2 { get; set; }
 		public string LogFile { get; set; }
 		public bool IsMark { get; set; }
+		public string IsMarkValue
+        {
+			get
+			{
+				if (IsMark)
+                {
+					return "Оценка";
+                }
+                else
+                {
+					return "Балл";
+                }
+
+			}
+			set { }
+            
+        }
 		public ObservableCollection<Alert> Alerts = null;
 		public ObservableCollection<ScaleUnit> ScaleSystem { get; set; }
 
@@ -428,7 +426,7 @@ namespace TOGIRRO_ControlTesting
 			ProjectFolderPath = ""; RegistrationForm = "";
 			AnswersForm1 = ""; AnswersForm2 = "";
 			LogFile = ""; IsMark = false;
-			Type = SubjectTypeEnum.UNDEFINED;
+			Type = Workfield.SubjectTypes[1];
 
 			Questions = new ObservableCollection<AnswerCharacteristic> { };
 			Variants = new ObservableCollection<Variant> { };
@@ -470,17 +468,41 @@ namespace TOGIRRO_ControlTesting
 		public short Number { get; set; }
 		public string Criterion { get; set; }
 		public string ValidChars { get; set; }
-		public QuestionTypeEnum QuestionType { get; set; }
-		public CheckTypeEnum CheckType { get; set; }
+		public string QuestionType { get; set; }
+		public int QuestionTypeKey
+		{
+			get
+			{
+				return Workfield.KeyByValue<int, string>(Workfield.QuestionTypes, QuestionType);
+			}
+			set
+			{
+				QuestionType = Workfield.QuestionTypes[value];
+			}
+		}
+		public string CheckType { get; set; }
+		public int CheckTypeKey
+		{
+			get
+			{
+				return Workfield.KeyByValue<int, string>(Workfield.CheckTypes, CheckType);
+			}
+			set
+			{
+				CheckType = Workfield.CheckTypes[value];
+			}
+		}
 		public short MaxScore { get; set; }
+		public List<ErrorScaleUnit> Errors { get; set; }
 
 		public AnswerCharacteristic()
 		{
 			AnswerCharacteristicID = 0;
 			Number = 0; Criterion = "";
 			ValidChars = ""; MaxScore = 0;
-			CheckType = CheckTypeEnum.UNDEFINED;
-			QuestionType = QuestionTypeEnum.UNDEFINED;
+			CheckType = Workfield.CheckTypes[1];
+			QuestionType = Workfield.QuestionTypes[1];
+			Errors = new List<ErrorScaleUnit>() { };
 		}
 	}
 	#endregion
@@ -496,7 +518,18 @@ namespace TOGIRRO_ControlTesting
 		public short Number { get; set; }
 		public short InVariant { get; set; }
 		public short MaxScore { get; set; }
-		public QuestionTypeEnum QuestionType { get; set; }
+		public string QuestionType { get; set; }
+		public int QuestionTypeKey 
+		{
+            get
+            {
+				return Workfield.KeyByValue<int, string>(Workfield.QuestionTypes, QuestionType);
+            }
+            set
+            {
+				QuestionType = Workfield.QuestionTypes[value];
+            }
+		}
 		public List<Answer> Answers { get; set; }
 
 		public AnswerCharacteristic QuestionTemplate = null;
@@ -505,7 +538,7 @@ namespace TOGIRRO_ControlTesting
 		{
 			QuestionID = 0;
 			Number = 0; InVariant = 0; MaxScore = 0;
-			QuestionType = QuestionTypeEnum.UNDEFINED;
+			QuestionType = Workfield.QuestionTypes[1];
 			Answers = new List<Answer>() { };
 			QuestionTemplate = questionTemplate;
 		}
@@ -529,6 +562,25 @@ namespace TOGIRRO_ControlTesting
 			RightAnswer = ""; Score = 0;
 		}
 	}
+	#endregion
+	//----------------------------------------------------------------------------------------------------------------------------------------
+
+	//----------------------------------------------------------------------------------------------------------------------------------------
+	//---Класс ErrorScaleUnit для разбаловки ошибок---------------------------------------------------------------------------------------------------
+	//----------------------------------------------------------------------------------------------------------------------------------------
+	#region
+	class ErrorScaleUnit
+    {
+		public int ErrorScaleUnitID { get; set; }
+		public short ErrorCount { get; set; }
+		public short Score { get; set; }
+
+		public ErrorScaleUnit()
+        {
+			ErrorScaleUnitID = 0;
+			ErrorCount = 0; Score = 1;
+		}
+    }
 	#endregion
 	//----------------------------------------------------------------------------------------------------------------------------------------
 

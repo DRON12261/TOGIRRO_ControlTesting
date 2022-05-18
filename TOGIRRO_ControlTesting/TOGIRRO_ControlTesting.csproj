@@ -173,10 +173,10 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
-    <ApplicationDefinition Include="App.xaml">
+    <Page Include="App.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
-    </ApplicationDefinition>
+    </Page>
     <Compile Include="INIReader.cs" />
     <Compile Include="SQLErrorWindow.xaml.cs">
       <DependentUpon>SQLErrorWindow.xaml</DependentUpon>

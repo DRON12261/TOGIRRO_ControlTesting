@@ -133,10 +133,11 @@
                                     <DataTemplate>
                                         <Grid>
                                             <Grid.ColumnDefinitions>
-                                                <ColumnDefinition/>
+                                                <ColumnDefinition MaxWidth="200"/>
                                                 <ColumnDefinition/>
                                             </Grid.ColumnDefinitions>
                                             <Grid.RowDefinitions>
+                                                <RowDefinition/>
                                                 <RowDefinition/>
                                                 <RowDefinition/>
                                                 <RowDefinition/>
@@ -174,6 +175,9 @@
 
                                             <Label Grid.Column="0" Grid.Row="8">Имя файла протоколов</Label>
                                             <TextBox Grid.Column="1" Grid.Row="8" IsReadOnly="True" Text="{Binding LogFile}"></TextBox>
+
+                                            <Label Grid.Column="0" Grid.Row="9">Система оценивания</Label>
+                                            <TextBox Grid.Column="1" Grid.Row="9" IsReadOnly="True" Text="{Binding IsMarkValue}"></TextBox>
                                         </Grid>
                                     </DataTemplate>
                                 </DataGrid.RowDetailsTemplate>
@@ -344,17 +348,17 @@
                     </Grid.ColumnDefinitions>
 
                     <Grid Margin="10,0,10,10" Grid.Column="0">
-                        <Button Click="ButtonC_CreateSubject">
+                        <ToggleButton Name="CreateSubjectMenu_Button" Click="ButtonC_CreateSubject">
                             <Image Source="Icons/Plus.png"/>
-                        </Button>
+                        </ToggleButton>
                     </Grid>
                     <Grid Margin="0,0,0,10" Grid.Column="1">
-                        <Button Click="ButtonC_EditSubject">
+                        <ToggleButton Name="EditSubjectMenu_Button" Click="ButtonC_EditSubject">
                             <Image Source="Icons/Edit.png"/>
-                        </Button>
+                        </ToggleButton>
                     </Grid>
                     <Grid Margin="10,0,10,10" Grid.Column="2">
-                        <Button Click="ButtonC_DeleteSubject">
+                        <Button Name="DeleteSubject_Button" Click="ButtonC_DeleteSubject">
                             <Image Source="Icons/Trash.png"/>
                         </Button>
                     </Grid>
@@ -389,8 +393,8 @@
                                 <RowDefinition/>
                             </Grid.RowDefinitions>
 
-                            <Label Name="CurrentSubjectName1" Grid.Row="0" Grid.Column="0" Margin="0,0,0,10"></Label>
-                            <Label Name="CurrentSubjectType1" Grid.Row="0" Grid.Column="1" Margin="0,0,0,10"></Label>
+                            <Label Name="CurrentSubjectName1" HorizontalAlignment="Center" FontStretch="ExtraExpanded" Grid.Row="0" Grid.Column="0" Margin="0,0,0,10"></Label>
+                            <Label Name="CurrentSubjectType1" HorizontalAlignment="Center" FontStretch="ExtraExpanded" Grid.Row="0" Grid.Column="1" Margin="0,0,0,10"></Label>
 
                             <TabControl Grid.Row="1" Grid.Column="0" Margin="0,0,10,10" Padding="0">
                                 <TabControl.Resources>
@@ -459,11 +463,11 @@
                                 </Button>
                             </Grid>
 
-                            <DataGrid Name="AnswerList" Grid.ColumnSpan="2" Grid.Row="2" AutoGenerateColumns="False" RowDetailsVisibilityMode="VisibleWhenSelected" CanUserAddRows="False" CanUserDeleteRows="False" SelectionChanged="AnswerList_SelectionChanged" IsSynchronizedWithCurrentItem="True">
+                            <DataGrid Name="AnswerList" Grid.ColumnSpan="2" Grid.Row="2" AutoGenerateColumns="False" RowDetailsVisibilityMode="VisibleWhenSelected" CanUserAddRows="False" CanUserDeleteRows="False" IsSynchronizedWithCurrentItem="True">
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="№" Binding="{Binding RelativeSource={RelativeSource AncestorType=DataGridRow}, Converter={local:RowToIndexConverter}}" Width="30" IsReadOnly="True"/>
                                     <DataGridTextColumn Header="Номер в вар." Binding="{Binding InVariant}" Width="100" IsReadOnly="True"/>
-                                    <DataGridComboBoxColumn Header="Тип вопроса" ItemsSource="{Binding Source={x:Static local:Workfield.QuestionTypeEnumValues}}" SelectedValueBinding="{Binding QuestionType}" Width="200" IsReadOnly="True"/>
+                                    <DataGridComboBoxColumn Header="Тип вопроса" ItemsSource="{Binding Source={x:Static local:Workfield.QuestionTypes}}" SelectedValueBinding="{Binding QuestionTypeKey}" SelectedValuePath="Key" DisplayMemberPath="Value" Width="200" IsReadOnly="True"/>
                                     <DataGridTextColumn Header="Максимальный балл" Binding="{Binding MaxScore}" Width="200" IsReadOnly="True"/>
                                 </DataGrid.Columns>
                                 <DataGrid.RowDetailsTemplate>
@@ -497,8 +501,8 @@
                                 <RowDefinition/>
                             </Grid.RowDefinitions>
 
-                            <Label Name="CurrentSubjectName2" Grid.Row="0" Grid.Column="0" Margin="0,0,0,10"></Label>
-                            <Label Name="CurrentSubjectType2" Grid.Row="0" Grid.Column="1" Margin="0,0,0,10"></Label>
+                            <Label Name="CurrentSubjectName2" HorizontalAlignment="Center" FontStretch="ExtraExpanded" Grid.Row="0" Grid.Column="0" Margin="0,0,0,10"></Label>
+                            <Label Name="CurrentSubjectType2" HorizontalAlignment="Center" FontStretch="ExtraExpanded" Grid.Row="0" Grid.Column="1" Margin="0,0,0,10"></Label>
 
                             <DataGrid Name="ScaleList" Grid.ColumnSpan="2" Grid.Row="1" AutoGenerateColumns="False" CanUserDeleteRows="False" CanUserAddRows="False" IsSynchronizedWithCurrentItem="True" RowEditEnding="ScaleList_RowEditEnding">
                                 <DataGrid.Columns>
@@ -527,18 +531,28 @@
                                 <RowDefinition/>
                             </Grid.RowDefinitions>
 
-                            <Label Name="CurrentSubjectName3" Grid.Row="0" Grid.Column="0" Margin="0,0,0,10"></Label>
-                            <Label Name="CurrentSubjectType3" Grid.Row="0" Grid.Column="1" Margin="0,0,0,10"></Label>
+                            <Label Name="CurrentSubjectName3" HorizontalAlignment="Center" FontStretch="ExtraExpanded" Grid.Row="0" Grid.Column="0" Margin="0,0,0,10"></Label>
+                            <Label Name="CurrentSubjectType3" HorizontalAlignment="Center" FontStretch="ExtraExpanded" Grid.Row="0" Grid.Column="1" Margin="0,0,0,10"></Label>
 
-                            <DataGrid Name="QuestionList" Grid.ColumnSpan="2" Grid.Row="1" AutoGenerateColumns="False" CanUserAddRows="True" CanUserDeleteRows="True" CanUserReorderColumns="True" CanUserResizeColumns="True" CanUserSortColumns="True" AddingNewItem="QuestionList_AddingNewItem" CommandManager.PreviewCanExecute="QuestionList_PreviewCanExecute" RowEditEnding="QuestionList_RowEditEnding" IsSynchronizedWithCurrentItem="True">
+                            <DataGrid Name="QuestionList" Grid.ColumnSpan="2" Grid.Row="1" AutoGenerateColumns="False" RowDetailsVisibilityMode="VisibleWhenSelected" CanUserAddRows="True" CanUserDeleteRows="True" CanUserReorderColumns="True" CanUserResizeColumns="True" CanUserSortColumns="True" AddingNewItem="QuestionList_AddingNewItem" CommandManager.PreviewCanExecute="QuestionList_PreviewCanExecute" RowEditEnding="QuestionList_RowEditEnding" IsSynchronizedWithCurrentItem="True">
                                 <DataGrid.Columns>
                                     <local:DataGridNumericColumn Header="№" Binding="{Binding Number, UpdateSourceTrigger=PropertyChanged}"/>
                                     <DataGridTextColumn Header="Критерий" Binding="{Binding Criterion, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
                                     <DataGridTextColumn Header="Допустимые символы" Binding="{Binding ValidChars, UpdateSourceTrigger=PropertyChanged}" Width="200"/>
-                                    <DataGridComboBoxColumn Header="Тип вопроса" ItemsSource="{Binding Source={x:Static local:Workfield.QuestionTypeEnumValues}}" SelectedValueBinding="{Binding QuestionType, UpdateSourceTrigger=PropertyChanged}" Width="150"/>
-                                    <DataGridComboBoxColumn Header="Тип проверки" ItemsSource="{Binding Source={x:Static local:Workfield.CheckTypeEnumValues}}" SelectedValueBinding="{Binding CheckType, UpdateSourceTrigger=PropertyChanged}" Width="150"/>
+                                    <DataGridComboBoxColumn Header="Тип вопроса" ItemsSource="{Binding Source={x:Static local:Workfield.QuestionTypes}}" SelectedValueBinding="{Binding QuestionTypeKey, UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="Key" DisplayMemberPath="Value" Width="150"/>
+                                    <DataGridComboBoxColumn Header="Тип проверки" ItemsSource="{Binding Source={x:Static local:Workfield.CheckTypes}}" SelectedValueBinding="{Binding CheckTypeKey, UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="Key" DisplayMemberPath="Value" Width="150"/>
                                     <local:DataGridNumericColumn Header="Максимальный балл" Binding="{Binding MaxScore, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
                                 </DataGrid.Columns>
+                                <DataGrid.RowDetailsTemplate>
+                                    <DataTemplate>
+                                        <DataGrid Name="ErrorsPerQuestionList" ItemsSource="{Binding Errors}" AutoGenerateColumns="False" CanUserDeleteRows="True" CanUserAddRows="True" GridLinesVisibility="Vertical" AddingNewItem="ErrorsPerQuestionList_AddingNewItem"  CommandManager.PreviewCanExecute="ErrorsPerQuestionList_PreviewCanExecute"  RowEditEnding="ErrorsPerQuestionList_RowEditEnding"  IsSynchronizedWithCurrentItem="True">
+                                            <DataGrid.Columns>
+                                                <local:DataGridNumericColumn Header="Количество ошибок" Binding="{Binding ErrorCount, UpdateSourceTrigger=PropertyChanged}" Width="300"/>
+                                                <local:DataGridNumericColumn Header="Баллы" Binding="{Binding Score, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
+                                            </DataGrid.Columns>
+                                        </DataGrid>
+                                    </DataTemplate>
+                                </DataGrid.RowDetailsTemplate>
                             </DataGrid>
                         </Grid>
                     </Grid>
