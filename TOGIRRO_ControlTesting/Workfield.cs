@@ -5,6 +5,9 @@ using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
+using System.Windows.Media;
 using Microsoft.Data.SqlClient;
 
 /*
@@ -25,6 +28,9 @@ using Microsoft.Data.SqlClient;
 ------Привязка к БД
 ------Разбаловка шаблона вопроса
 Довести до ума интерфейс
+------кнопки переключения видимости подтаблиц
+обязательное уникальное название варианта
+переход к месту ошибки
 
 Ошибки:
 Непоследовательность итоговых баллов
@@ -32,6 +38,7 @@ using Microsoft.Data.SqlClient;
 Отсутствие эталонного ответа
 Отсутствие балла за ответ
 Отсутствие максимального балла за шаблон вопроса
+Отсутствие разбаловки ошибок
 Недостаточное кол-во баллов за ответы на вопрос
 Избыточное кол-во баллов за ответы на вопрос
 Незаполнено какое-либо поле
@@ -310,12 +317,50 @@ namespace TOGIRRO_ControlTesting
 
 			return -1;
 		}
-        #endregion
+		#endregion
 
-        /*
+		/*
 			Итераторы перечислений (для корректного вывода описания перечислений)
 		*/
-        #region
+
+		static public T GetVisualChild<T>(Visual parent) where T : Visual
+		{
+			T child = default(T);
+			int numVisuals = VisualTreeHelper.GetChildrenCount(parent);
+			for (int i = 0; i < numVisuals; i++)
+			{
+				Visual v = (Visual)VisualTreeHelper.GetChild(parent, i);
+				child = v as T;
+				if (child == null)
+				{
+					child = GetVisualChild<T>(v);
+				}
+				if (child != null)
+				{
+					break;
+				}
+			}
+			return child;
+		}
+
+		static public DataGridCell GetCell(this DataGrid grid, DataGridRow row, int columnIndex)
+		{
+			if (row != null)
+			{
+				DataGridCellsPresenter presenter = GetVisualChild<DataGridCellsPresenter>(row);
+
+				if (presenter == null)
+				{
+					grid.ScrollIntoView(row, grid.Columns[columnIndex]);
+					presenter = GetVisualChild<DataGridCellsPresenter>(row);
+				}
+
+				DataGridCell cell = (DataGridCell)presenter.ItemContainerGenerator.ContainerFromIndex(columnIndex);
+				return cell;
+			}
+			return null;
+		}
+		#region
 		static public IEnumerable<AlertType> AlertTypeValues => Enum.GetValues(typeof(AlertType)).Cast<AlertType>();
         #endregion
     }
@@ -343,14 +388,10 @@ namespace TOGIRRO_ControlTesting
 		MarkInconsequence,
 		[Description("Отсутствует эталонный ответ")]
 		NoReferenceResponce,
-		[Description("Отсутствует балл за ответ")]
-		NoScoreForAnswer,
-		[Description("Отсутствует макс. балл за вопрос")]
-		NoScoreForQuestion,
-		[Description("Недостаточное кол-во баллов за вопрос")]
-		NotEnoughScoreForQuestion,
-		[Description("Избыточное кол-во баллов за вопрос")]
-		ExcessScoreForQuestion
+		[Description("Недостаточное или избыточное кол-во баллов за вопрос")]
+		NotEnoughOrExcessScoreForQuestion,
+        [Description("Отсутствие разбаловки ошибок")]
+		NoErrorScaleSystem
 	}
 	#endregion
 	//----------------------------------------------------------------------------------------------------------------------------------------
@@ -420,8 +461,8 @@ namespace TOGIRRO_ControlTesting
 
 		public Subject()
 		{
-			SubjectCode = 0; EventCode = 0;
-			MinScore = 0; SubjectID = 0;
+			SubjectCode = -1; EventCode = -1;
+			MinScore = -1; SubjectID = 0;
 			Name = ""; Description = "";
 			ProjectFolderPath = ""; RegistrationForm = "";
 			AnswersForm1 = ""; AnswersForm2 = "";
@@ -498,11 +539,11 @@ namespace TOGIRRO_ControlTesting
 		public AnswerCharacteristic()
 		{
 			AnswerCharacteristicID = 0;
-			Number = 0; Criterion = "";
-			ValidChars = ""; MaxScore = 0;
+			Number = -1; Criterion = "";
+			ValidChars = ""; MaxScore = -1;
 			CheckType = Workfield.CheckTypes[1];
 			QuestionType = Workfield.QuestionTypes[1];
-			Errors = new List<ErrorScaleUnit>() { };
+			Errors = new List<ErrorScaleUnit>() { new ErrorScaleUnit() { ErrorCount = 0, Score = 1 } };
 		}
 	}
 	#endregion
@@ -559,7 +600,7 @@ namespace TOGIRRO_ControlTesting
 		public Answer()
 		{
 			AnswerID = 0;
-			RightAnswer = ""; Score = 0;
+			RightAnswer = ""; Score = -1;
 		}
 	}
 	#endregion
@@ -610,17 +651,11 @@ namespace TOGIRRO_ControlTesting
 				case AlertType.NoReferenceResponce:
 					Icon = "Icons/Edit.png";
 					break;
-				case AlertType.NoScoreForAnswer:
+				case AlertType.NoErrorScaleSystem:
 					Icon = "Icons/Delete.png";
 					break;
-				case AlertType.NoScoreForQuestion:
-					Icon = "Icons/Ok.png";
-					break;
-				case AlertType.NotEnoughScoreForQuestion:
+				case AlertType.NotEnoughOrExcessScoreForQuestion:
 					Icon = "Icons/Cancel.png";
-					break;
-				case AlertType.ExcessScoreForQuestion:
-					Icon = "Icons/ArrowL.png";
 					break;
 				case AlertType.MarkInconsequence:
 					Icon = "Icons/CheckResult.png";
@@ -629,6 +664,197 @@ namespace TOGIRRO_ControlTesting
 					Icon = "Icons/Settings.png";
 					break;
 			}
+		}
+	}
+	#endregion
+	//----------------------------------------------------------------------------------------------------------------------------------------
+
+	//----------------------------------------------------------------------------------------------------------------------------------------
+	//---Класс AlertManager для отслеживания статуса ошибок в настройке предмета--------------------------------------------------------------
+	//----------------------------------------------------------------------------------------------------------------------------------------
+	#region
+	static class AlertManager
+	{
+		static public bool CheckAlerts(AlertType alertTypeToCheck, object currentElement, List<object> checkData = null)
+        {
+			bool result = false;
+
+			switch (alertTypeToCheck)
+            {
+				case AlertType.FieldNotFilled:
+					result = CheckAlert_FieldNotFilled(currentElement, checkData);
+					break;
+				case AlertType.ScoreInconsequence:
+					result = CheckAlert_ScoreInconsequence(currentElement);
+					break;
+				case AlertType.MarkInconsequence:
+					result = CheckAlert_MarkInconsequence(currentElement);
+					break;
+				case AlertType.NoReferenceResponce:
+					result = CheckAlert_NoReferenceResponce(currentElement, checkData);
+					break;
+				case AlertType.NotEnoughOrExcessScoreForQuestion:
+					result = CheckAlert_NotEnoughOrExcessScoreForQuestion(currentElement, checkData);
+					break;
+				case AlertType.NoErrorScaleSystem:
+					result = CheckAlert_NoErrorScaleSystem(currentElement, checkData);
+					break;
+            }
+
+			if (Workfield.CurrentSubject != null)
+			{
+				Workfield.WorkWindow.AlertList.ItemsSource = Workfield.CurrentSubject.Alerts;
+				Workfield.WorkWindow.AlertList.Items.Refresh();
+			}
+
+			return result;
+        }
+
+		static private bool CheckAlert_FieldNotFilled(object currentElement, List<object> checkData)
+        {
+			bool result = false;
+			int eventNumber = (int)checkData[0];
+			switch (eventNumber)
+            {
+				case 1: //Поля в настройках предмета
+					{
+						TextBox currentTextBox = currentElement as TextBox;
+						string currentLabel = checkData[1] as string;
+						Subject currentSubject = checkData[2] as Subject;
+						bool isNumber = (bool)checkData[3];
+
+						if ((!isNumber && currentTextBox.Text.Trim(' ') == "") || (isNumber && currentTextBox.Text.Trim(' ') == "-1"))
+						{
+							result = true;
+							currentSubject.Alerts.Add(new Alert(AlertType.FieldNotFilled, "Не заполнено поле \"" + currentLabel + "\" в свойствах текущего предмета \"" + currentSubject.Name + ". " + currentSubject.Type + "\"."));
+						}
+					}
+
+					break;
+
+				case 2: //Таблица шкалирования
+					{
+						DataGridRow currentDataGridRow = currentElement as DataGridRow;
+						DataGridColumn currentDataGridColumn = checkData[1] as DataGridColumn;
+						int index = Workfield.WorkWindow.ScaleList.Columns.Single(c => c.Header.ToString().ToUpper() == currentDataGridColumn.Header.ToString().ToUpper()).DisplayIndex;
+						DataGridCell dgc = Workfield.GetCell(Workfield.WorkWindow.ScaleList, currentDataGridRow, index);
+						string str = Convert.ToString(((TextBlock)dgc.Content).Text);
+
+						if (str.Trim(' ') == "")
+						{
+							result = true;
+							Workfield.CurrentSubject.Alerts.Add(new Alert(AlertType.FieldNotFilled, "Не заполнено поле в таблице шкалирования текущего предмета: Первичный балл - " + ((ScaleUnit)currentDataGridRow.Item).FirstScore.ToString() + ", Столбец - " + currentDataGridColumn.Header.ToString() + "."));
+						}
+					}
+
+					break;
+
+				case 3: //Таблица эталонного ответа
+					{
+						DataGridRow currentDataGridRow = currentElement as DataGridRow;
+						DataGridColumn currentDataGridColumn = checkData[1] as DataGridColumn;
+						DataGridRow parentDataGridRow = checkData[2] as DataGridRow;
+						DataGrid currentDataGrid = checkData[3] as DataGrid;
+						bool isNumber = (bool)checkData[4];
+						int index = Workfield.WorkWindow.ScaleList.Columns.Single(c => c.Header.ToString().ToUpper() == currentDataGridColumn.Header.ToString().ToUpper()).DisplayIndex;
+						DataGridCell dgc = Workfield.GetCell(currentDataGrid, currentDataGridRow, index);
+						string str = Convert.ToString(((TextBlock)dgc.Content).Text);
+
+						if ((!isNumber && str.Trim(' ') == "") || (isNumber && str.Trim(' ') == "-1"))
+						{
+							result = true;
+							Workfield.CurrentSubject.Alerts.Add(new Alert(AlertType.FieldNotFilled, "Не заполнено поле в таблице эталонных ответов: Номер эталонного ответа - " + currentDataGrid.Items.IndexOf(currentDataGridRow.Item).ToString() + ", Столбец - " + currentDataGridColumn.Header.ToString() + ", Номер вопроса - " + Workfield.WorkWindow.AnswerList.Items.IndexOf(parentDataGridRow.Item).ToString() + "."));
+						}
+					}
+
+					break;
+
+				case 4: //Таблица шкалирования ошибок
+					{
+						DataGridRow currentDataGridRow = currentElement as DataGridRow;
+						DataGridColumn currentDataGridColumn = checkData[1] as DataGridColumn;
+						DataGridRow parentDataGridRow = checkData[2] as DataGridRow;
+						DataGrid currentDataGrid = checkData[3] as DataGrid;
+						int index = Workfield.WorkWindow.ScaleList.Columns.Single(c => c.Header.ToString().ToUpper() == currentDataGridColumn.Header.ToString().ToUpper()).DisplayIndex;
+						DataGridCell dgc = Workfield.GetCell(currentDataGrid, currentDataGridRow, index);
+						string str = Convert.ToString(((TextBlock)dgc.Content).Text);
+
+						if (str.Trim(' ') == "")
+						{
+							result = true;
+							Workfield.CurrentSubject.Alerts.Add(new Alert(AlertType.FieldNotFilled, "Не заполнено поле в таблице шкалирования ошибок: Номер строки - " + currentDataGrid.Items.IndexOf(currentDataGridRow.Item).ToString() + ", Столбец - " + currentDataGridColumn.Header.ToString() + ", Номер вопроса - " + Workfield.WorkWindow.QuestionList.Items.IndexOf(parentDataGridRow.Item).ToString() + "."));
+						}
+					}
+
+					break;
+
+				case 5: //Таблица шаблонов вопросов
+                    {
+						DataGridRow currentDataGridRow = currentElement as DataGridRow;
+						DataGridColumn currentDataGridColumn = checkData[1] as DataGridColumn;
+						bool isNumber = (bool)checkData[2];
+						int index = Workfield.WorkWindow.ScaleList.Columns.Single(c => c.Header.ToString().ToUpper() == currentDataGridColumn.Header.ToString().ToUpper()).DisplayIndex;
+						DataGridCell dgc = Workfield.GetCell(Workfield.WorkWindow.QuestionList, currentDataGridRow, index);
+
+						if (dgc.Content is TextBlock)
+						{
+							string str = Convert.ToString(((TextBlock)dgc.Content).Text);
+
+							if ((!isNumber && str.Trim(' ') == "") || (isNumber && str.Trim(' ') == "-1"))
+							{
+								result = true;
+								Workfield.CurrentSubject.Alerts.Add(new Alert(AlertType.FieldNotFilled, "Не заполнено поле в таблице шаблонов вопросов: Номер вопроса - " + Workfield.WorkWindow.QuestionList.Items.IndexOf(currentDataGridRow.Item).ToString() + ", Столбец - " + currentDataGridColumn.Header.ToString() + "."));
+							}
+						}
+						else if (dgc.Content is ComboBox)
+                        {
+							string str = Convert.ToString(((KeyValuePair<int, string>)((ComboBox)dgc.Content).SelectedItem).Value);
+
+							if (str == "НЕ ОБОЗНАЧЕНО")
+							{
+								result = true;
+								Workfield.CurrentSubject.Alerts.Add(new Alert(AlertType.FieldNotFilled, "Не заполнено поле в таблице шаблонов вопросов: Номер вопроса - " + Workfield.WorkWindow.QuestionList.Items.IndexOf(currentDataGridRow.Item).ToString() + ", Столбец - " + currentDataGridColumn.Header.ToString() + "."));
+							}
+						}
+					}					
+					break;
+            }
+			return result;
+        }
+
+		static private bool CheckAlert_ScoreInconsequence(object currentElement)
+		{
+			bool result = false;
+
+			return result;
+		}
+
+		static private bool CheckAlert_MarkInconsequence(object currentElement)
+		{
+			bool result = false;
+
+			return result;
+		}
+
+		static private bool CheckAlert_NoReferenceResponce(object currentElement, List<object> checkData)
+		{
+			bool result = false;
+
+			return result;
+		}
+
+		static private bool CheckAlert_NotEnoughOrExcessScoreForQuestion(object currentElement, List<object> checkData)
+		{
+			bool result = false;
+
+			return result;
+		}
+
+		static private bool CheckAlert_NoErrorScaleSystem(object currentElement, List<object> checkData)
+		{
+			bool result = false;
+
+			return result;
 		}
 	}
 	#endregion

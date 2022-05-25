@@ -394,7 +394,18 @@
                             </Grid.RowDefinitions>
 
                             <Label Name="CurrentSubjectName1" HorizontalAlignment="Center" FontStretch="ExtraExpanded" Grid.Row="0" Grid.Column="0" Margin="0,0,0,10"></Label>
-                            <Label Name="CurrentSubjectType1" HorizontalAlignment="Center" FontStretch="ExtraExpanded" Grid.Row="0" Grid.Column="1" Margin="0,0,0,10"></Label>
+                            
+                            <Grid Grid.Row="0" Grid.Column="1" Margin="0,0,0,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="32"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Label Name="CurrentSubjectType1" HorizontalAlignment="Center" FontStretch="ExtraExpanded" Grid.Row="0" Grid.Column="0"></Label>
+                                <Button Name="AnswerList_ChangeTableVisibilityButton" Click="AnswerList_ChangeTableVisibilityButton_Click" Grid.Column="1">
+                                    <Image Source="Icons/Ok.png"/>
+                                </Button>
+                            </Grid>
 
                             <TabControl Grid.Row="1" Grid.Column="0" Margin="0,0,10,10" Padding="0">
                                 <TabControl.Resources>
@@ -532,7 +543,17 @@
                             </Grid.RowDefinitions>
 
                             <Label Name="CurrentSubjectName3" HorizontalAlignment="Center" FontStretch="ExtraExpanded" Grid.Row="0" Grid.Column="0" Margin="0,0,0,10"></Label>
-                            <Label Name="CurrentSubjectType3" HorizontalAlignment="Center" FontStretch="ExtraExpanded" Grid.Row="0" Grid.Column="1" Margin="0,0,0,10"></Label>
+                            <Grid Grid.Row="0" Grid.Column="1" Margin="0,0,0,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="32"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Label Name="CurrentSubjectType3" HorizontalAlignment="Center" FontStretch="ExtraExpanded" Grid.Row="0" Grid.Column="0"></Label>
+                                <Button Name="QuestionList_ChangeTableVisibilityButton" Click="QuestionList_ChangeTableVisibilityButton_Click" Grid.Column="1">
+                                    <Image Source="Icons/Ok.png"/>
+                                </Button>
+                            </Grid>
 
                             <DataGrid Name="QuestionList" Grid.ColumnSpan="2" Grid.Row="1" AutoGenerateColumns="False" RowDetailsVisibilityMode="VisibleWhenSelected" CanUserAddRows="True" CanUserDeleteRows="True" CanUserReorderColumns="True" CanUserResizeColumns="True" CanUserSortColumns="True" AddingNewItem="QuestionList_AddingNewItem" CommandManager.PreviewCanExecute="QuestionList_PreviewCanExecute" RowEditEnding="QuestionList_RowEditEnding" IsSynchronizedWithCurrentItem="True">
                                 <DataGrid.Columns>
@@ -545,12 +566,32 @@
                                 </DataGrid.Columns>
                                 <DataGrid.RowDetailsTemplate>
                                     <DataTemplate>
-                                        <DataGrid Name="ErrorsPerQuestionList" ItemsSource="{Binding Errors}" AutoGenerateColumns="False" CanUserDeleteRows="True" CanUserAddRows="True" GridLinesVisibility="Vertical" AddingNewItem="ErrorsPerQuestionList_AddingNewItem"  CommandManager.PreviewCanExecute="ErrorsPerQuestionList_PreviewCanExecute"  RowEditEnding="ErrorsPerQuestionList_RowEditEnding"  IsSynchronizedWithCurrentItem="True">
-                                            <DataGrid.Columns>
-                                                <local:DataGridNumericColumn Header="Количество ошибок" Binding="{Binding ErrorCount, UpdateSourceTrigger=PropertyChanged}" Width="300"/>
-                                                <local:DataGridNumericColumn Header="Баллы" Binding="{Binding Score, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
-                                            </DataGrid.Columns>
-                                        </DataGrid>
+                                        <Grid>
+                                            <TextBlock Text='Для вопросов типа "C выбором ответа" и с типом проверки "Полное совпадение" функция ввода баллов не предусмотрена.'/>
+
+                                            <DataGrid Name="ErrorsPerQuestionList" ItemsSource="{Binding Errors}" AutoGenerateColumns="False" CanUserDeleteRows="True" CanUserAddRows="True" GridLinesVisibility="Vertical" AddingNewItem="ErrorsPerQuestionList_AddingNewItem"  CommandManager.PreviewCanExecute="ErrorsPerQuestionList_PreviewCanExecute"  RowEditEnding="ErrorsPerQuestionList_RowEditEnding"  IsSynchronizedWithCurrentItem="True">
+                                                <DataGrid.Style>
+                                                    <Style TargetType="DataGrid">
+                                                        <Style.Triggers>
+                                                            <MultiDataTrigger>
+                                                                <MultiDataTrigger.Conditions>
+                                                                    <Condition Binding="{Binding Path=QuestionTypeKey}" Value="3"/>
+                                                                    <Condition Binding="{Binding Path=CheckTypeKey}" Value="2"/>
+                                                                </MultiDataTrigger.Conditions>
+                                                                <MultiDataTrigger.Setters>
+                                                                    <Setter Property="Visibility" Value="Hidden"/>
+                                                                </MultiDataTrigger.Setters>
+                                                            </MultiDataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </DataGrid.Style>
+                                            
+                                                <DataGrid.Columns>
+                                                    <local:DataGridNumericColumn Header="Количество ошибок" Binding="{Binding ErrorCount, UpdateSourceTrigger=PropertyChanged}" Width="300"/>
+                                                    <local:DataGridNumericColumn Header="Баллы" Binding="{Binding Score, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
+                                                </DataGrid.Columns>
+                                            </DataGrid>
+                                        </Grid>
                                     </DataTemplate>
                                 </DataGrid.RowDetailsTemplate>
                             </DataGrid>

@@ -9,6 +9,7 @@ using System.Text.RegularExpressions;
 using System.Collections.ObjectModel;
 using System.Windows.Controls.Primitives;
 using Microsoft.Data.SqlClient;
+using System.Windows.Media;
 
 namespace TOGIRRO_ControlTesting
 {
@@ -53,6 +54,9 @@ namespace TOGIRRO_ControlTesting
 			MainField.IsEnabled = false;
 			SubjectsList.ItemsSource = Workfield.ActualSubjects;
 			AlertList.ItemsSource = Workfield.CurrentAlerts;
+
+			EditQuestionsMode.IsSelected = true;
+			EditQuestionsMode_Button.IsChecked = true;
 		}
 
 		/*
@@ -280,6 +284,16 @@ namespace TOGIRRO_ControlTesting
 					return;
 				}
 
+				AlertManager.CheckAlerts(AlertType.FieldNotFilled, new TextBox() { Text = newSubject.SubjectCode.ToString() }, new List<object>() { (int)1 , "Код предмета", newSubject, true });
+				AlertManager.CheckAlerts(AlertType.FieldNotFilled, new TextBox() { Text = newSubject.EventCode.ToString() }, new List<object>() { (int)1 , "Код мероприятия", newSubject, true });
+				AlertManager.CheckAlerts(AlertType.FieldNotFilled, new TextBox() { Text = newSubject.Description }, new List<object>() { (int)1, "Описание", newSubject, false });
+				AlertManager.CheckAlerts(AlertType.FieldNotFilled, new TextBox() { Text = newSubject.MinScore.ToString() }, new List<object>() { (int)1, "Минимальный балл", newSubject, true });
+				AlertManager.CheckAlerts(AlertType.FieldNotFilled, new TextBox() { Text = newSubject.ProjectFolderPath }, new List<object>() { (int)1, "Путь к папке с файлами КМ", newSubject, false });
+				AlertManager.CheckAlerts(AlertType.FieldNotFilled, new TextBox() { Text = newSubject.RegistrationForm }, new List<object>() { (int)1, "Имя бланка регистрации", newSubject, false });
+				AlertManager.CheckAlerts(AlertType.FieldNotFilled, new TextBox() { Text = newSubject.AnswersForm1 }, new List<object>() { (int)1, "Имя бланка ответов №1", newSubject, false });
+				AlertManager.CheckAlerts(AlertType.FieldNotFilled, new TextBox() { Text = newSubject.AnswersForm2 }, new List<object>() { (int)1, "Имя бланка ответов №2", newSubject, false });
+				AlertManager.CheckAlerts(AlertType.FieldNotFilled, new TextBox() { Text = newSubject.LogFile }, new List<object>() { (int)1, "Имя файла протоколов", newSubject, false });
+
 				Workfield.Subjects.Add(newSubject);
 				CreateSubjectMenu_Button.IsChecked = false;
 				EditSubjectMenu_Button.IsChecked = false;
@@ -345,6 +359,16 @@ namespace TOGIRRO_ControlTesting
 					Workfield.isFatalError = true;
 					return;
 				}
+
+				AlertManager.CheckAlerts(AlertType.FieldNotFilled, new TextBox() { Text = SelectedSubject.SubjectCode.ToString() }, new List<object>() { (int)1, "Код предмета", SelectedSubject, true });
+				AlertManager.CheckAlerts(AlertType.FieldNotFilled, new TextBox() { Text = SelectedSubject.EventCode.ToString() }, new List<object>() { (int)1, "Код мероприятия", SelectedSubject, true });
+				AlertManager.CheckAlerts(AlertType.FieldNotFilled, new TextBox() { Text = SelectedSubject.Description }, new List<object>() { (int)1, "Описание", SelectedSubject, false });
+				AlertManager.CheckAlerts(AlertType.FieldNotFilled, new TextBox() { Text = SelectedSubject.MinScore.ToString() }, new List<object>() { (int)1, "Минимальный балл", SelectedSubject, true });
+				AlertManager.CheckAlerts(AlertType.FieldNotFilled, new TextBox() { Text = SelectedSubject.ProjectFolderPath }, new List<object>() { (int)1, "Путь к папке с файлами КМ", SelectedSubject, false });
+				AlertManager.CheckAlerts(AlertType.FieldNotFilled, new TextBox() { Text = SelectedSubject.RegistrationForm }, new List<object>() { (int)1, "Имя бланка регистрации", SelectedSubject, false });
+				AlertManager.CheckAlerts(AlertType.FieldNotFilled, new TextBox() { Text = SelectedSubject.AnswersForm1 }, new List<object>() { (int)1, "Имя бланка ответов №1", SelectedSubject, false });
+				AlertManager.CheckAlerts(AlertType.FieldNotFilled, new TextBox() { Text = SelectedSubject.AnswersForm2 }, new List<object>() { (int)1, "Имя бланка ответов №2", SelectedSubject, false });
+				AlertManager.CheckAlerts(AlertType.FieldNotFilled, new TextBox() { Text = SelectedSubject.LogFile }, new List<object>() { (int)1, "Имя файла протоколов", SelectedSubject, false });
 
 				Subjects_ListTab.IsSelected = true;
 				CurrentSubjectName1.Content = Workfield.CurrentSubject.Name;
@@ -1465,6 +1489,16 @@ namespace TOGIRRO_ControlTesting
 					Workfield.isFatalError = true;
 					return;
 				}
+
+				
+				DataGrid answerGrid = AnswerList;
+				
+				DataGrid currentDataGrid = e.Row.VisualParent as DataGrid;
+				DataGridRow parentDataGridRow = VisualTreeHelper.GetParent(currentDataGrid) as DataGridRow;
+
+
+				AlertManager.CheckAlerts(AlertType.FieldNotFilled, e.Row, new List<object>() { (int)3, currentDataGrid.Columns[0], parentDataGridRow, currentDataGrid, false });
+				AlertManager.CheckAlerts(AlertType.FieldNotFilled, e.Row, new List<object>() { (int)3, currentDataGrid.Columns[1], parentDataGridRow, currentDataGrid, true });
 			}
 		}
 		#endregion
@@ -1672,6 +1706,30 @@ namespace TOGIRRO_ControlTesting
 		{
 			Popup currentPopup = sender as Popup;
 			currentPopup.IsOpen = false;
+		}
+
+        private void AnswerList_ChangeTableVisibilityButton_Click(object sender, RoutedEventArgs e)
+        {
+			if (AnswerList.RowDetailsVisibilityMode == DataGridRowDetailsVisibilityMode.VisibleWhenSelected)
+			{
+				AnswerList.RowDetailsVisibilityMode = DataGridRowDetailsVisibilityMode.Visible;
+			}
+			else
+			{
+				AnswerList.RowDetailsVisibilityMode = DataGridRowDetailsVisibilityMode.VisibleWhenSelected;
+			}
+        }
+
+		private void QuestionList_ChangeTableVisibilityButton_Click(object sender, RoutedEventArgs e)
+		{
+			if (QuestionList.RowDetailsVisibilityMode == DataGridRowDetailsVisibilityMode.VisibleWhenSelected)
+			{
+				QuestionList.RowDetailsVisibilityMode = DataGridRowDetailsVisibilityMode.Visible;
+			}
+			else
+			{
+				QuestionList.RowDetailsVisibilityMode = DataGridRowDetailsVisibilityMode.VisibleWhenSelected;
+			}
 		}
         #endregion
         //------------------------------------------------------------------------------------------------------------------------------------
