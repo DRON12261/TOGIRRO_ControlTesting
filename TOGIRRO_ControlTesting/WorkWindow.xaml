@@ -13,7 +13,7 @@
             <RowDefinition Height="64" MaxHeight="64"/>
             <RowDefinition Height="5" />
             <RowDefinition />
-            <RowDefinition Height="40"/>
+            <RowDefinition Height="50"/>
         </Grid.RowDefinitions>
         <GridSplitter Height="5" Grid.Row="1" ResizeDirection="Rows" HorizontalAlignment="Stretch" ResizeBehavior="PreviousAndNext"/>
 
@@ -403,7 +403,7 @@
 
                                 <Label Name="CurrentSubjectType1" HorizontalAlignment="Center" FontStretch="ExtraExpanded" Grid.Row="0" Grid.Column="0"></Label>
                                 <Button Name="AnswerList_ChangeTableVisibilityButton" Click="AnswerList_ChangeTableVisibilityButton_Click" Grid.Column="1">
-                                    <Image Source="Icons/Ok.png"/>
+                                    <Image Name="AnswerList_VisibilityButton" Source="Icons/Show.png"/>
                                 </Button>
                             </Grid>
 
@@ -551,7 +551,7 @@
 
                                 <Label Name="CurrentSubjectType3" HorizontalAlignment="Center" FontStretch="ExtraExpanded" Grid.Row="0" Grid.Column="0"></Label>
                                 <Button Name="QuestionList_ChangeTableVisibilityButton" Click="QuestionList_ChangeTableVisibilityButton_Click" Grid.Column="1">
-                                    <Image Source="Icons/Ok.png"/>
+                                    <Image Name="QuestionList_VisibilityButton" Source="Icons/Show.png"/>
                                 </Button>
                             </Grid>
 
@@ -612,11 +612,20 @@
                             <WrapPanel IsItemsHost="True" />
                         </ItemsPanelTemplate>
                     </ListBox.ItemsPanel>
+                    <ListBox.ItemContainerStyle>
+                        <Style TargetType="{x:Type ListBoxItem}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsActive}" Value="False">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ListBox.ItemContainerStyle>
                     <ListBox.ItemTemplate>
                         <DataTemplate>
                             <Grid>
-                                <Border BorderThickness="1" BorderBrush="DarkRed" Background="Red">
-                                    <Image Width="32" Source="{Binding Icon}" Margin="0" MouseEnter="Alert_MouseEnter"/>
+                                <Border Name="AlertIcon" BorderThickness="1" BorderBrush="Red" Background="DarkRed" MouseEnter="Alert_MouseEnter" MouseLeave="Alert_MouseLeave">
+                                    <Image Width="32" Source="{Binding Icon}" Margin="0"/>
                                 </Border>
                                 <Popup Name="AlertPopup" Placement="Top" StaysOpen="True" MouseLeave="AlertPopup_MouseLeave">
                                     <Border BorderThickness="3" BorderBrush="DarkRed">
@@ -636,7 +645,15 @@
                                                 </Grid>
                                             </Border>
                                             <Border Grid.Row="1" BorderThickness="1" BorderBrush="DarkRed">
-                                                <TextBlock Width="400" TextWrapping="Wrap" FontSize="16" Foreground="DarkRed" Text="{Binding Description}"/>
+                                                <ListBox ItemsSource="{Binding PostAlerts}">
+                                                    <ListBox.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <ScrollViewer>
+                                                                <TextBlock Width="400" TextWrapping="Wrap" FontSize="16" Foreground="DarkRed" Text="{Binding Description}"/>
+                                                            </ScrollViewer>
+                                                        </DataTemplate>
+                                                    </ListBox.ItemTemplate>
+                                                </ListBox>
                                             </Border>
                                         </Grid>
                                     </Border>

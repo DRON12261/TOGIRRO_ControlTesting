@@ -8,8 +8,10 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/pattern.png")]
-[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/scale.png")]
-[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/variant.png")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/answererror.png")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/errorserror.png")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/fielderror.png")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/scaleerror.png")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/scoreerror.png")]
 
 

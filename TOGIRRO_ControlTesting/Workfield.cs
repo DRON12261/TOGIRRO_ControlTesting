@@ -75,11 +75,11 @@ using Microsoft.Data.SqlClient;
 
 namespace TOGIRRO_ControlTesting
 {
-    //========================================================================================================================================
-    //===Вспомогательный класс-посредник Workfield============================================================================================
-    //========================================================================================================================================
-    #region
-    static class Workfield
+	//========================================================================================================================================
+	//===Вспомогательный класс-посредник Workfield============================================================================================
+	//========================================================================================================================================
+	#region
+	static class Workfield
 	{
 		//Окна
 		static public WorkWindow WorkWindow = null;
@@ -141,10 +141,10 @@ namespace TOGIRRO_ControlTesting
 			SQLBuilder.DataSource = ConfigFile.Read("DataSource", "SQL");
 			SQLBuilder.IntegratedSecurity = bool.Parse(ConfigFile.Read("IntegratedSecurity", "SQL"));
 			if (SQLBuilder.IntegratedSecurity == false)
-            {
+			{
 				SQLBuilder.UserID = ConfigFile.Read("UserID", "SQL");
 				SQLBuilder.Password = ConfigFile.Read("Password", "SQL");
-            }
+			}
 			SQLBuilder.InitialCatalog = ConfigFile.Read("InitialCatalog", "SQL");
 			SQLBuilder.TrustServerCertificate = bool.Parse(ConfigFile.Read("TrustServerCertificate", "SQL"));
 			SQLConnection = new SqlConnection(SQLBuilder.ConnectionString);
@@ -226,23 +226,23 @@ namespace TOGIRRO_ControlTesting
 
 			ActualSubjects = Subjects;
 		}
-        #endregion
+		#endregion
 
-        /*
+		/*
 			Предзагрузка тестовых данных
 		*/
-        #region
-        static public void PreLoad()
-        {
+		#region
+		static public void PreLoad()
+		{
 		}
-        #endregion
+		#endregion
 
-        /*
+		/*
 			Выгрузка предметов из базы данных
 		*/
-        #region
+		#region
 		static public void LoadFromDB()
-        {
+		{
 			try
 			{
 				using (SqlCommand com = new SqlCommand("SELECT * FROM Subject", SQLConnection))
@@ -282,30 +282,30 @@ namespace TOGIRRO_ControlTesting
 				return;
 			}
 		}
-        #endregion
+		#endregion
 
-        /*
+		/*
 			Получение описания в перечислении
 		*/
-        #region
-        public static string GetEnumDescription(Enum value)
-        {
-            FieldInfo fi = value.GetType().GetField(value.ToString());
+		#region
+		public static string GetEnumDescription(Enum value)
+		{
+			FieldInfo fi = value.GetType().GetField(value.ToString());
 
-            if (fi.GetCustomAttributes(typeof(DescriptionAttribute), false) is DescriptionAttribute[] attributes && attributes.Any())
-            {
-                return attributes.First().Description;
-            }
+			if (fi.GetCustomAttributes(typeof(DescriptionAttribute), false) is DescriptionAttribute[] attributes && attributes.Any())
+			{
+				return attributes.First().Description;
+			}
 
-            return value.ToString();
-        }
-        #endregion
+			return value.ToString();
+		}
+		#endregion
 
-        /*
+		/*
 			Получение элемента по индексу в массиве строк
 		*/
-        #region
-        public static int GetIndexByElement(string value, string[] values)
+		#region
+		public static int GetIndexByElement(string value, string[] values)
 		{
 			for (int i = 0; i < values.Length; i++)
 			{
@@ -362,17 +362,17 @@ namespace TOGIRRO_ControlTesting
 		}
 		#region
 		static public IEnumerable<AlertType> AlertTypeValues => Enum.GetValues(typeof(AlertType)).Cast<AlertType>();
-        #endregion
-    }
-    #endregion
-    //========================================================================================================================================
+		#endregion
+	}
+	#endregion
+	//========================================================================================================================================
 
 
 
-    //========================================================================================================================================
-    //===Вспомогательные классы для БД========================================================================================================
-    //========================================================================================================================================
-    #region
+	//========================================================================================================================================
+	//===Вспомогательные классы для БД========================================================================================================
+	//========================================================================================================================================
+	#region
 	//----------------------------------------------------------------------------------------------------------------------------------------
 	//---Перечисление для типов ошибок--------------------------------------------------------------------------------------------------------
 	//----------------------------------------------------------------------------------------------------------------------------------------
@@ -384,13 +384,11 @@ namespace TOGIRRO_ControlTesting
 		FieldNotFilled = 1,
 		[Description("Итоговые баллы заполнены не по возрастанию")]
 		ScoreInconsequence,
-		[Description("Оценки заполнены не по возрастанию")]
-		MarkInconsequence,
 		[Description("Отсутствует эталонный ответ")]
 		NoReferenceResponce,
 		[Description("Недостаточное или избыточное кол-во баллов за вопрос")]
 		NotEnoughOrExcessScoreForQuestion,
-        [Description("Отсутствие разбаловки ошибок")]
+		[Description("Отсутствие разбаловки ошибок")]
 		NoErrorScaleSystem
 	}
 	#endregion
@@ -404,7 +402,7 @@ namespace TOGIRRO_ControlTesting
 	{
 		public short FirstScore { get; set; }
 		public short Mark { get; set; }
-        public short SecondScore { get; set; }
+		public short SecondScore { get; set; }
 
 		public ScaleUnit(short FirstScore = 1, short Mark = 1, short SecondScore = 1)
 		{
@@ -436,22 +434,22 @@ namespace TOGIRRO_ControlTesting
 		public string LogFile { get; set; }
 		public bool IsMark { get; set; }
 		public string IsMarkValue
-        {
+		{
 			get
 			{
 				if (IsMark)
-                {
+				{
 					return "Оценка";
-                }
-                else
-                {
+				}
+				else
+				{
 					return "Балл";
-                }
+				}
 
 			}
 			set { }
-            
-        }
+
+		}
 		public ObservableCollection<Alert> Alerts = null;
 		public ObservableCollection<ScaleUnit> ScaleSystem { get; set; }
 
@@ -472,7 +470,14 @@ namespace TOGIRRO_ControlTesting
 			Questions = new ObservableCollection<AnswerCharacteristic> { };
 			Variants = new ObservableCollection<Variant> { };
 			ScaleSystem = new ObservableCollection<ScaleUnit>() { };
-			Alerts = new ObservableCollection<Alert>() { };
+			Alerts = new ObservableCollection<Alert>() 
+			{ 
+				new Alert(AlertType.FieldNotFilled),
+				new Alert(AlertType.NoReferenceResponce),
+				new Alert(AlertType.NoErrorScaleSystem),
+				new Alert(AlertType.NotEnoughOrExcessScoreForQuestion),
+				new Alert(AlertType.ScoreInconsequence)
+			};
 		}
 	}
 	#endregion
@@ -560,16 +565,16 @@ namespace TOGIRRO_ControlTesting
 		public short InVariant { get; set; }
 		public short MaxScore { get; set; }
 		public string QuestionType { get; set; }
-		public int QuestionTypeKey 
+		public int QuestionTypeKey
 		{
-            get
-            {
+			get
+			{
 				return Workfield.KeyByValue<int, string>(Workfield.QuestionTypes, QuestionType);
-            }
-            set
-            {
+			}
+			set
+			{
 				QuestionType = Workfield.QuestionTypes[value];
-            }
+			}
 		}
 		public List<Answer> Answers { get; set; }
 
@@ -607,21 +612,21 @@ namespace TOGIRRO_ControlTesting
 	//----------------------------------------------------------------------------------------------------------------------------------------
 
 	//----------------------------------------------------------------------------------------------------------------------------------------
-	//---Класс ErrorScaleUnit для разбаловки ошибок---------------------------------------------------------------------------------------------------
+	//---Класс ErrorScaleUnit для разбаловки ошибок-------------------------------------------------------------------------------------------
 	//----------------------------------------------------------------------------------------------------------------------------------------
 	#region
 	class ErrorScaleUnit
-    {
+	{
 		public int ErrorScaleUnitID { get; set; }
 		public short ErrorCount { get; set; }
 		public short Score { get; set; }
 
 		public ErrorScaleUnit()
-        {
+		{
 			ErrorScaleUnitID = 0;
 			ErrorCount = 0; Score = 1;
 		}
-    }
+	}
 	#endregion
 	//----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -630,42 +635,74 @@ namespace TOGIRRO_ControlTesting
 	//----------------------------------------------------------------------------------------------------------------------------------------
 	#region
 	class Alert
-    {
+	{
 		public int AlertID { get; set; }
 		public string Icon { get; set; }
 		public string Header { get; set; }
 		public AlertType alertType { get; set; }
 		public string Description { get; set; }
+		public bool IsActive { 
+			get 
+			{ 
+				if (PostAlerts.Count <= 0)
+                {
+					return false;
+                }
+				else
+                {
+					return true;
+                }
+			} 
+			set { } 
+		}
+		public List<PostAlert> PostAlerts { get; set; }
 
-		public Alert(AlertType alertType, string Description)
-        {
+		public Alert(AlertType alertType)
+		{
 			AlertID = 0;
 			this.alertType = alertType;
 			Header = Workfield.GetEnumDescription(alertType);
-			this.Description = Description;
+			PostAlerts = new List<PostAlert>() { };
 			switch (alertType)
 			{
 				case AlertType.FieldNotFilled:
-					Icon = "Icons/Plus.png";
+					Icon = "Icons/FieldError.png";
 					break;
 				case AlertType.NoReferenceResponce:
-					Icon = "Icons/Edit.png";
+					Icon = "Icons/AnswerError.png";
 					break;
 				case AlertType.NoErrorScaleSystem:
-					Icon = "Icons/Delete.png";
+					Icon = "Icons/ErrorsError.png";
 					break;
 				case AlertType.NotEnoughOrExcessScoreForQuestion:
-					Icon = "Icons/Cancel.png";
-					break;
-				case AlertType.MarkInconsequence:
-					Icon = "Icons/CheckResult.png";
+					Icon = "Icons/ScoreError.png";
 					break;
 				case AlertType.ScoreInconsequence:
-					Icon = "Icons/Settings.png";
+					Icon = "Icons/ScaleError.png";
 					break;
 			}
 		}
 	}
+	#endregion
+	//----------------------------------------------------------------------------------------------------------------------------------------
+
+	//----------------------------------------------------------------------------------------------------------------------------------------
+	//---Класс PostAlert для подошибок настройки предметов------------------------------------------------------------------------------------
+	//----------------------------------------------------------------------------------------------------------------------------------------
+	#region
+	class PostAlert
+    {
+		public int PostAlertID { get; set; }
+		public string Description { get; set; }
+		public List<object> ProblemData { get; set; }
+
+		public PostAlert(string Description, List<object> ProblemData)
+        {
+            PostAlertID = 0;
+            this.Description = Description;
+            this.ProblemData = ProblemData;
+        }
+    }
 	#endregion
 	//----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -675,29 +712,26 @@ namespace TOGIRRO_ControlTesting
 	#region
 	static class AlertManager
 	{
-		static public bool CheckAlerts(AlertType alertTypeToCheck, object currentElement, List<object> checkData = null)
+		static public bool CheckAlerts(AlertType alertTypeToCheck, List<object> checkData = null)
         {
 			bool result = false;
 
 			switch (alertTypeToCheck)
             {
 				case AlertType.FieldNotFilled:
-					result = CheckAlert_FieldNotFilled(currentElement, checkData);
+					result = CheckAlert_FieldNotFilled(checkData);
 					break;
 				case AlertType.ScoreInconsequence:
-					result = CheckAlert_ScoreInconsequence(currentElement);
-					break;
-				case AlertType.MarkInconsequence:
-					result = CheckAlert_MarkInconsequence(currentElement);
+					result = CheckAlert_ScoreInconsequence(checkData);
 					break;
 				case AlertType.NoReferenceResponce:
-					result = CheckAlert_NoReferenceResponce(currentElement, checkData);
+					result = CheckAlert_NoReferenceResponce(checkData);
 					break;
 				case AlertType.NotEnoughOrExcessScoreForQuestion:
-					result = CheckAlert_NotEnoughOrExcessScoreForQuestion(currentElement, checkData);
+					result = CheckAlert_NotEnoughOrExcessScoreForQuestion(checkData);
 					break;
 				case AlertType.NoErrorScaleSystem:
-					result = CheckAlert_NoErrorScaleSystem(currentElement, checkData);
+					result = CheckAlert_NoErrorScaleSystem(checkData);
 					break;
             }
 
@@ -710,149 +744,225 @@ namespace TOGIRRO_ControlTesting
 			return result;
         }
 
-		static private bool CheckAlert_FieldNotFilled(object currentElement, List<object> checkData)
+		static private bool CheckAlert_FieldNotFilled(List<object> checkData)
         {
 			bool result = false;
 			int eventNumber = (int)checkData[0];
+
 			switch (eventNumber)
             {
 				case 1: //Поля в настройках предмета
 					{
-						TextBox currentTextBox = currentElement as TextBox;
-						string currentLabel = checkData[1] as string;
-						Subject currentSubject = checkData[2] as Subject;
-						bool isNumber = (bool)checkData[3];
+						Subject checkSubject = checkData[1] as Subject;
 
-						if ((!isNumber && currentTextBox.Text.Trim(' ') == "") || (isNumber && currentTextBox.Text.Trim(' ') == "-1"))
+						int errorCount = 0;
+						string errorFields = "";
+
+						if (checkSubject.EventCode == -1)
 						{
-							result = true;
-							currentSubject.Alerts.Add(new Alert(AlertType.FieldNotFilled, "Не заполнено поле \"" + currentLabel + "\" в свойствах текущего предмета \"" + currentSubject.Name + ". " + currentSubject.Type + "\"."));
+							errorFields += "кода мероприятия";
+							errorCount++;
+						}
+						if (checkSubject.SubjectCode == -1)
+						{
+							errorFields += errorFields == "" ? "кода предмета" : ", кода мероприятия";
+							errorCount++;
+						}
+						if (checkSubject.MinScore == -1)
+						{
+							errorFields += errorFields == "" ? "минимального балла" : ", минимального балла";
+							errorCount++;
+						}
+						if (checkSubject.ProjectFolderPath == "")
+						{
+							errorFields += errorFields == "" ? "пути к папке с файлами КМ" : ", пути к папке с файлами КМ";
+							errorCount++;
+						}
+						if (checkSubject.RegistrationForm == "")
+						{
+							errorFields += errorFields == "" ? "имени бланка регистрации" : ", имени бланка регистрации";
+							errorCount++;
+						}
+						if (checkSubject.AnswersForm1 == "")
+						{
+							errorFields += errorFields == "" ? "имени бланка ответов №1" : ", имени бланка ответов №1";
+							errorCount++;
+						}
+						if (checkSubject.AnswersForm2 == "")
+						{
+							errorFields += errorFields == "" ? "имени бланка ответов №2" : ", имени бланка ответов №2";
+							errorCount++;
+						}
+						if (checkSubject.LogFile == "")
+						{
+							errorFields += errorFields == "" ? "имени файла протоколов" : ", имени файла протоколов";
+							errorCount++;
+						}
+
+						if (errorCount > 0)
+						{
+							checkSubject.Alerts[0].PostAlerts.Add(new PostAlert("В настройках предмета на настроены поля " + errorFields + ".", checkData));
 						}
 					}
 
 					break;
 
-				case 2: //Таблица шкалирования
+				case 2: //Таблица эталонного ответа
 					{
-						DataGridRow currentDataGridRow = currentElement as DataGridRow;
-						DataGridColumn currentDataGridColumn = checkData[1] as DataGridColumn;
-						int index = Workfield.WorkWindow.ScaleList.Columns.Single(c => c.Header.ToString().ToUpper() == currentDataGridColumn.Header.ToString().ToUpper()).DisplayIndex;
-						DataGridCell dgc = Workfield.GetCell(Workfield.WorkWindow.ScaleList, currentDataGridRow, index);
-						string str = Convert.ToString(((TextBlock)dgc.Content).Text);
+						Subject checkSubject = checkData[1] as Subject;
+						Variant checkVariant = checkData[2] as Variant;
+						Question checkQuestion = checkData[3] as Question;
+						Answer checkAnswer = checkData[4] as Answer;
 
-						if (str.Trim(' ') == "")
-						{
-							result = true;
-							Workfield.CurrentSubject.Alerts.Add(new Alert(AlertType.FieldNotFilled, "Не заполнено поле в таблице шкалирования текущего предмета: Первичный балл - " + ((ScaleUnit)currentDataGridRow.Item).FirstScore.ToString() + ", Столбец - " + currentDataGridColumn.Header.ToString() + "."));
-						}
-					}
-
-					break;
-
-				case 3: //Таблица эталонного ответа
-					{
-						DataGridRow currentDataGridRow = currentElement as DataGridRow;
-						DataGridColumn currentDataGridColumn = checkData[1] as DataGridColumn;
-						DataGridRow parentDataGridRow = checkData[2] as DataGridRow;
-						DataGrid currentDataGrid = checkData[3] as DataGrid;
-						bool isNumber = (bool)checkData[4];
-						int index = Workfield.WorkWindow.ScaleList.Columns.Single(c => c.Header.ToString().ToUpper() == currentDataGridColumn.Header.ToString().ToUpper()).DisplayIndex;
-						DataGridCell dgc = Workfield.GetCell(currentDataGrid, currentDataGridRow, index);
-						string str = Convert.ToString(((TextBlock)dgc.Content).Text);
-
-						if ((!isNumber && str.Trim(' ') == "") || (isNumber && str.Trim(' ') == "-1"))
-						{
-							result = true;
-							Workfield.CurrentSubject.Alerts.Add(new Alert(AlertType.FieldNotFilled, "Не заполнено поле в таблице эталонных ответов: Номер эталонного ответа - " + currentDataGrid.Items.IndexOf(currentDataGridRow.Item).ToString() + ", Столбец - " + currentDataGridColumn.Header.ToString() + ", Номер вопроса - " + Workfield.WorkWindow.AnswerList.Items.IndexOf(parentDataGridRow.Item).ToString() + "."));
-						}
-					}
-
-					break;
-
-				case 4: //Таблица шкалирования ошибок
-					{
-						DataGridRow currentDataGridRow = currentElement as DataGridRow;
-						DataGridColumn currentDataGridColumn = checkData[1] as DataGridColumn;
-						DataGridRow parentDataGridRow = checkData[2] as DataGridRow;
-						DataGrid currentDataGrid = checkData[3] as DataGrid;
-						int index = Workfield.WorkWindow.ScaleList.Columns.Single(c => c.Header.ToString().ToUpper() == currentDataGridColumn.Header.ToString().ToUpper()).DisplayIndex;
-						DataGridCell dgc = Workfield.GetCell(currentDataGrid, currentDataGridRow, index);
-						string str = Convert.ToString(((TextBlock)dgc.Content).Text);
-
-						if (str.Trim(' ') == "")
-						{
-							result = true;
-							Workfield.CurrentSubject.Alerts.Add(new Alert(AlertType.FieldNotFilled, "Не заполнено поле в таблице шкалирования ошибок: Номер строки - " + currentDataGrid.Items.IndexOf(currentDataGridRow.Item).ToString() + ", Столбец - " + currentDataGridColumn.Header.ToString() + ", Номер вопроса - " + Workfield.WorkWindow.QuestionList.Items.IndexOf(parentDataGridRow.Item).ToString() + "."));
-						}
-					}
-
-					break;
-
-				case 5: //Таблица шаблонов вопросов
-                    {
-						DataGridRow currentDataGridRow = currentElement as DataGridRow;
-						DataGridColumn currentDataGridColumn = checkData[1] as DataGridColumn;
-						bool isNumber = (bool)checkData[2];
-						int index = Workfield.WorkWindow.ScaleList.Columns.Single(c => c.Header.ToString().ToUpper() == currentDataGridColumn.Header.ToString().ToUpper()).DisplayIndex;
-						DataGridCell dgc = Workfield.GetCell(Workfield.WorkWindow.QuestionList, currentDataGridRow, index);
-
-						if (dgc.Content is TextBlock)
-						{
-							string str = Convert.ToString(((TextBlock)dgc.Content).Text);
-
-							if ((!isNumber && str.Trim(' ') == "") || (isNumber && str.Trim(' ') == "-1"))
-							{
-								result = true;
-								Workfield.CurrentSubject.Alerts.Add(new Alert(AlertType.FieldNotFilled, "Не заполнено поле в таблице шаблонов вопросов: Номер вопроса - " + Workfield.WorkWindow.QuestionList.Items.IndexOf(currentDataGridRow.Item).ToString() + ", Столбец - " + currentDataGridColumn.Header.ToString() + "."));
-							}
-						}
-						else if (dgc.Content is ComboBox)
+						if (checkAnswer.RightAnswer == "")
                         {
-							string str = Convert.ToString(((KeyValuePair<int, string>)((ComboBox)dgc.Content).SelectedItem).Value);
+							checkSubject.Alerts[0].PostAlerts.Add(new PostAlert("Не введен эталонный ответ у вопроса №" + checkQuestion.Number.ToString() + " в варианте " + checkVariant.Name + ".", checkData));
+                        }
+					}
 
-							if (str == "НЕ ОБОЗНАЧЕНО")
-							{
-								result = true;
-								Workfield.CurrentSubject.Alerts.Add(new Alert(AlertType.FieldNotFilled, "Не заполнено поле в таблице шаблонов вопросов: Номер вопроса - " + Workfield.WorkWindow.QuestionList.Items.IndexOf(currentDataGridRow.Item).ToString() + ", Столбец - " + currentDataGridColumn.Header.ToString() + "."));
-							}
+					break;
+
+				case 3: //Таблица шаблонов вопросов
+                    {
+						Subject checkSubject = checkData[1] as Subject;
+						AnswerCharacteristic checkAnswerCharacteristic = checkData[2] as AnswerCharacteristic;
+
+						int errorCount = 0;
+						string errorFields = "";
+
+						if (checkAnswerCharacteristic.Number == -1)
+						{
+							errorFields += "номера вопроса";
+							errorCount++;
 						}
-					}					
+						if (checkAnswerCharacteristic.MaxScore == -1)
+						{
+							errorFields += errorFields == "" ? "максимального балла" : ", максимального балла";
+							errorCount++;
+						}
+						if (checkAnswerCharacteristic.Criterion == "")
+						{
+							errorFields += errorFields == "" ? "критерия" : ", критерия";
+							errorCount++;
+						}
+						if (checkAnswerCharacteristic.QuestionType == Workfield.QuestionTypes[1])
+						{
+							errorFields += errorFields == "" ? "типа вопроса" : ", типа вопроса";
+							errorCount++;
+						}
+						if (checkAnswerCharacteristic.CheckType == Workfield.CheckTypes[1])
+						{
+							errorFields += errorFields == "" ? "типа проверки" : ", типа проверки";
+							errorCount++;
+						}
+						if (checkAnswerCharacteristic.ValidChars == "")
+						{
+							errorFields += errorFields == "" ? "допустимых символов" : ", допустимых символов";
+							errorCount++;
+						}
+
+						if (errorCount > 0)
+						{
+							checkSubject.Alerts[0].PostAlerts.Add(new PostAlert("В шаблоне вопроса №" + checkAnswerCharacteristic.Number.ToString() + " на настроены поля " + errorFields + ".", checkData));
+						}
+					}
+
 					break;
             }
 			return result;
         }
 
-		static private bool CheckAlert_ScoreInconsequence(object currentElement)
+		static private bool CheckAlert_ScoreInconsequence(List<object> checkData)
 		{
 			bool result = false;
+
+			Subject checkSubject = checkData[0] as Subject;
+
+			short currentScore = -1;
+
+			foreach (ScaleUnit currentScaleUnit in checkSubject.ScaleSystem)
+            {
+				if (currentScaleUnit.Mark < currentScore)
+                {
+					checkSubject.Alerts[1].PostAlerts.Add(new PostAlert("Оценки в системе шкалирования расположены некорректно(не по неубыванию).", checkData));
+
+					break;
+                }
+
+				currentScore = currentScaleUnit.Mark;
+            }
+
+			currentScore = -1;
+
+			foreach (ScaleUnit currentScaleUnit in checkSubject.ScaleSystem)
+			{
+				if (currentScaleUnit.SecondScore < currentScore)
+				{
+					checkSubject.Alerts[1].PostAlerts.Add(new PostAlert("Итоговые баллы в системе шкалирования расположены некорректно(не по неубыванию).", checkData));
+
+					break;
+				}
+
+				currentScore = currentScaleUnit.SecondScore;
+			}
 
 			return result;
 		}
 
-		static private bool CheckAlert_MarkInconsequence(object currentElement)
+		static private bool CheckAlert_NoReferenceResponce(List<object> checkData)
 		{
 			bool result = false;
+
+			Subject checkSubject = checkData[0] as Subject;
+			Variant checkVariant = checkData[1] as Variant;
+			Question checkQuestion = checkData[2] as Question;
+
+			if (checkQuestion.Answers.Count <= 0)
+            {
+				checkSubject.Alerts[2].PostAlerts.Add(new PostAlert("Отсутствуют эталонные ответы у вопроса №" + checkQuestion.Number.ToString() + " в варианте " + checkVariant.Name + ".", checkData));
+            }
 
 			return result;
 		}
 
-		static private bool CheckAlert_NoReferenceResponce(object currentElement, List<object> checkData)
+		static private bool CheckAlert_NotEnoughOrExcessScoreForQuestion(List<object> checkData)
 		{
 			bool result = false;
+
+			Subject checkSubject = checkData[0] as Subject;
+			Variant checkVariant = checkData[1] as Variant;
+			Question checkQuestion = checkData[2] as Question;
+
+			short currentScore = 0;
+
+			foreach (Answer currentAnswer in checkQuestion.Answers)
+            {
+				currentScore += currentAnswer.Score;
+            }
+
+			if (currentScore < checkQuestion.MaxScore)
+            {
+				checkSubject.Alerts[3].PostAlerts.Add(new PostAlert("Недостаточно баллов с эталонных ответов на вопрос №" + checkQuestion.Number.ToString() + " в варианте " + checkVariant.Name + ".", checkData));
+            }
+			if (currentScore > checkQuestion.MaxScore)
+            {
+				checkSubject.Alerts[3].PostAlerts.Add(new PostAlert("Избыток баллов с эталонных ответов на вопрос №" + checkQuestion.Number.ToString() + " в варианте " + checkVariant.Name + ".", checkData));
+			}
 
 			return result;
 		}
 
-		static private bool CheckAlert_NotEnoughOrExcessScoreForQuestion(object currentElement, List<object> checkData)
+		static private bool CheckAlert_NoErrorScaleSystem(List<object> checkData)
 		{
 			bool result = false;
 
-			return result;
-		}
+			Subject checkSubject = checkData[0] as Subject;
+			AnswerCharacteristic checkAnswerCharactericstic = checkData[1] as AnswerCharacteristic;
 
-		static private bool CheckAlert_NoErrorScaleSystem(object currentElement, List<object> checkData)
-		{
-			bool result = false;
+			if (checkAnswerCharactericstic.Errors.Count <= 0 && !(checkAnswerCharactericstic.QuestionTypeKey == 3 && checkAnswerCharactericstic.CheckTypeKey == 2))
+            {
+				checkSubject.Alerts[4].PostAlerts.Add(new PostAlert("Отсутствует разбаловка по количеству ошибок шаблона вопроса №" + checkAnswerCharactericstic.Number.ToString() + ".", checkData));
+            }
 
 			return result;
 		}

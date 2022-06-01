@@ -217,6 +217,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="ClassDiagram1.cd" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -263,6 +264,17 @@
     <Resource Include="Icons\Pattern.png" />
     <Resource Include="Icons\Scale.png" />
     <Resource Include="Icons\Variant.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\Hide.png" />
+    <Resource Include="Icons\Show.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\AnswerError.png" />
+    <Resource Include="Icons\ErrorsError.png" />
+    <Resource Include="Icons\FieldError.png" />
+    <Resource Include="Icons\ScaleError.png" />
+    <Resource Include="Icons\ScoreError.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Microsoft.Data.SqlClient.SNI.4.0.0\build\net46\Microsoft.Data.SqlClient.SNI.targets" Condition="Exists('..\packages\Microsoft.Data.SqlClient.SNI.4.0.0\build\net46\Microsoft.Data.SqlClient.SNI.targets')" />

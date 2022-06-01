@@ -10,6 +10,7 @@ using System.Collections.ObjectModel;
 using System.Windows.Controls.Primitives;
 using Microsoft.Data.SqlClient;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 namespace TOGIRRO_ControlTesting
 {
@@ -57,6 +58,24 @@ namespace TOGIRRO_ControlTesting
 
 			EditQuestionsMode.IsSelected = true;
 			EditQuestionsMode_Button.IsChecked = true;
+
+			if (AnswerList.RowDetailsVisibilityMode == DataGridRowDetailsVisibilityMode.VisibleWhenSelected)
+			{
+				AnswerList_VisibilityButton.Source = new BitmapImage(new Uri(@"/Icons/Hide.png", UriKind.Relative));
+			}
+			else
+			{
+				AnswerList_VisibilityButton.Source = new BitmapImage(new Uri(@"/Icons/Show.png", UriKind.Relative));
+			}
+
+			if (QuestionList.RowDetailsVisibilityMode == DataGridRowDetailsVisibilityMode.VisibleWhenSelected)
+			{
+				QuestionList_VisibilityButton.Source = new BitmapImage(new Uri(@"/Icons/Hide.png", UriKind.Relative));
+			}
+			else
+			{
+				QuestionList_VisibilityButton.Source = new BitmapImage(new Uri(@"/Icons/Show.png", UriKind.Relative));
+			}
 		}
 
 		/*
@@ -74,6 +93,40 @@ namespace TOGIRRO_ControlTesting
 		private void WorkWindow_Closing(object sender, CancelEventArgs e)
 		{
 			Application.Current.Shutdown();
+		}
+
+		/*
+			Переключение видимости вложенных таблиц в таблице вопросов
+		*/
+		private void AnswerList_ChangeTableVisibilityButton_Click(object sender, RoutedEventArgs e)
+		{
+			if (AnswerList.RowDetailsVisibilityMode == DataGridRowDetailsVisibilityMode.VisibleWhenSelected)
+			{
+				AnswerList.RowDetailsVisibilityMode = DataGridRowDetailsVisibilityMode.Visible;
+				AnswerList_VisibilityButton.Source = new BitmapImage(new Uri(@"/Icons/Show.png", UriKind.Relative));
+			}
+			else
+			{
+				AnswerList.RowDetailsVisibilityMode = DataGridRowDetailsVisibilityMode.VisibleWhenSelected;
+				AnswerList_VisibilityButton.Source = new BitmapImage(new Uri(@"/Icons/Hide.png", UriKind.Relative));
+			}
+		}
+
+		/*
+			Переключение видимости вложенных таблиц в таблице шаблонов вопросов
+		*/
+		private void QuestionList_ChangeTableVisibilityButton_Click(object sender, RoutedEventArgs e)
+		{
+			if (QuestionList.RowDetailsVisibilityMode == DataGridRowDetailsVisibilityMode.VisibleWhenSelected)
+			{
+				QuestionList.RowDetailsVisibilityMode = DataGridRowDetailsVisibilityMode.Visible;
+				QuestionList_VisibilityButton.Source = new BitmapImage(new Uri(@"/Icons/Show.png", UriKind.Relative));
+			}
+			else
+			{
+				QuestionList.RowDetailsVisibilityMode = DataGridRowDetailsVisibilityMode.VisibleWhenSelected;
+				QuestionList_VisibilityButton.Source = new BitmapImage(new Uri(@"/Icons/Hide.png", UriKind.Relative));
+			}
 		}
 		#endregion
 		//------------------------------------------------------------------------------------------------------------------------------------
@@ -284,15 +337,7 @@ namespace TOGIRRO_ControlTesting
 					return;
 				}
 
-				AlertManager.CheckAlerts(AlertType.FieldNotFilled, new TextBox() { Text = newSubject.SubjectCode.ToString() }, new List<object>() { (int)1 , "Код предмета", newSubject, true });
-				AlertManager.CheckAlerts(AlertType.FieldNotFilled, new TextBox() { Text = newSubject.EventCode.ToString() }, new List<object>() { (int)1 , "Код мероприятия", newSubject, true });
-				AlertManager.CheckAlerts(AlertType.FieldNotFilled, new TextBox() { Text = newSubject.Description }, new List<object>() { (int)1, "Описание", newSubject, false });
-				AlertManager.CheckAlerts(AlertType.FieldNotFilled, new TextBox() { Text = newSubject.MinScore.ToString() }, new List<object>() { (int)1, "Минимальный балл", newSubject, true });
-				AlertManager.CheckAlerts(AlertType.FieldNotFilled, new TextBox() { Text = newSubject.ProjectFolderPath }, new List<object>() { (int)1, "Путь к папке с файлами КМ", newSubject, false });
-				AlertManager.CheckAlerts(AlertType.FieldNotFilled, new TextBox() { Text = newSubject.RegistrationForm }, new List<object>() { (int)1, "Имя бланка регистрации", newSubject, false });
-				AlertManager.CheckAlerts(AlertType.FieldNotFilled, new TextBox() { Text = newSubject.AnswersForm1 }, new List<object>() { (int)1, "Имя бланка ответов №1", newSubject, false });
-				AlertManager.CheckAlerts(AlertType.FieldNotFilled, new TextBox() { Text = newSubject.AnswersForm2 }, new List<object>() { (int)1, "Имя бланка ответов №2", newSubject, false });
-				AlertManager.CheckAlerts(AlertType.FieldNotFilled, new TextBox() { Text = newSubject.LogFile }, new List<object>() { (int)1, "Имя файла протоколов", newSubject, false });
+				AlertManager.CheckAlerts(AlertType.FieldNotFilled, new List<object>() { (int)1, newSubject });
 
 				Workfield.Subjects.Add(newSubject);
 				CreateSubjectMenu_Button.IsChecked = false;
@@ -359,16 +404,6 @@ namespace TOGIRRO_ControlTesting
 					Workfield.isFatalError = true;
 					return;
 				}
-
-				AlertManager.CheckAlerts(AlertType.FieldNotFilled, new TextBox() { Text = SelectedSubject.SubjectCode.ToString() }, new List<object>() { (int)1, "Код предмета", SelectedSubject, true });
-				AlertManager.CheckAlerts(AlertType.FieldNotFilled, new TextBox() { Text = SelectedSubject.EventCode.ToString() }, new List<object>() { (int)1, "Код мероприятия", SelectedSubject, true });
-				AlertManager.CheckAlerts(AlertType.FieldNotFilled, new TextBox() { Text = SelectedSubject.Description }, new List<object>() { (int)1, "Описание", SelectedSubject, false });
-				AlertManager.CheckAlerts(AlertType.FieldNotFilled, new TextBox() { Text = SelectedSubject.MinScore.ToString() }, new List<object>() { (int)1, "Минимальный балл", SelectedSubject, true });
-				AlertManager.CheckAlerts(AlertType.FieldNotFilled, new TextBox() { Text = SelectedSubject.ProjectFolderPath }, new List<object>() { (int)1, "Путь к папке с файлами КМ", SelectedSubject, false });
-				AlertManager.CheckAlerts(AlertType.FieldNotFilled, new TextBox() { Text = SelectedSubject.RegistrationForm }, new List<object>() { (int)1, "Имя бланка регистрации", SelectedSubject, false });
-				AlertManager.CheckAlerts(AlertType.FieldNotFilled, new TextBox() { Text = SelectedSubject.AnswersForm1 }, new List<object>() { (int)1, "Имя бланка ответов №1", SelectedSubject, false });
-				AlertManager.CheckAlerts(AlertType.FieldNotFilled, new TextBox() { Text = SelectedSubject.AnswersForm2 }, new List<object>() { (int)1, "Имя бланка ответов №2", SelectedSubject, false });
-				AlertManager.CheckAlerts(AlertType.FieldNotFilled, new TextBox() { Text = SelectedSubject.LogFile }, new List<object>() { (int)1, "Имя файла протоколов", SelectedSubject, false });
 
 				Subjects_ListTab.IsSelected = true;
 				CurrentSubjectName1.Content = Workfield.CurrentSubject.Name;
@@ -565,6 +600,8 @@ namespace TOGIRRO_ControlTesting
 					Workfield.isFatalError = true;
 					return;
 				}
+
+				AlertManager.CheckAlerts(AlertType.NoReferenceResponce, new List<object>() { Workfield.CurrentSubject, Workfield.CurrentVariant, newQuestion });
 			}
 			CurrentVariantTextbox.Text = Workfield.CurrentVariant.Name;
 			AnswerList.ItemsSource = Workfield.CurrentVariant.QuestionsPerVar;
@@ -1220,6 +1257,8 @@ namespace TOGIRRO_ControlTesting
 				}
 
 				e.Handled = true;
+
+				AlertManager.CheckAlerts(AlertType.ScoreInconsequence, new List<object>() { Workfield.CurrentSubject });
 			}
 		}
 
@@ -1287,6 +1326,9 @@ namespace TOGIRRO_ControlTesting
 								Workfield.isFatalError = true;
 								return;
 							}
+
+							AlertManager.CheckAlerts(AlertType.NoReferenceResponce, new List<object>() { Workfield.CurrentSubject, currentVariant, questionPost });
+							AlertManager.CheckAlerts(AlertType.NotEnoughOrExcessScoreForQuestion, new List<object>() { Workfield.CurrentSubject, currentVariant, questionPost });
 						}
 					}
 				}
@@ -1295,6 +1337,7 @@ namespace TOGIRRO_ControlTesting
 				short maxScore = 0;
 				foreach (AnswerCharacteristic curQuestion in Workfield.CurrentSubject.Questions)
 				{
+					if (currentQuestion.MaxScore < 0) continue;
 					maxScore += curQuestion.MaxScore;
 				}
 
@@ -1359,6 +1402,10 @@ namespace TOGIRRO_ControlTesting
 					}
 					ScaleList.Items.Refresh();
 				}
+
+				AlertManager.CheckAlerts(AlertType.ScoreInconsequence, new List<object>() { Workfield.CurrentSubject });
+				AlertManager.CheckAlerts(AlertType.FieldNotFilled, new List<object>() { (int)3, Workfield.CurrentSubject, currentQuestion });
+				AlertManager.CheckAlerts(AlertType.NoErrorScaleSystem, new List<object>() { Workfield.CurrentSubject, currentQuestion });
 			}
 		}
 		#endregion
@@ -1435,6 +1482,7 @@ namespace TOGIRRO_ControlTesting
 			if (e.Command == DataGrid.DeleteCommand)
 			{
 				Answer currentAnswer = grid.SelectedItem as Answer;
+				Question currentQuestion = AnswerList.SelectedItem as Question;
 
 				try
 				{
@@ -1455,6 +1503,8 @@ namespace TOGIRRO_ControlTesting
 					Workfield.isFatalError = true;
 					return;
 				}
+
+				AlertManager.CheckAlerts(AlertType.NotEnoughOrExcessScoreForQuestion, new List<object>() { Workfield.CurrentSubject, Workfield.CurrentVariant, currentQuestion });
 			}
 		}
 
@@ -1490,15 +1540,8 @@ namespace TOGIRRO_ControlTesting
 					return;
 				}
 
-				
-				DataGrid answerGrid = AnswerList;
-				
-				DataGrid currentDataGrid = e.Row.VisualParent as DataGrid;
-				DataGridRow parentDataGridRow = VisualTreeHelper.GetParent(currentDataGrid) as DataGridRow;
-
-
-				AlertManager.CheckAlerts(AlertType.FieldNotFilled, e.Row, new List<object>() { (int)3, currentDataGrid.Columns[0], parentDataGridRow, currentDataGrid, false });
-				AlertManager.CheckAlerts(AlertType.FieldNotFilled, e.Row, new List<object>() { (int)3, currentDataGrid.Columns[1], parentDataGridRow, currentDataGrid, true });
+				AlertManager.CheckAlerts(AlertType.FieldNotFilled, new List<object>() { (int)2, Workfield.CurrentSubject, Workfield.CurrentVariant, Workfield.CurrentQuestion, currentAnswer });
+				AlertManager.CheckAlerts(AlertType.NotEnoughOrExcessScoreForQuestion, new List<object>() { Workfield.CurrentSubject, Workfield.CurrentVariant, currentQuestion });
 			}
 		}
 		#endregion
@@ -1544,6 +1587,8 @@ namespace TOGIRRO_ControlTesting
 					Workfield.isFatalError = true;
 					return;
 				}
+
+				AlertManager.CheckAlerts(AlertType.ScoreInconsequence, new List<object>() { Workfield.CurrentSubject });
 			}
 		}
 		#endregion
@@ -1619,6 +1664,7 @@ namespace TOGIRRO_ControlTesting
 			DataGrid grid = (DataGrid)sender;
 			if (e.Command == DataGrid.DeleteCommand)
 			{
+				AnswerCharacteristic currentAnswerCharacteristic = QuestionList.SelectedItem as AnswerCharacteristic;
 				ErrorScaleUnit currentErrorScaleUnit = grid.SelectedItem as ErrorScaleUnit;
 
 				try
@@ -1640,6 +1686,8 @@ namespace TOGIRRO_ControlTesting
 					Workfield.isFatalError = true;
 					return;
 				}
+
+				AlertManager.CheckAlerts(AlertType.NoErrorScaleSystem, new List<object>() { Workfield.CurrentSubject, currentAnswerCharacteristic });
 			}
 		}
 
@@ -1690,8 +1738,9 @@ namespace TOGIRRO_ControlTesting
 		*/
 		private void Alert_MouseEnter(object sender, MouseEventArgs e)
 		{
-			Image AlertImage = sender as Image;
-			Border AlertBorder = AlertImage.Parent as Border;
+			//Image AlertImage = sender as Image;
+			//Border AlertBorder = AlertImage.Parent as Border;
+			Border AlertBorder = sender as Border;
 			Grid AlertGrid = AlertBorder.Parent as Grid;
 			ContentPresenter currentListBoxItem = AlertGrid.TemplatedParent as ContentPresenter;
 			Alert currentAlert = currentListBoxItem.Content as Alert;
@@ -1705,31 +1754,28 @@ namespace TOGIRRO_ControlTesting
 		private void AlertPopup_MouseLeave(object sender, MouseEventArgs e)
 		{
 			Popup currentPopup = sender as Popup;
-			currentPopup.IsOpen = false;
+			Grid AlertGrid = currentPopup.Parent as Grid;
+			ContentPresenter currentListBoxItem = AlertGrid.TemplatedParent as ContentPresenter;
+			Alert currentAlert = currentListBoxItem.Content as Alert;
+			Border currentIcon = currentListBoxItem.ContentTemplate.FindName("AlertIcon", currentListBoxItem) as Border;
+			if (!currentIcon.IsMouseOver)
+				currentPopup.IsOpen = false;
 		}
 
-        private void AnswerList_ChangeTableVisibilityButton_Click(object sender, RoutedEventArgs e)
+		/*
+			Событие выхода курсора мыши из иконки ошибки
+		*/
+		private void Alert_MouseLeave(object sender, MouseEventArgs e)
         {
-			if (AnswerList.RowDetailsVisibilityMode == DataGridRowDetailsVisibilityMode.VisibleWhenSelected)
-			{
-				AnswerList.RowDetailsVisibilityMode = DataGridRowDetailsVisibilityMode.Visible;
-			}
-			else
-			{
-				AnswerList.RowDetailsVisibilityMode = DataGridRowDetailsVisibilityMode.VisibleWhenSelected;
-			}
-        }
-
-		private void QuestionList_ChangeTableVisibilityButton_Click(object sender, RoutedEventArgs e)
-		{
-			if (QuestionList.RowDetailsVisibilityMode == DataGridRowDetailsVisibilityMode.VisibleWhenSelected)
-			{
-				QuestionList.RowDetailsVisibilityMode = DataGridRowDetailsVisibilityMode.Visible;
-			}
-			else
-			{
-				QuestionList.RowDetailsVisibilityMode = DataGridRowDetailsVisibilityMode.VisibleWhenSelected;
-			}
+			//Image AlertImage = sender as Image;
+			//Border AlertBorder = AlertImage.Parent as Border;
+			Border AlertBorder = sender as Border;
+			Grid AlertGrid = AlertBorder.Parent as Grid;
+			ContentPresenter currentListBoxItem = AlertGrid.TemplatedParent as ContentPresenter;
+			Alert currentAlert = currentListBoxItem.Content as Alert;
+			Popup currentPopup = currentListBoxItem.ContentTemplate.FindName("AlertPopup", currentListBoxItem) as Popup;
+			if (!currentPopup.IsMouseOver)
+				currentPopup.IsOpen = false;
 		}
         #endregion
         //------------------------------------------------------------------------------------------------------------------------------------
