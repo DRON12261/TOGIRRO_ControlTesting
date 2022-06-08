@@ -451,7 +451,7 @@
                                         </Grid.ColumnDefinitions>
 
                                         <Label>Вариант:</Label>
-                                        <TextBox Name="CurrentVariantTextbox" Grid.Column="1"/>
+                                        <TextBox Name="CurrentVariantTextbox" Grid.Column="1" KeyDown="CurrentVariantTextbox_KeyDown"/>
                                         <Button Grid.Column="2" Click="ButtonC_EditVariantSuccess">
                                             <Image Source="Icons/Ok.png"/>
                                         </Button>
@@ -648,9 +648,9 @@
                                                 <ListBox ItemsSource="{Binding PostAlerts}">
                                                     <ListBox.ItemTemplate>
                                                         <DataTemplate>
-                                                            <ScrollViewer>
+                                                            <Border BorderThickness="1" BorderBrush="DarkRed">
                                                                 <TextBlock Width="400" TextWrapping="Wrap" FontSize="16" Foreground="DarkRed" Text="{Binding Description}"/>
-                                                            </ScrollViewer>
+                                                            </Border>
                                                         </DataTemplate>
                                                     </ListBox.ItemTemplate>
                                                 </ListBox>

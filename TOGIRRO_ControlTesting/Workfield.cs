@@ -71,6 +71,21 @@ using Microsoft.Data.SqlClient;
 2 - тип мероприятия
 3и4и5и6 - год
 до13 - порядковый номер
+
+
+
+
+
+------нумерация вопросов
+------пофиксить -1 у макс балла
+------пофиксить автоввод 0 у кода мер и пред
+------пофиксить алерт шкалирования ошибок
+------пофиксить алерт эталонного ответа (не появляется)
+------добавить enter у ввода названия варика
+пофиксить указание нумерации вопроса в алертах
+------пофиксить пустое название варика в алертах (вызов алерта до изменения названия варика)
+навесить изменение алертов на изменении и удалении вариантов
+навесить изменение алертов при изменении взаимосвязанных данных (номер в варике например)
 */
 
 namespace TOGIRRO_ControlTesting
@@ -473,10 +488,10 @@ namespace TOGIRRO_ControlTesting
 			Alerts = new ObservableCollection<Alert>() 
 			{ 
 				new Alert(AlertType.FieldNotFilled),
+				new Alert(AlertType.ScoreInconsequence),
 				new Alert(AlertType.NoReferenceResponce),
-				new Alert(AlertType.NoErrorScaleSystem),
 				new Alert(AlertType.NotEnoughOrExcessScoreForQuestion),
-				new Alert(AlertType.ScoreInconsequence)
+				new Alert(AlertType.NoErrorScaleSystem)
 			};
 		}
 	}
@@ -695,12 +710,26 @@ namespace TOGIRRO_ControlTesting
 		public int PostAlertID { get; set; }
 		public string Description { get; set; }
 		public List<object> ProblemData { get; set; }
+		public int ProblemCode { get; set; }
 
-		public PostAlert(string Description, List<object> ProblemData)
+		/*
+			0 - undefined
+			1 - FieldNotFilled, 1
+			2 - FieldNotFilled, 2
+			3 - FieldNotFilled, 3
+			4 - ScoreInconsequnce Mark
+			5 - ScoreInconsequnce Score
+			6 - NoReferenceResponce
+			7 - NotEnoughOrExcessScoreForQuestion
+			8 - NoErrorScaleSystem
+		*/
+
+		public PostAlert(string Description, List<object> ProblemData, int ProblemCode)
         {
             PostAlertID = 0;
             this.Description = Description;
             this.ProblemData = ProblemData;
+			this.ProblemCode = ProblemCode;
         }
     }
 	#endregion
@@ -712,26 +741,26 @@ namespace TOGIRRO_ControlTesting
 	#region
 	static class AlertManager
 	{
-		static public bool CheckAlerts(AlertType alertTypeToCheck, List<object> checkData = null)
+		static public bool CheckAlerts(AlertType alertTypeToCheck, List<object> checkData = null, bool toDelete = false)
         {
 			bool result = false;
 
 			switch (alertTypeToCheck)
             {
 				case AlertType.FieldNotFilled:
-					result = CheckAlert_FieldNotFilled(checkData);
+					result = CheckAlert_FieldNotFilled(checkData, toDelete);
 					break;
 				case AlertType.ScoreInconsequence:
-					result = CheckAlert_ScoreInconsequence(checkData);
+					result = CheckAlert_ScoreInconsequence(checkData, toDelete);
 					break;
 				case AlertType.NoReferenceResponce:
-					result = CheckAlert_NoReferenceResponce(checkData);
+					result = CheckAlert_NoReferenceResponce(checkData, toDelete);
 					break;
 				case AlertType.NotEnoughOrExcessScoreForQuestion:
-					result = CheckAlert_NotEnoughOrExcessScoreForQuestion(checkData);
+					result = CheckAlert_NotEnoughOrExcessScoreForQuestion(checkData, toDelete);
 					break;
 				case AlertType.NoErrorScaleSystem:
-					result = CheckAlert_NoErrorScaleSystem(checkData);
+					result = CheckAlert_NoErrorScaleSystem(checkData, toDelete);
 					break;
             }
 
@@ -744,10 +773,13 @@ namespace TOGIRRO_ControlTesting
 			return result;
         }
 
-		static private bool CheckAlert_FieldNotFilled(List<object> checkData)
+		static private bool CheckAlert_FieldNotFilled(List<object> checkData, bool toDelete)
         {
 			bool result = false;
 			int eventNumber = (int)checkData[0];
+
+			bool checkedBefore = false;
+			PostAlert checkedAlert = null;
 
 			switch (eventNumber)
             {
@@ -757,6 +789,21 @@ namespace TOGIRRO_ControlTesting
 
 						int errorCount = 0;
 						string errorFields = "";
+
+						foreach (PostAlert currentAlert in checkSubject.Alerts[0].PostAlerts)
+                        {
+                            if(currentAlert.ProblemCode == 1 && ((Subject)currentAlert.ProblemData[1]).SubjectID == checkSubject.SubjectID)
+                            {
+								checkedBefore = true;
+								checkedAlert = currentAlert;
+                            }
+                        }
+
+						if (toDelete && checkedBefore)
+                        {
+							checkSubject.Alerts[0].PostAlerts.Remove(checkedAlert);
+							break;
+						}
 
 						if (checkSubject.EventCode == -1)
 						{
@@ -799,9 +846,24 @@ namespace TOGIRRO_ControlTesting
 							errorCount++;
 						}
 
-						if (errorCount > 0)
+						if (checkedBefore)
 						{
-							checkSubject.Alerts[0].PostAlerts.Add(new PostAlert("В настройках предмета на настроены поля " + errorFields + ".", checkData));
+							if (errorCount <= 0)
+                            {
+								checkSubject.Alerts[0].PostAlerts.Remove(checkedAlert);
+							}
+                            else
+							{
+								checkSubject.Alerts[0].PostAlerts.Remove(checkedAlert);
+								checkSubject.Alerts[0].PostAlerts.Add(new PostAlert("В настройках предмета не настроены поля " + errorFields + ".", checkData, 1));
+							}
+						}
+                        else
+                        {
+							if (errorCount > 0)
+							{
+								checkSubject.Alerts[0].PostAlerts.Add(new PostAlert("В настройках предмета не настроены поля " + errorFields + ".", checkData, 1));
+							}
 						}
 					}
 
@@ -814,10 +876,43 @@ namespace TOGIRRO_ControlTesting
 						Question checkQuestion = checkData[3] as Question;
 						Answer checkAnswer = checkData[4] as Answer;
 
-						if (checkAnswer.RightAnswer == "")
-                        {
-							checkSubject.Alerts[0].PostAlerts.Add(new PostAlert("Не введен эталонный ответ у вопроса №" + checkQuestion.Number.ToString() + " в варианте " + checkVariant.Name + ".", checkData));
-                        }
+						foreach (PostAlert currentAlert in checkSubject.Alerts[0].PostAlerts)
+						{
+							if (currentAlert.ProblemCode == 2 && ((Subject)currentAlert.ProblemData[1]).SubjectID == checkSubject.SubjectID &&
+								((Variant)currentAlert.ProblemData[2]).VariantID == checkVariant.VariantID && 
+								((Question)currentAlert.ProblemData[3]).QuestionID == checkQuestion.QuestionID &&
+								((Answer)currentAlert.ProblemData[4]).AnswerID == checkAnswer.AnswerID)
+							{
+								checkedBefore = true;
+								checkedAlert = currentAlert;
+							}
+						}
+
+						if (toDelete && checkedBefore)
+						{
+							checkSubject.Alerts[0].PostAlerts.Remove(checkedAlert);
+							break;
+						}
+
+						if (checkedBefore)
+						{
+							if (checkAnswer.RightAnswer == "")
+                            {
+								checkSubject.Alerts[0].PostAlerts.Remove(checkedAlert);
+								checkSubject.Alerts[0].PostAlerts.Add(new PostAlert("Не введен эталонный ответ у вопроса №" + checkQuestion.Number.ToString() + " в варианте " + checkVariant.Name + ".", checkData, 2));
+							}
+                            else
+                            {
+								checkSubject.Alerts[0].PostAlerts.Remove(checkedAlert);
+							}
+						}
+						else
+						{
+							if (checkAnswer.RightAnswer == "")
+							{
+								checkSubject.Alerts[0].PostAlerts.Add(new PostAlert("Не введен эталонный ответ у вопроса №" + checkQuestion.Number.ToString() + " в варианте " + checkVariant.Name + ".", checkData, 2));
+							}
+						}
 					}
 
 					break;
@@ -829,6 +924,22 @@ namespace TOGIRRO_ControlTesting
 
 						int errorCount = 0;
 						string errorFields = "";
+
+						foreach (PostAlert currentAlert in checkSubject.Alerts[0].PostAlerts)
+						{
+							if (currentAlert.ProblemCode == 3 && ((Subject)currentAlert.ProblemData[1]).SubjectID == checkSubject.SubjectID &&
+								((AnswerCharacteristic)currentAlert.ProblemData[2]).AnswerCharacteristicID == checkAnswerCharacteristic.AnswerCharacteristicID)
+							{
+								checkedBefore = true;
+								checkedAlert = currentAlert;
+							}
+						}
+
+						if (toDelete && checkedBefore)
+						{
+							checkSubject.Alerts[0].PostAlerts.Remove(checkedAlert);
+							break;
+						}
 
 						if (checkAnswerCharacteristic.Number == -1)
 						{
@@ -861,9 +972,24 @@ namespace TOGIRRO_ControlTesting
 							errorCount++;
 						}
 
-						if (errorCount > 0)
+						if (checkedBefore)
 						{
-							checkSubject.Alerts[0].PostAlerts.Add(new PostAlert("В шаблоне вопроса №" + checkAnswerCharacteristic.Number.ToString() + " на настроены поля " + errorFields + ".", checkData));
+							if (errorCount <= 0)
+                            {
+								checkSubject.Alerts[0].PostAlerts.Remove(checkedAlert);
+							}
+							else
+                            {
+								checkSubject.Alerts[0].PostAlerts.Remove(checkedAlert);
+								checkSubject.Alerts[0].PostAlerts.Add(new PostAlert("В шаблоне вопроса №" + checkAnswerCharacteristic.Number.ToString() + " на настроены поля " + errorFields + ".", checkData, 3));
+							}
+						}
+						else
+						{
+							if (errorCount > 0)
+							{
+								checkSubject.Alerts[0].PostAlerts.Add(new PostAlert("В шаблоне вопроса №" + checkAnswerCharacteristic.Number.ToString() + " на настроены поля " + errorFields + ".", checkData, 3));
+							}
 						}
 					}
 
@@ -872,66 +998,194 @@ namespace TOGIRRO_ControlTesting
 			return result;
         }
 
-		static private bool CheckAlert_ScoreInconsequence(List<object> checkData)
+		static private bool CheckAlert_ScoreInconsequence(List<object> checkData, bool toDelete)
 		{
 			bool result = false;
+			bool checkedBefore = false;
+			bool noError = true;
+			PostAlert checkedAlert = null;
 
 			Subject checkSubject = checkData[0] as Subject;
 
 			short currentScore = -1;
 
+			foreach (PostAlert currentAlert in checkSubject.Alerts[1].PostAlerts)
+			{
+				if (currentAlert.ProblemCode == 4 && ((Subject)currentAlert.ProblemData[0]).SubjectID == checkSubject.SubjectID)
+				{
+					checkedBefore = true;
+					checkedAlert = currentAlert;
+				}
+			}
+
 			foreach (ScaleUnit currentScaleUnit in checkSubject.ScaleSystem)
             {
-				if (currentScaleUnit.Mark < currentScore)
+				if (checkedBefore)
                 {
-					checkSubject.Alerts[1].PostAlerts.Add(new PostAlert("Оценки в системе шкалирования расположены некорректно(не по неубыванию).", checkData));
+					if (currentScaleUnit.Mark < currentScore)
+					{
+						checkSubject.Alerts[1].PostAlerts.Remove(checkedAlert);
+						checkSubject.Alerts[1].PostAlerts.Add(new PostAlert("Оценки в системе шкалирования расположены некорректно(не по неубыванию).", checkData, 4));
 
+						noError = false;
+					}
+				}
+				else
+                {
+					if (currentScaleUnit.Mark < currentScore)
+					{
+						checkSubject.Alerts[1].PostAlerts.Add(new PostAlert("Оценки в системе шкалирования расположены некорректно(не по неубыванию).", checkData, 4));
+
+						noError = false;
+					}
+				}
+
+				if (!noError)
+                {
+					checkedBefore = false;
+					checkedAlert = null;
 					break;
-                }
+				}
 
 				currentScore = currentScaleUnit.Mark;
             }
 
+			if (noError)
+            {
+				checkSubject.Alerts[1].PostAlerts.Remove(checkedAlert);
+			}
+
+			noError = true;
+			checkedBefore = false;
+			checkedAlert = null;
+
 			currentScore = -1;
+
+			foreach (PostAlert currentAlert in checkSubject.Alerts[1].PostAlerts)
+			{
+				if (currentAlert.ProblemCode == 5 && ((Subject)currentAlert.ProblemData[0]).SubjectID == checkSubject.SubjectID)
+				{
+					checkedBefore = true;
+					checkedAlert = currentAlert;
+				}
+			}
 
 			foreach (ScaleUnit currentScaleUnit in checkSubject.ScaleSystem)
 			{
-				if (currentScaleUnit.SecondScore < currentScore)
-				{
-					checkSubject.Alerts[1].PostAlerts.Add(new PostAlert("Итоговые баллы в системе шкалирования расположены некорректно(не по неубыванию).", checkData));
+				if (checkedBefore)
+                {
+					if (currentScaleUnit.SecondScore < currentScore)
+					{
+						checkSubject.Alerts[1].PostAlerts.Remove(checkedAlert);
+						checkSubject.Alerts[1].PostAlerts.Add(new PostAlert("Итоговые баллы в системе шкалирования расположены некорректно(не по неубыванию).", checkData, 5));
 
+						noError = false;
+					}
+				}
+                else
+                {
+					if (currentScaleUnit.SecondScore < currentScore)
+					{
+						checkSubject.Alerts[1].PostAlerts.Add(new PostAlert("Итоговые баллы в системе шкалирования расположены некорректно(не по неубыванию).", checkData, 5));
+
+						noError = false;
+					}
+				}
+
+				if (!noError)
+				{
+					checkedBefore = false;
+					checkedAlert = null;
 					break;
 				}
 
 				currentScore = currentScaleUnit.SecondScore;
 			}
 
+			if (noError)
+			{
+				checkSubject.Alerts[1].PostAlerts.Remove(checkedAlert);
+			}
+
 			return result;
 		}
 
-		static private bool CheckAlert_NoReferenceResponce(List<object> checkData)
+		static private bool CheckAlert_NoReferenceResponce(List<object> checkData, bool toDelete)
 		{
 			bool result = false;
+			bool checkedBefore = false;
+			PostAlert checkedAlert = null;
 
 			Subject checkSubject = checkData[0] as Subject;
 			Variant checkVariant = checkData[1] as Variant;
 			Question checkQuestion = checkData[2] as Question;
 
-			if (checkQuestion.Answers.Count <= 0)
+			foreach (PostAlert currentAlert in checkSubject.Alerts[2].PostAlerts)
+			{
+				if (currentAlert.ProblemCode == 6 && ((Subject)currentAlert.ProblemData[0]).SubjectID == checkSubject.SubjectID &&
+					((Variant)currentAlert.ProblemData[1]).VariantID == checkVariant.VariantID &&
+					((Question)currentAlert.ProblemData[2]).QuestionID == checkQuestion.QuestionID)
+				{
+					checkedBefore = true;
+					checkedAlert = currentAlert;
+				}
+			}
+
+			if (toDelete && checkedBefore)
+			{
+				checkSubject.Alerts[2].PostAlerts.Remove(checkedAlert);
+				return result;
+			}
+
+			if (checkedBefore)
             {
-				checkSubject.Alerts[2].PostAlerts.Add(new PostAlert("Отсутствуют эталонные ответы у вопроса №" + checkQuestion.Number.ToString() + " в варианте " + checkVariant.Name + ".", checkData));
-            }
+				if (checkQuestion.Answers.Count <= 0 || (toDelete && checkQuestion.Answers.Count <= 1))
+				{
+					checkSubject.Alerts[2].PostAlerts.Remove(checkedAlert);
+					checkSubject.Alerts[2].PostAlerts.Add(new PostAlert("Отсутствуют эталонные ответы у вопроса №" + checkQuestion.Number.ToString() + " в варианте " + checkVariant.Name + ".", checkData, 6));
+				}
+                else
+                {
+					checkSubject.Alerts[2].PostAlerts.Remove(checkedAlert);
+				}
+			}
+            else
+            {
+				if (checkQuestion.Answers.Count <= 0 || (toDelete && checkQuestion.Answers.Count <= 1))
+				{
+					checkSubject.Alerts[2].PostAlerts.Add(new PostAlert("Отсутствуют эталонные ответы у вопроса №" + checkQuestion.Number.ToString() + " в варианте " + checkVariant.Name + ".", checkData, 6));
+				}
+			}
 
 			return result;
 		}
 
-		static private bool CheckAlert_NotEnoughOrExcessScoreForQuestion(List<object> checkData)
+		static private bool CheckAlert_NotEnoughOrExcessScoreForQuestion(List<object> checkData, bool toDelete)
 		{
 			bool result = false;
+			bool checkedBefore = false;
+			PostAlert checkedAlert = null;
 
 			Subject checkSubject = checkData[0] as Subject;
 			Variant checkVariant = checkData[1] as Variant;
 			Question checkQuestion = checkData[2] as Question;
+
+			foreach (PostAlert currentAlert in checkSubject.Alerts[3].PostAlerts)
+			{
+				if (currentAlert.ProblemCode == 7 && ((Subject)currentAlert.ProblemData[0]).SubjectID == checkSubject.SubjectID &&
+					((Variant)currentAlert.ProblemData[1]).VariantID == checkVariant.VariantID &&
+					((Question)currentAlert.ProblemData[2]).QuestionID == checkQuestion.QuestionID)
+				{
+					checkedBefore = true;
+					checkedAlert = currentAlert;
+				}
+			}
+
+			if (toDelete && checkedBefore)
+			{
+				checkSubject.Alerts[3].PostAlerts.Remove(checkedAlert);
+				return result;
+			}
 
 			short currentScore = 0;
 
@@ -940,29 +1194,87 @@ namespace TOGIRRO_ControlTesting
 				currentScore += currentAnswer.Score;
             }
 
-			if (currentScore < checkQuestion.MaxScore)
+			if (checkedBefore)
             {
-				checkSubject.Alerts[3].PostAlerts.Add(new PostAlert("Недостаточно баллов с эталонных ответов на вопрос №" + checkQuestion.Number.ToString() + " в варианте " + checkVariant.Name + ".", checkData));
-            }
-			if (currentScore > checkQuestion.MaxScore)
-            {
-				checkSubject.Alerts[3].PostAlerts.Add(new PostAlert("Избыток баллов с эталонных ответов на вопрос №" + checkQuestion.Number.ToString() + " в варианте " + checkVariant.Name + ".", checkData));
+				if (currentScore < checkQuestion.MaxScore)
+				{
+					checkSubject.Alerts[3].PostAlerts.Remove(checkedAlert);
+					checkSubject.Alerts[3].PostAlerts.Add(new PostAlert("Недостаточно баллов с эталонных ответов на вопрос №" + checkQuestion.Number.ToString() + " в варианте " + checkVariant.Name + ".", checkData, 7));
+				}
+				else if (currentScore > checkQuestion.MaxScore)
+				{
+					checkSubject.Alerts[3].PostAlerts.Remove(checkedAlert);
+					checkSubject.Alerts[3].PostAlerts.Add(new PostAlert("Избыток баллов с эталонных ответов на вопрос №" + checkQuestion.Number.ToString() + " в варианте " + checkVariant.Name + ".", checkData, 7));
+				}
+				else
+                {
+					checkSubject.Alerts[3].PostAlerts.Remove(checkedAlert);
+				}
+
 			}
+			else
+            {
+				if (currentScore < checkQuestion.MaxScore)
+				{
+					checkSubject.Alerts[3].PostAlerts.Add(new PostAlert("Недостаточно баллов с эталонных ответов на вопрос №" + checkQuestion.Number.ToString() + " в варианте " + checkVariant.Name + ".", checkData, 7));
+				}
+				if (currentScore > checkQuestion.MaxScore)
+				{
+					checkSubject.Alerts[3].PostAlerts.Add(new PostAlert("Избыток баллов с эталонных ответов на вопрос №" + checkQuestion.Number.ToString() + " в варианте " + checkVariant.Name + ".", checkData, 7));
+				}
+			}
+			
 
 			return result;
 		}
 
-		static private bool CheckAlert_NoErrorScaleSystem(List<object> checkData)
+		static private bool CheckAlert_NoErrorScaleSystem(List<object> checkData, bool toDelete)
 		{
 			bool result = false;
+			bool checkedBefore = false;
+			PostAlert checkedAlert = null;
 
 			Subject checkSubject = checkData[0] as Subject;
-			AnswerCharacteristic checkAnswerCharactericstic = checkData[1] as AnswerCharacteristic;
+			AnswerCharacteristic checkAnswerCharacteristic = checkData[1] as AnswerCharacteristic;
 
-			if (checkAnswerCharactericstic.Errors.Count <= 0 && !(checkAnswerCharactericstic.QuestionTypeKey == 3 && checkAnswerCharactericstic.CheckTypeKey == 2))
+			foreach (PostAlert currentAlert in checkSubject.Alerts[4].PostAlerts)
+			{
+				if (currentAlert.ProblemCode == 8 && ((Subject)currentAlert.ProblemData[0]).SubjectID == checkSubject.SubjectID &&
+					((AnswerCharacteristic)currentAlert.ProblemData[1]).AnswerCharacteristicID == checkAnswerCharacteristic.AnswerCharacteristicID)
+				{
+					checkedBefore = true;
+					checkedAlert = currentAlert;
+				}
+			}
+
+			if (toDelete && checkedBefore)
+			{
+				checkSubject.Alerts[4].PostAlerts.Remove(checkedAlert);
+				return result;
+			}
+
+			if (checkedBefore)
             {
-				checkSubject.Alerts[4].PostAlerts.Add(new PostAlert("Отсутствует разбаловка по количеству ошибок шаблона вопроса №" + checkAnswerCharactericstic.Number.ToString() + ".", checkData));
-            }
+
+				if ((checkAnswerCharacteristic.Errors.Count <= 0 && !(checkAnswerCharacteristic.QuestionTypeKey == 3 && checkAnswerCharacteristic.CheckTypeKey == 2)) ||
+					((toDelete && checkAnswerCharacteristic.Errors.Count <= 1 && !(checkAnswerCharacteristic.QuestionTypeKey == 3 && checkAnswerCharacteristic.CheckTypeKey == 2))))
+				{
+					checkSubject.Alerts[4].PostAlerts.Remove(checkedAlert);
+					checkSubject.Alerts[4].PostAlerts.Add(new PostAlert("Отсутствует разбаловка по количеству ошибок шаблона вопроса №" + checkAnswerCharacteristic.Number.ToString() + ".", checkData, 8));
+				}
+				else
+                {
+					checkSubject.Alerts[4].PostAlerts.Remove(checkedAlert);
+				}
+			}
+            else
+            {
+				if ((checkAnswerCharacteristic.Errors.Count <= 0 && !(checkAnswerCharacteristic.QuestionTypeKey == 3 && checkAnswerCharacteristic.CheckTypeKey == 2)) ||
+					((toDelete && checkAnswerCharacteristic.Errors.Count <= 1 && !(checkAnswerCharacteristic.QuestionTypeKey == 3 && checkAnswerCharacteristic.CheckTypeKey == 2))))
+				{
+					checkSubject.Alerts[4].PostAlerts.Add(new PostAlert("Отсутствует разбаловка по количеству ошибок шаблона вопроса №" + checkAnswerCharacteristic.Number.ToString() + ".", checkData, 8));
+				}
+			}
 
 			return result;
 		}

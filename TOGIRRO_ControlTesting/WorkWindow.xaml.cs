@@ -262,13 +262,13 @@ namespace TOGIRRO_ControlTesting
 			if (CreateSubject_Name.Text.Trim(' ') != "" && CreateSubject_Type.SelectedIndex != 0)
 			{
                 short subjectCode;
-                if (CreateSubject_SubjectCode.Text.Trim(' ') == "") subjectCode = 0;
+                if (CreateSubject_SubjectCode.Text.Trim(' ') == "") subjectCode = -1;
                 else subjectCode = short.Parse(CreateSubject_SubjectCode.Text.Trim(' '));
                 short eventCode;
-                if (CreateSubject_EventCode.Text.Trim(' ') == "") eventCode = 0;
+                if (CreateSubject_EventCode.Text.Trim(' ') == "") eventCode = -1;
                 else eventCode = short.Parse(CreateSubject_EventCode.Text.Trim(' '));
                 short minScore;
-                if (CreateSubject_MinScore.Text.Trim(' ') == "") minScore = 0;
+                if (CreateSubject_MinScore.Text.Trim(' ') == "") minScore = -1;
                 else minScore = short.Parse(CreateSubject_MinScore.Text.Trim(' '));
 
                 Subject newSubject = new Subject()
@@ -365,12 +365,12 @@ namespace TOGIRRO_ControlTesting
 			if (EditSubject_Name.Text.Trim(' ') != "" && EditSubject_Type.SelectedIndex != 0)
 			{
 				Subject SelectedSubject = (Subject)SubjectsList.SelectedItem;
-				SelectedSubject.SubjectCode = short.Parse(EditSubject_SubjectCode.Text.Trim(' '));
-				SelectedSubject.EventCode = short.Parse(EditSubject_EventCode.Text.Trim(' '));
+				SelectedSubject.SubjectCode = EditSubject_SubjectCode.Text.Trim(' ') == "" ? (short)-1 : short.Parse(EditSubject_SubjectCode.Text.Trim(' '));
+				SelectedSubject.EventCode = EditSubject_EventCode.Text.Trim(' ') == "" ? (short)-1 : short.Parse(EditSubject_EventCode.Text.Trim(' '));
 				SelectedSubject.Name = EditSubject_Name.Text.Trim(' ');
 				SelectedSubject.Description = EditSubject_Description.Text.Trim(' ');
 				SelectedSubject.Type = Workfield.SubjectTypes[EditSubject_Type.SelectedIndex+1];
-				SelectedSubject.MinScore = short.Parse(EditSubject_MinScore.Text.Trim(' '));
+				SelectedSubject.MinScore = EditSubject_MinScore.Text.Trim(' ') == "" ? (short)-1 : short.Parse(EditSubject_MinScore.Text.Trim(' '));
 				SelectedSubject.ProjectFolderPath = EditSubject_ProjectFolderPath.Text.Trim(' ');
 				SelectedSubject.RegistrationForm = EditSubject_RegistrationForm.Text.Trim(' ');
 				SelectedSubject.AnswersForm1 = EditSubject_AnswersForm1.Text.Trim(' ');
@@ -404,6 +404,8 @@ namespace TOGIRRO_ControlTesting
 					Workfield.isFatalError = true;
 					return;
 				}
+
+				AlertManager.CheckAlerts(AlertType.FieldNotFilled, new List<object>() { (int)1, SelectedSubject });
 
 				Subjects_ListTab.IsSelected = true;
 				CurrentSubjectName1.Content = Workfield.CurrentSubject.Name;
@@ -680,12 +682,19 @@ namespace TOGIRRO_ControlTesting
 				return;
 			}
 
+			foreach (Question currentQuestion in Workfield.CurrentVariant.QuestionsPerVar)
+            {
+				AlertManager.CheckAlerts(AlertType.NoReferenceResponce, new List<object>() { Workfield.CurrentSubject, Workfield.CurrentVariant, currentQuestion });
+			}
+
 			CurrentVariantTextbox.Text = "";
 			int currentIndex = CurrentVariantCBox.SelectedIndex;
 			CurrentVariantCBox.SelectedIndex = -1;
 			CurrentVariantCBox.SelectedIndex = currentIndex;
 			CurrentVariantCBox.Items.Refresh();
 			SelectVariantMode.IsSelected = true;
+			FocusManager.SetFocusedElement(FocusManager.GetFocusScope(CurrentVariantTextbox), null);
+			Keyboard.ClearFocus();
 		}
 
 		/*
@@ -708,19 +717,30 @@ namespace TOGIRRO_ControlTesting
 			AnswerList.ItemsSource = Workfield.CurrentVariant.QuestionsPerVar;
 			AnswerList.Items.Refresh();
 		}
-        #endregion
-        //------------------------------------------------------------------------------------------------------------------------------------
+
+		/*
+			Событие нажатия Enter при редактировании названия варианта
+		*/
+		private void CurrentVariantTextbox_KeyDown(object sender, KeyEventArgs e)
+		{
+			if (e.Key == Key.Enter)
+			{
+				ButtonC_EditVariantSuccess(sender, e);
+			}
+		}
+		#endregion
+		//------------------------------------------------------------------------------------------------------------------------------------
 
 
 
-        //------------------------------------------------------------------------------------------------------------------------------------
-        //---Поиск и выбор предметов----------------------------------------------------------------------------------------------------------
-        //------------------------------------------------------------------------------------------------------------------------------------
-        #region
-        /*
+		//------------------------------------------------------------------------------------------------------------------------------------
+		//---Поиск и выбор предметов----------------------------------------------------------------------------------------------------------
+		//------------------------------------------------------------------------------------------------------------------------------------
+		#region
+		/*
 			Событие выбора предмета в DataGrid
 		*/
-        private void SubjectsList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+		private void SubjectsList_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
             if (!(SubjectsList.CurrentItem is Subject currentSubject)) return;
 
@@ -1040,12 +1060,72 @@ namespace TOGIRRO_ControlTesting
         private void QuestionList_AddingNewItem(object sender, AddingNewItemEventArgs e)
 		{
 			e.NewItem = new AnswerCharacteristic();
+
+			int tempNumber = -1;
+			try
+			{
+				string command =
+					"SELECT Count(*) FROM AnswerCharacteristic WHERE Subject_FK=" + Workfield.CurrentSubject.SubjectID.ToString();
+				using (SqlCommand com = new SqlCommand(command, Workfield.SQLConnection))
+				{
+					Workfield.SQLConnection.Open();
+					using (SqlDataReader reader = com.ExecuteReader())
+					{
+						reader.Read();
+						if (reader.GetInt32(0) > 0)
+                        {
+							tempNumber = reader.GetInt32(0);
+						}
+                        else
+                        {
+							((AnswerCharacteristic)e.NewItem).Number = 1;
+						}
+					}
+					Workfield.SQLConnection.Close();
+				}
+			}
+			catch (Exception error)
+			{
+				Workfield.SQLErrorWindow.SQLErrorTextBlock.Text += "\n\n\n" + error.ToString();
+				Workfield.WorkWindow.IsEnabled = false;
+				Workfield.SQLErrorWindow.Show();
+				Workfield.isFatalError = true;
+				return;
+			}
+
+			if (tempNumber != -1)
+			{
+				try
+				{
+					string command =
+						"SELECT MAX(TaskNumber) FROM AnswerCharacteristic WHERE Subject_FK=" + Workfield.CurrentSubject.SubjectID.ToString();
+					using (SqlCommand com = new SqlCommand(command, Workfield.SQLConnection))
+					{
+						Workfield.SQLConnection.Open();
+						using (SqlDataReader reader = com.ExecuteReader())
+						{
+							reader.Read();
+							((AnswerCharacteristic)e.NewItem).Number = (short)(reader.GetInt16(0) + 1);
+						}
+						Workfield.SQLConnection.Close();
+					}
+				}
+				catch (Exception error)
+				{
+					Workfield.SQLErrorWindow.SQLErrorTextBlock.Text += "\n\n\n" + error.ToString();
+					Workfield.WorkWindow.IsEnabled = false;
+					Workfield.SQLErrorWindow.Show();
+					Workfield.isFatalError = true;
+					return;
+				}
+			}
+
 			AnswerCharacteristic currentQuestion = e.NewItem as AnswerCharacteristic;
 
 			try
 			{
 				string command =
-					"INSERT INTO AnswerCharacteristic (Subject_FK, QuestionType_FK, CheckType_FK) VALUES("+Workfield.CurrentSubject.SubjectID.ToString()+", 1, 1)";
+					"INSERT INTO AnswerCharacteristic (Subject_FK, QuestionType_FK, CheckType_FK, TaskNumber) VALUES("+Workfield.CurrentSubject.SubjectID.ToString()+", 1, 1, " + ((AnswerCharacteristic)e.NewItem).Number.ToString() + ")";
 				using (SqlCommand com = new SqlCommand(command, Workfield.SQLConnection))
 				{
 					Workfield.SQLConnection.Open();
@@ -1164,6 +1244,9 @@ namespace TOGIRRO_ControlTesting
 						if (questionPost.QuestionTemplate.Equals(currentQuestion))
 						{
 							questionToDelete = questionPost;
+
+							AlertManager.CheckAlerts(AlertType.NoReferenceResponce, new List<object>() { Workfield.CurrentSubject, currentVariant, questionPost }, true);
+							AlertManager.CheckAlerts(AlertType.NotEnoughOrExcessScoreForQuestion, new List<object>() { Workfield.CurrentSubject, currentVariant, questionPost }, true);
 						}
 					}
 
@@ -1221,6 +1304,7 @@ namespace TOGIRRO_ControlTesting
 				short maxScore = 0;
 				foreach (AnswerCharacteristic curQuestion in Workfield.CurrentSubject.Questions)
 				{
+					if (curQuestion.MaxScore <= 0) continue;
 					maxScore += curQuestion.MaxScore;
 				}
 
@@ -1259,16 +1343,110 @@ namespace TOGIRRO_ControlTesting
 				e.Handled = true;
 
 				AlertManager.CheckAlerts(AlertType.ScoreInconsequence, new List<object>() { Workfield.CurrentSubject });
+				AlertManager.CheckAlerts(AlertType.FieldNotFilled, new List<object>() { (int)3, Workfield.CurrentSubject, currentQuestion }, true);
+				AlertManager.CheckAlerts(AlertType.NoErrorScaleSystem, new List<object>() { Workfield.CurrentSubject, currentQuestion }, true);
 			}
 		}
 
 		/*
 			Событие подтверждения редактирования шаблона вопроса в DataGrid
 		*/
+		private bool flagfix = true;
 		private void QuestionList_RowEditEnding(object sender, DataGridRowEditEndingEventArgs e)
 		{
-			if (e.EditAction == DataGridEditAction.Commit)
+			if (e.EditAction == DataGridEditAction.Commit && flagfix)
 			{
+				int tempNumber = -1;
+				int tempID = -1;
+				short oldNumber = -1;
+
+				if (CheckQuestionNumber(((AnswerCharacteristic)e.Row.Item).Number, ((AnswerCharacteristic)e.Row.Item).Criterion))
+                {
+					try
+					{
+						string command =
+							"SELECT TaskNumber FROM AnswerCharacteristic WHERE Subject_FK=" + Workfield.CurrentSubject.SubjectID.ToString() + " AND AnswerCharacteristic_ID=" + ((AnswerCharacteristic)e.Row.Item).AnswerCharacteristicID.ToString();
+						using (SqlCommand com = new SqlCommand(command, Workfield.SQLConnection))
+						{
+							Workfield.SQLConnection.Open();
+							using (SqlDataReader reader = com.ExecuteReader())
+							{
+								reader.Read();
+								oldNumber = reader.GetInt16(0);
+							}
+							Workfield.SQLConnection.Close();
+						}
+					}
+					catch (Exception error)
+					{
+						Workfield.SQLErrorWindow.SQLErrorTextBlock.Text += "\n\n\n" + error.ToString();
+						Workfield.WorkWindow.IsEnabled = false;
+						Workfield.SQLErrorWindow.Show();
+						Workfield.isFatalError = true;
+						return;
+					}
+
+					try
+					{
+						string command =
+							"SELECT Count(*) FROM AnswerCharacteristic WHERE Subject_FK=" + Workfield.CurrentSubject.SubjectID.ToString();
+						using (SqlCommand com = new SqlCommand(command, Workfield.SQLConnection))
+						{
+							Workfield.SQLConnection.Open();
+							using (SqlDataReader reader = com.ExecuteReader())
+							{
+								reader.Read();
+								if (reader.GetInt32(0) > 0)
+								{
+									tempNumber = reader.GetInt32(0);
+								}
+								else
+								{
+									((AnswerCharacteristic)e.Row.Item).Number = 1;
+								}
+							}
+							Workfield.SQLConnection.Close();
+						}
+					}
+					catch (Exception error)
+					{
+						Workfield.SQLErrorWindow.SQLErrorTextBlock.Text += "\n\n\n" + error.ToString();
+						Workfield.WorkWindow.IsEnabled = false;
+						Workfield.SQLErrorWindow.Show();
+						Workfield.isFatalError = true;
+						return;
+					}
+
+					try
+					{
+						string command =
+							"SELECT AnswerCharacteristic_ID FROM AnswerCharacteristic WHERE Subject_FK=" + Workfield.CurrentSubject.SubjectID.ToString() + " AND TaskNumber=" + ((AnswerCharacteristic)e.Row.Item).Number.ToString();
+						using (SqlCommand com = new SqlCommand(command, Workfield.SQLConnection))
+						{
+							Workfield.SQLConnection.Open();
+							using (SqlDataReader reader = com.ExecuteReader())
+							{
+								reader.Read();
+								tempID = reader.GetInt32(0);
+							}
+							Workfield.SQLConnection.Close();
+						}
+					}
+					catch (Exception error)
+					{
+						Workfield.SQLErrorWindow.SQLErrorTextBlock.Text += "\n\n\n" + error.ToString();
+						Workfield.WorkWindow.IsEnabled = false;
+						Workfield.SQLErrorWindow.Show();
+						Workfield.isFatalError = true;
+						return;
+					}
+
+					if (tempNumber != -1 && tempID != ((AnswerCharacteristic)e.Row.Item).AnswerCharacteristicID)
+					{
+						((AnswerCharacteristic)e.Row.Item).Number = oldNumber;
+					}
+				}
+
 				AnswerCharacteristic currentQuestion = e.Row.Item as AnswerCharacteristic;
 
 				try
@@ -1337,7 +1515,7 @@ namespace TOGIRRO_ControlTesting
 				short maxScore = 0;
 				foreach (AnswerCharacteristic curQuestion in Workfield.CurrentSubject.Questions)
 				{
-					if (currentQuestion.MaxScore < 0) continue;
+					if (curQuestion.MaxScore <= 0) continue;
 					maxScore += curQuestion.MaxScore;
 				}
 
@@ -1406,8 +1584,52 @@ namespace TOGIRRO_ControlTesting
 				AlertManager.CheckAlerts(AlertType.ScoreInconsequence, new List<object>() { Workfield.CurrentSubject });
 				AlertManager.CheckAlerts(AlertType.FieldNotFilled, new List<object>() { (int)3, Workfield.CurrentSubject, currentQuestion });
 				AlertManager.CheckAlerts(AlertType.NoErrorScaleSystem, new List<object>() { Workfield.CurrentSubject, currentQuestion });
+
+				flagfix = false;
+				QuestionList.CommitEdit();
+				QuestionList.CommitEdit();  //shit
+				QuestionList.CommitEdit();	//shit
+				QuestionList.CommitEdit();  //shit
+				QuestionList.CommitEdit();  //shit
+				flagfix = true;
+				QuestionList.Items.Refresh();
 			}
 		}
+
+		/*
+			Проверка наличия номера вопроса в базе
+		*/
+		private bool CheckQuestionNumber(int number, string criterion)
+        {
+			bool result = false;
+
+			try
+			{
+				string command = criterion == "" ?
+					"SELECT Count(*) FROM AnswerCharacteristic WHERE TaskNumber=" + number.ToString() + " AND Subject_FK = " + Workfield.CurrentSubject.SubjectID.ToString() :
+					"SELECT Count(*) FROM AnswerCharacteristic WHERE TaskNumber=" + number.ToString() + " AND Criterion='" + criterion + "' AND Subject_FK=" + Workfield.CurrentSubject.SubjectID.ToString();
+				using (SqlCommand com = new SqlCommand(command, Workfield.SQLConnection))
+				{
+					Workfield.SQLConnection.Open();
+					using (SqlDataReader reader = com.ExecuteReader())
+					{
+						reader.Read();
+						result = reader.GetInt32(0) > 0 ? true : false;
+					}
+					Workfield.SQLConnection.Close();
+				}
+			}
+			catch (Exception error)
+			{
+				Workfield.SQLErrorWindow.SQLErrorTextBlock.Text += "\n\n\n" + error.ToString();
+				Workfield.WorkWindow.IsEnabled = false;
+				Workfield.SQLErrorWindow.Show();
+				Workfield.isFatalError = true;
+				return result;
+			}
+
+			return result;
+        }
 		#endregion
 		//------------------------------------------------------------------------------------------------------------------------------------
 
@@ -1505,6 +1727,7 @@ namespace TOGIRRO_ControlTesting
 				}
 
 				AlertManager.CheckAlerts(AlertType.NotEnoughOrExcessScoreForQuestion, new List<object>() { Workfield.CurrentSubject, Workfield.CurrentVariant, currentQuestion });
+				AlertManager.CheckAlerts(AlertType.NoReferenceResponce, new List<object>() { Workfield.CurrentSubject, Workfield.CurrentVariant, currentQuestion }, true);
 			}
 		}
 
@@ -1542,6 +1765,7 @@ namespace TOGIRRO_ControlTesting
 
 				AlertManager.CheckAlerts(AlertType.FieldNotFilled, new List<object>() { (int)2, Workfield.CurrentSubject, Workfield.CurrentVariant, Workfield.CurrentQuestion, currentAnswer });
 				AlertManager.CheckAlerts(AlertType.NotEnoughOrExcessScoreForQuestion, new List<object>() { Workfield.CurrentSubject, Workfield.CurrentVariant, currentQuestion });
+				AlertManager.CheckAlerts(AlertType.NoReferenceResponce, new List<object>() { Workfield.CurrentSubject, Workfield.CurrentVariant, currentQuestion });
 			}
 		}
 		#endregion
@@ -1687,7 +1911,7 @@ namespace TOGIRRO_ControlTesting
 					return;
 				}
 
-				AlertManager.CheckAlerts(AlertType.NoErrorScaleSystem, new List<object>() { Workfield.CurrentSubject, currentAnswerCharacteristic });
+				AlertManager.CheckAlerts(AlertType.NoErrorScaleSystem, new List<object>() { Workfield.CurrentSubject, currentAnswerCharacteristic }, true);
 			}
 		}
 
@@ -1722,6 +1946,8 @@ namespace TOGIRRO_ControlTesting
 					Workfield.isFatalError = true;
 					return;
 				}
+
+				AlertManager.CheckAlerts(AlertType.NoErrorScaleSystem, new List<object>() { Workfield.CurrentSubject, currentAnswerCharacteristic });
 			}
 		}
 		#endregion
