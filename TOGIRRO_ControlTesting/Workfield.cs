@@ -24,13 +24,10 @@ using Microsoft.Data.SqlClient;
 ------DataGridNumericColumn
 ------Отслеживание ввода в таблице шкалирования
 ------Поиск в предметах
-Макс балл и алерты в трее
+------алерты в трее
 ------Привязка к БД
 ------Разбаловка шаблона вопроса
-Довести до ума интерфейс
 ------кнопки переключения видимости подтаблиц
-обязательное уникальное название варианта
-переход к месту ошибки
 
 Ошибки:
 Непоследовательность итоговых баллов
@@ -72,9 +69,14 @@ using Microsoft.Data.SqlClient;
 3и4и5и6 - год
 до13 - порядковый номер
 
-
-
-
+1-2
+2-4
+~(А-Я)~(а-я)-
+А-Я
+диапазон
+2 алерта
+непр доп симв
+несоотв эталон отв доп симв
 
 ------нумерация вопросов
 ------пофиксить -1 у макс балла
@@ -82,10 +84,19 @@ using Microsoft.Data.SqlClient;
 ------пофиксить алерт шкалирования ошибок
 ------пофиксить алерт эталонного ответа (не появляется)
 ------добавить enter у ввода названия варика
-пофиксить указание нумерации вопроса в алертах
+------пофиксить указание нумерации вопроса в алертах
 ------пофиксить пустое название варика в алертах (вызов алерта до изменения названия варика)
-навесить изменение алертов на изменении и удалении вариантов
-навесить изменение алертов при изменении взаимосвязанных данных (номер в варике например)
+------навесить изменение алертов на изменении и удалении вариантов
+------навесить изменение алертов при изменении взаимосвязанных данных (номер в варике например)
+------пресеты доп символов
+подсказки
+соответствие эталонного ответа с доп симв
+------нах множ выделение
+------уникальное название варика неправ варики начинаются на !
+------запрет вставки в вводе
+тип проверки уникальный
+------Макс балл в трее
+------пофиксить -1 балл у эталонного ответа
 */
 
 namespace TOGIRRO_ControlTesting
@@ -111,7 +122,6 @@ namespace TOGIRRO_ControlTesting
 		static public Variant CurrentVariant = null;
 		static public AnswerCharacteristic CurrentAnswerCharacteristic = null;
 		static public Question CurrentQuestion = null;
-		static public ObservableCollection<Alert> CurrentAlerts = null;
 
 		//SQL подключение
 		static public SqlConnectionStringBuilder SQLBuilder = new SqlConnectionStringBuilder();
@@ -122,6 +132,10 @@ namespace TOGIRRO_ControlTesting
 		static public Dictionary<int, string> SubjectTypes = new Dictionary<int, string>() { };
 		static public Dictionary<int, string> QuestionTypes = new Dictionary<int, string>() { };
 		static public Dictionary<int, string> CheckTypes = new Dictionary<int, string>() { };
+		static public Dictionary<int, string> CheckTypes1 = new Dictionary<int, string>() { };
+		static public Dictionary<int, string> CheckTypes2 = new Dictionary<int, string>() { };
+		static public Dictionary<int, string> CheckTypes3 = new Dictionary<int, string>() { };
+		static public List<Dictionary<int, string>> CheckTypesList = null;
 
 		/*
 			Получение ключа по значению из Dictionary
@@ -238,6 +252,16 @@ namespace TOGIRRO_ControlTesting
 				isFatalError = true;
 				return;
 			}
+
+			CheckTypes1.Add(1, CheckTypes[1]);
+			CheckTypes1.Add(2, CheckTypes[2]);
+			CheckTypes1.Add(3, CheckTypes[3]);
+			CheckTypes2.Add(1, CheckTypes[1]);
+			CheckTypes2.Add(2, CheckTypes[4]);
+			CheckTypes2.Add(3, CheckTypes[5]);
+			CheckTypes2.Add(4, CheckTypes[6]);
+			CheckTypes3.Add(1, CheckTypes[1]);
+			CheckTypesList = new List<Dictionary<int, string>>() { CheckTypes1, CheckTypes2, CheckTypes3 };
 
 			ActualSubjects = Subjects;
 		}
@@ -401,9 +425,9 @@ namespace TOGIRRO_ControlTesting
 		ScoreInconsequence,
 		[Description("Отсутствует эталонный ответ")]
 		NoReferenceResponce,
-		[Description("Недостаточное или избыточное кол-во баллов за вопрос")]
+		[Description("Избыточное кол-во баллов за вопрос")]
 		NotEnoughOrExcessScoreForQuestion,
-		[Description("Отсутствие разбаловки ошибок")]
+		[Description("Отсутствие разбалловки ошибок")]
 		NoErrorScaleSystem
 	}
 	#endregion
@@ -463,8 +487,8 @@ namespace TOGIRRO_ControlTesting
 
 			}
 			set { }
-
 		}
+		public short MaxScore { get; set; }
 		public ObservableCollection<Alert> Alerts = null;
 		public ObservableCollection<ScaleUnit> ScaleSystem { get; set; }
 
@@ -481,6 +505,7 @@ namespace TOGIRRO_ControlTesting
 			AnswersForm1 = ""; AnswersForm2 = "";
 			LogFile = ""; IsMark = false;
 			Type = Workfield.SubjectTypes[1];
+			MaxScore = 0;
 
 			Questions = new ObservableCollection<AnswerCharacteristic> { };
 			Variants = new ObservableCollection<Variant> { };
@@ -527,8 +552,82 @@ namespace TOGIRRO_ControlTesting
 	{
 		public int AnswerCharacteristicID { get; set; }
 		public short Number { get; set; }
-		public string Criterion { get; set; }
+		private string criterion;
+		public string Criterion { get { return criterion; } set { if (value == null) criterion = ""; else criterion = value; } }
 		public string ValidChars { get; set; }
+		public string QuestionType { get; set; }
+		public int QuestionTypeKey
+		{
+			get
+			{
+				return Workfield.KeyByValue<int, string>(Workfield.QuestionTypes, QuestionType);
+			}
+			set
+			{
+				QuestionType = Workfield.QuestionTypes[value];
+				switch (value)
+                {
+					case 1:
+						CheckTypeList = Workfield.CheckTypes3;
+						CheckType = CheckTypeList[1];
+						break;
+					case 2:
+						CheckTypeList = Workfield.CheckTypes1;
+						CheckType = CheckTypeList[1];
+						break;
+					case 3:
+						CheckTypeList = Workfield.CheckTypes2;
+						CheckType = CheckTypeList[1];
+						break;
+					case 4:
+						CheckTypeList = Workfield.CheckTypes3;
+						CheckType = CheckTypeList[1];
+						break;
+				}
+			}
+		}
+		public string CheckType { get; set; }
+		public int CheckTypeKey
+		{
+			get
+			{
+				return Workfield.KeyByValue<int, string>(Workfield.CheckTypes, CheckType);
+			}
+			set
+			{
+				CheckType = Workfield.CheckTypes[value];
+			}
+		}
+		public short MaxScore { get; set; }
+		public List<ErrorScaleUnit> Errors { get; set; }
+		public Dictionary<int, string> CheckTypeList { get; set; }
+
+		public AnswerCharacteristic()
+		{
+			AnswerCharacteristicID = 0;
+			Number = -1; Criterion = "";
+			ValidChars = ""; MaxScore = -1;
+			CheckTypeList = Workfield.CheckTypes3;
+			CheckType = CheckTypeList[1];
+			QuestionType = Workfield.QuestionTypes[1];
+			Errors = new List<ErrorScaleUnit>() { new ErrorScaleUnit() { ErrorCount = 0, Score = 1 } };
+		}
+	}
+	#endregion
+	//----------------------------------------------------------------------------------------------------------------------------------------
+
+	//----------------------------------------------------------------------------------------------------------------------------------------
+	//---Класс Question для вопросов на варианты----------------------------------------------------------------------------------------------
+	//----------------------------------------------------------------------------------------------------------------------------------------
+	#region
+	class Question
+	{
+		public int QuestionID { get; set; }
+		public short Number { get; set; }
+		public short InVariant { get; set; }
+		private string criterion;
+		public string Criterion { get { return criterion; } set { if (value == null) criterion = ""; else criterion = value; } }
+		public short MaxScore { get; set; }
 		public string QuestionType { get; set; }
 		public int QuestionTypeKey
 		{
@@ -553,53 +652,16 @@ namespace TOGIRRO_ControlTesting
 				CheckType = Workfield.CheckTypes[value];
 			}
 		}
-		public short MaxScore { get; set; }
-		public List<ErrorScaleUnit> Errors { get; set; }
-
-		public AnswerCharacteristic()
-		{
-			AnswerCharacteristicID = 0;
-			Number = -1; Criterion = "";
-			ValidChars = ""; MaxScore = -1;
-			CheckType = Workfield.CheckTypes[1];
-			QuestionType = Workfield.QuestionTypes[1];
-			Errors = new List<ErrorScaleUnit>() { new ErrorScaleUnit() { ErrorCount = 0, Score = 1 } };
-		}
-	}
-	#endregion
-	//----------------------------------------------------------------------------------------------------------------------------------------
-
-	//----------------------------------------------------------------------------------------------------------------------------------------
-	//---Класс Question для вопросов на варианты----------------------------------------------------------------------------------------------
-	//----------------------------------------------------------------------------------------------------------------------------------------
-	#region
-	class Question
-	{
-		public int QuestionID { get; set; }
-		public short Number { get; set; }
-		public short InVariant { get; set; }
-		public short MaxScore { get; set; }
-		public string QuestionType { get; set; }
-		public int QuestionTypeKey
-		{
-			get
-			{
-				return Workfield.KeyByValue<int, string>(Workfield.QuestionTypes, QuestionType);
-			}
-			set
-			{
-				QuestionType = Workfield.QuestionTypes[value];
-			}
-		}
 		public List<Answer> Answers { get; set; }
 
 		public AnswerCharacteristic QuestionTemplate = null;
 
 		public Question(AnswerCharacteristic questionTemplate)
 		{
-			QuestionID = 0;
+			QuestionID = 0; Criterion = "";
 			Number = 0; InVariant = 0; MaxScore = 0;
 			QuestionType = Workfield.QuestionTypes[1];
+			CheckType = Workfield.CheckTypes[1];
 			Answers = new List<Answer>() { };
 			QuestionTemplate = questionTemplate;
 		}
@@ -620,7 +682,7 @@ namespace TOGIRRO_ControlTesting
 		public Answer()
 		{
 			AnswerID = 0;
-			RightAnswer = ""; Score = -1;
+			RightAnswer = ""; Score = 1;
 		}
 	}
 	#endregion
@@ -799,9 +861,10 @@ namespace TOGIRRO_ControlTesting
                             }
                         }
 
-						if (toDelete && checkedBefore)
+						if (toDelete)
                         {
-							checkSubject.Alerts[0].PostAlerts.Remove(checkedAlert);
+							if (checkedBefore)
+								checkSubject.Alerts[0].PostAlerts.Remove(checkedAlert);
 							break;
 						}
 
@@ -812,7 +875,7 @@ namespace TOGIRRO_ControlTesting
 						}
 						if (checkSubject.SubjectCode == -1)
 						{
-							errorFields += errorFields == "" ? "кода предмета" : ", кода мероприятия";
+							errorFields += errorFields == "" ? "кода предмета" : ", кода предмета";
 							errorCount++;
 						}
 						if (checkSubject.MinScore == -1)
@@ -855,14 +918,14 @@ namespace TOGIRRO_ControlTesting
                             else
 							{
 								checkSubject.Alerts[0].PostAlerts.Remove(checkedAlert);
-								checkSubject.Alerts[0].PostAlerts.Add(new PostAlert("В настройках предмета не настроены поля " + errorFields + ".", checkData, 1));
+								checkSubject.Alerts[0].PostAlerts.Add(new PostAlert("В настройках предмета не настроено(-ы) поле(-я) " + errorFields + ".", checkData, 1));
 							}
 						}
                         else
                         {
 							if (errorCount > 0)
 							{
-								checkSubject.Alerts[0].PostAlerts.Add(new PostAlert("В настройках предмета не настроены поля " + errorFields + ".", checkData, 1));
+								checkSubject.Alerts[0].PostAlerts.Add(new PostAlert("В настройках предмета не настроено(-ы) поле(-я) " + errorFields + ".", checkData, 1));
 							}
 						}
 					}
@@ -876,6 +939,8 @@ namespace TOGIRRO_ControlTesting
 						Question checkQuestion = checkData[3] as Question;
 						Answer checkAnswer = checkData[4] as Answer;
 
+						int isError = 0;
+
 						foreach (PostAlert currentAlert in checkSubject.Alerts[0].PostAlerts)
 						{
 							if (currentAlert.ProblemCode == 2 && ((Subject)currentAlert.ProblemData[1]).SubjectID == checkSubject.SubjectID &&
@@ -888,29 +953,73 @@ namespace TOGIRRO_ControlTesting
 							}
 						}
 
-						if (toDelete && checkedBefore)
+						if (toDelete)
 						{
-							checkSubject.Alerts[0].PostAlerts.Remove(checkedAlert);
+							if (checkedBefore)
+								checkSubject.Alerts[0].PostAlerts.Remove(checkedAlert);
 							break;
 						}
 
+						if (checkAnswer.RightAnswer == "")
+                        {
+							isError = 1;
+                        }
+						else
+                        {
+							bool isNotFnd = false;
+							for (int i = 0; i < checkAnswer.RightAnswer.Length; i++)
+                            {
+								if (!checkQuestion.QuestionTemplate.ValidChars.Contains(checkAnswer.RightAnswer[i]))
+                                {
+									isNotFnd = true;
+									break;
+                                }
+                            }
+							if (isNotFnd)
+                            {
+								isError = 2;
+                            }
+                        }
+
 						if (checkedBefore)
 						{
-							if (checkAnswer.RightAnswer == "")
+							if (isError == 1)
                             {
 								checkSubject.Alerts[0].PostAlerts.Remove(checkedAlert);
-								checkSubject.Alerts[0].PostAlerts.Add(new PostAlert("Не введен эталонный ответ у вопроса №" + checkQuestion.Number.ToString() + " в варианте " + checkVariant.Name + ".", checkData, 2));
+								if (checkQuestion.Criterion.Trim(' ') == "")
+									checkSubject.Alerts[0].PostAlerts.Add(new PostAlert("Не введен эталонный ответ у вопроса №" + checkQuestion.InVariant.ToString() + " в варианте " + checkVariant.Name + ".", checkData, 2));
+								else
+									checkSubject.Alerts[0].PostAlerts.Add(new PostAlert("Не введен эталонный ответ у вопроса №" + checkQuestion.InVariant.ToString()+"-"+checkQuestion.Criterion + " в варианте " + checkVariant.Name + ".", checkData, 2));
 							}
-                            else
+							else if (isError == 2)
+							{
+								checkSubject.Alerts[0].PostAlerts.Remove(checkedAlert);
+								if (checkQuestion.Criterion.Trim(' ') == "")
+									checkSubject.Alerts[0].PostAlerts.Add(new PostAlert("Эталонный ответ у вопроса №" + checkQuestion.InVariant.ToString() + " в варианте " + checkVariant.Name + " содержит недопустимые символы.", checkData, 2));
+								else
+									checkSubject.Alerts[0].PostAlerts.Add(new PostAlert("Эталонный ответ у вопроса №" + checkQuestion.InVariant.ToString() + "-" + checkQuestion.Criterion + " в варианте " + checkVariant.Name + " содержит недопустимые символы.", checkData, 2));
+							}
+							else
                             {
 								checkSubject.Alerts[0].PostAlerts.Remove(checkedAlert);
 							}
 						}
 						else
 						{
-							if (checkAnswer.RightAnswer == "")
+							if (isError == 1)
 							{
-								checkSubject.Alerts[0].PostAlerts.Add(new PostAlert("Не введен эталонный ответ у вопроса №" + checkQuestion.Number.ToString() + " в варианте " + checkVariant.Name + ".", checkData, 2));
+								if (checkQuestion.Criterion.Trim(' ') == "")
+									checkSubject.Alerts[0].PostAlerts.Add(new PostAlert("Не введен эталонный ответ у вопроса №" + checkQuestion.InVariant.ToString() + " в варианте " + checkVariant.Name + ".", checkData, 2));
+								else
+									checkSubject.Alerts[0].PostAlerts.Add(new PostAlert("Не введен эталонный ответ у вопроса №" + checkQuestion.InVariant.ToString() + "-" + checkQuestion.Criterion + " в варианте " + checkVariant.Name + ".", checkData, 2));
+							}
+							else if (isError == 2)
+							{
+								checkSubject.Alerts[0].PostAlerts.Remove(checkedAlert);
+								if (checkQuestion.Criterion.Trim(' ') == "")
+									checkSubject.Alerts[0].PostAlerts.Add(new PostAlert("Эталонный ответ у вопроса №" + checkQuestion.InVariant.ToString() + " в варианте " + checkVariant.Name + " содержит недопустимые символы.", checkData, 2));
+								else
+									checkSubject.Alerts[0].PostAlerts.Add(new PostAlert("Эталонный ответ у вопроса №" + checkQuestion.InVariant.ToString() + "-" + checkQuestion.Criterion + " в варианте " + checkVariant.Name + " содержит недопустимые символы.", checkData, 2));
 							}
 						}
 					}
@@ -935,9 +1044,10 @@ namespace TOGIRRO_ControlTesting
 							}
 						}
 
-						if (toDelete && checkedBefore)
+						if (toDelete)
 						{
-							checkSubject.Alerts[0].PostAlerts.Remove(checkedAlert);
+							if (checkedBefore)
+								checkSubject.Alerts[0].PostAlerts.Remove(checkedAlert);
 							break;
 						}
 
@@ -949,11 +1059,6 @@ namespace TOGIRRO_ControlTesting
 						if (checkAnswerCharacteristic.MaxScore == -1)
 						{
 							errorFields += errorFields == "" ? "максимального балла" : ", максимального балла";
-							errorCount++;
-						}
-						if (checkAnswerCharacteristic.Criterion == "")
-						{
-							errorFields += errorFields == "" ? "критерия" : ", критерия";
 							errorCount++;
 						}
 						if (checkAnswerCharacteristic.QuestionType == Workfield.QuestionTypes[1])
@@ -981,20 +1086,190 @@ namespace TOGIRRO_ControlTesting
 							else
                             {
 								checkSubject.Alerts[0].PostAlerts.Remove(checkedAlert);
-								checkSubject.Alerts[0].PostAlerts.Add(new PostAlert("В шаблоне вопроса №" + checkAnswerCharacteristic.Number.ToString() + " на настроены поля " + errorFields + ".", checkData, 3));
+								if (checkAnswerCharacteristic.Criterion.Trim(' ') == "")
+									checkSubject.Alerts[0].PostAlerts.Add(new PostAlert("В шаблоне вопроса №" + checkAnswerCharacteristic.Number.ToString() + " не настроено(-ы) поле(-я) " + errorFields + ".", checkData, 3));
+								else
+									checkSubject.Alerts[0].PostAlerts.Add(new PostAlert("В шаблоне вопроса №" + checkAnswerCharacteristic.Number.ToString() + "-" + checkAnswerCharacteristic.Criterion + " не настроено(-ы) поле(-я) " + errorFields + ".", checkData, 3));
 							}
 						}
 						else
 						{
 							if (errorCount > 0)
 							{
-								checkSubject.Alerts[0].PostAlerts.Add(new PostAlert("В шаблоне вопроса №" + checkAnswerCharacteristic.Number.ToString() + " на настроены поля " + errorFields + ".", checkData, 3));
+								if (checkAnswerCharacteristic.Criterion.Trim(' ') == "")
+									checkSubject.Alerts[0].PostAlerts.Add(new PostAlert("В шаблоне вопроса №" + checkAnswerCharacteristic.Number.ToString() + " не настроено(-ы) поле(-я) " + errorFields + ".", checkData, 3));
+								else
+									checkSubject.Alerts[0].PostAlerts.Add(new PostAlert("В шаблоне вопроса №" + checkAnswerCharacteristic.Number.ToString() + "-" + checkAnswerCharacteristic.Criterion + " не настроено(-ы) поле(-я) " + errorFields + ".", checkData, 3));
 							}
 						}
 					}
 
 					break;
-            }
+
+				case 4: //Проверка допустимых символов
+					{
+						Subject checkSubject = checkData[1] as Subject;
+						AnswerCharacteristic checkAnswerCharacteristic = checkData[2] as AnswerCharacteristic;
+
+						foreach (PostAlert currentAlert in checkSubject.Alerts[0].PostAlerts)
+						{
+							if (currentAlert.ProblemCode == 9 && ((Subject)currentAlert.ProblemData[1]).SubjectID == checkSubject.SubjectID &&
+								((AnswerCharacteristic)currentAlert.ProblemData[2]).AnswerCharacteristicID == checkAnswerCharacteristic.AnswerCharacteristicID)
+							{
+								checkedBefore = true;
+								checkedAlert = currentAlert;
+							}
+						}
+
+						if (toDelete)
+						{
+							if (checkedBefore)
+								checkSubject.Alerts[0].PostAlerts.Remove(checkedAlert);
+							break;
+						}
+
+						if (checkAnswerCharacteristic.ValidChars != "")
+                        {
+							string curStr = checkAnswerCharacteristic.ValidChars;
+							string resStr = "";
+
+							bool tilFnd = false;
+							bool openBrace = false;
+							bool endBrace = false;
+
+							int isError = 0;
+
+							int startIndex = -1;
+							int endIndex = -1;
+
+							for (int i = 0; i < curStr.Length; i++)
+                            {
+								switch (curStr[i])
+                                {
+									case '~':
+										if (tilFnd && !openBrace)
+										{
+											resStr += "~";
+											tilFnd = false;
+										}
+										if (i == curStr.Length - 1)
+                                        {
+											resStr += curStr[i];
+                                        }
+										else if (!endBrace)
+										{
+											tilFnd = true;
+										}
+										break;
+									case '(':
+										if (tilFnd && !openBrace && !endBrace)
+										{
+											openBrace = true;
+											if (curStr.Length-1 > i)
+                                            {
+												startIndex = i + 1;
+                                            }
+										}
+										else
+                                        {
+											resStr += curStr[i];
+                                        }
+										break;
+									case ')':
+										if (tilFnd && openBrace)
+										{
+											endBrace = true;
+											endIndex = i - 1;
+										}
+										else
+                                        {
+											resStr += curStr[i];
+										}
+										break;
+									default:
+										if (tilFnd && openBrace)
+                                        {
+											break;
+                                        }
+										if (tilFnd && !openBrace)
+										{
+											resStr += "~";
+											tilFnd = false;
+										}
+										resStr += curStr[i];
+
+										break;
+                                }
+
+								if (tilFnd && openBrace && !endBrace && i == curStr.Length-1)
+                                {
+									isError = 2;
+                                }
+
+								if (tilFnd && openBrace && endBrace)
+                                {
+									string expresion = curStr.Substring(startIndex, endIndex - startIndex + 1);
+
+									switch (expresion)
+                                    {
+										case "A-Z":
+											resStr += "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+											break;
+										case "a-z":
+											resStr += "abcdefghijklmnopqrstuvwxyz";
+											break;
+										case "А-Я":
+											resStr += "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ";
+											break;
+										case "а-я":
+											resStr += "абвгдеёжзийклмнопрстуфхцчшщъыьэюя";
+											break;
+										case "0-9":
+											resStr += "0123456789";
+											break;
+										default:
+											isError = 1;
+											break;
+                                    }
+
+									tilFnd = false;
+									openBrace = false;
+									endBrace = false;
+                                }
+                            }
+
+							if (isError == 0)
+							{
+								checkAnswerCharacteristic.ValidChars = resStr;
+								checkSubject.Alerts[0].PostAlerts.Remove(checkedAlert);
+							}
+
+							if (checkedBefore)
+							{
+								if (isError >= 1)
+								{
+									checkSubject.Alerts[0].PostAlerts.Remove(checkedAlert);
+									if (checkAnswerCharacteristic.Criterion.Trim(' ') == "")
+										checkSubject.Alerts[0].PostAlerts.Add(new PostAlert("Неверно составлено выражение диапазона символов в вопросе №" + checkAnswerCharacteristic.Number.ToString() + ".", checkData, 9));
+									else
+										checkSubject.Alerts[0].PostAlerts.Add(new PostAlert("Неверно составлено выражение диапазона символов в вопросе №" + checkAnswerCharacteristic.Number.ToString() + "-" + checkAnswerCharacteristic.Criterion + ".", checkData, 9));
+								}
+							}
+							else
+							{
+								if (isError >= 1)
+								{
+									if (checkAnswerCharacteristic.Criterion.Trim(' ') == "")
+										checkSubject.Alerts[0].PostAlerts.Add(new PostAlert("Неверно составлено выражение диапазона символов в вопросе №" + checkAnswerCharacteristic.Number.ToString() + ".", checkData, 9));
+									else
+										checkSubject.Alerts[0].PostAlerts.Add(new PostAlert("Неверно составлено выражение диапазона символов в вопросе №" + checkAnswerCharacteristic.Number.ToString() + "-" + checkAnswerCharacteristic.Criterion + ".", checkData, 9));
+								}
+							}
+						}
+					}
+
+					break;
+			}
 			return result;
         }
 
@@ -1119,6 +1394,7 @@ namespace TOGIRRO_ControlTesting
 			Subject checkSubject = checkData[0] as Subject;
 			Variant checkVariant = checkData[1] as Variant;
 			Question checkQuestion = checkData[2] as Question;
+			bool isDeleting = (bool)checkData[3];
 
 			foreach (PostAlert currentAlert in checkSubject.Alerts[2].PostAlerts)
 			{
@@ -1131,29 +1407,36 @@ namespace TOGIRRO_ControlTesting
 				}
 			}
 
-			if (toDelete && checkedBefore)
+			if (toDelete)
 			{
-				checkSubject.Alerts[2].PostAlerts.Remove(checkedAlert);
+				if (checkedBefore)
+					checkSubject.Alerts[2].PostAlerts.Remove(checkedAlert);
 				return result;
 			}
 
 			if (checkedBefore)
             {
-				if (checkQuestion.Answers.Count <= 0 || (toDelete && checkQuestion.Answers.Count <= 1))
+				if (checkQuestion.Answers.Count <= 0 || (isDeleting && checkQuestion.Answers.Count <= 1))
 				{
 					checkSubject.Alerts[2].PostAlerts.Remove(checkedAlert);
-					checkSubject.Alerts[2].PostAlerts.Add(new PostAlert("Отсутствуют эталонные ответы у вопроса №" + checkQuestion.Number.ToString() + " в варианте " + checkVariant.Name + ".", checkData, 6));
+					if (checkQuestion.Criterion.Trim(' ') == "")
+						checkSubject.Alerts[2].PostAlerts.Add(new PostAlert("Отсутствуют эталонные ответы у вопроса №" + checkQuestion.InVariant.ToString() + " в варианте " + checkVariant.Name + ".", checkData, 6));
+					else
+						checkSubject.Alerts[2].PostAlerts.Add(new PostAlert("Отсутствуют эталонные ответы у вопроса №" + checkQuestion.InVariant.ToString() + "-" + checkQuestion.Criterion + " в варианте " + checkVariant.Name + ".", checkData, 6));
 				}
-                else
+				else
                 {
 					checkSubject.Alerts[2].PostAlerts.Remove(checkedAlert);
 				}
 			}
             else
             {
-				if (checkQuestion.Answers.Count <= 0 || (toDelete && checkQuestion.Answers.Count <= 1))
+				if (checkQuestion.Answers.Count <= 0 || (isDeleting && checkQuestion.Answers.Count <= 1))
 				{
-					checkSubject.Alerts[2].PostAlerts.Add(new PostAlert("Отсутствуют эталонные ответы у вопроса №" + checkQuestion.Number.ToString() + " в варианте " + checkVariant.Name + ".", checkData, 6));
+					if (checkQuestion.Criterion.Trim(' ') == "")
+						checkSubject.Alerts[2].PostAlerts.Add(new PostAlert("Отсутствуют эталонные ответы у вопроса №" + checkQuestion.InVariant.ToString() + " в варианте " + checkVariant.Name + ".", checkData, 6));
+					else
+						checkSubject.Alerts[2].PostAlerts.Add(new PostAlert("Отсутствуют эталонные ответы у вопроса №" + checkQuestion.InVariant.ToString() + "-" + checkQuestion.Criterion + " в варианте " + checkVariant.Name + ".", checkData, 6));
 				}
 			}
 
@@ -1169,6 +1452,7 @@ namespace TOGIRRO_ControlTesting
 			Subject checkSubject = checkData[0] as Subject;
 			Variant checkVariant = checkData[1] as Variant;
 			Question checkQuestion = checkData[2] as Question;
+			Answer checkAnswer = checkData[3] as Answer;
 
 			foreach (PostAlert currentAlert in checkSubject.Alerts[3].PostAlerts)
 			{
@@ -1181,30 +1465,30 @@ namespace TOGIRRO_ControlTesting
 				}
 			}
 
-			if (toDelete && checkedBefore)
+			if (toDelete)
 			{
-				checkSubject.Alerts[3].PostAlerts.Remove(checkedAlert);
+				if (checkedBefore)
+					checkSubject.Alerts[3].PostAlerts.Remove(checkedAlert);
 				return result;
 			}
 
-			short currentScore = 0;
+			short maxScore = 0;
 
 			foreach (Answer currentAnswer in checkQuestion.Answers)
             {
-				currentScore += currentAnswer.Score;
+				if (checkAnswer != null && currentAnswer.AnswerID == checkAnswer.AnswerID) continue;
+				if (currentAnswer.Score > maxScore) maxScore = currentAnswer.Score;
             }
 
 			if (checkedBefore)
             {
-				if (currentScore < checkQuestion.MaxScore)
+				if (maxScore > checkQuestion.MaxScore)
 				{
 					checkSubject.Alerts[3].PostAlerts.Remove(checkedAlert);
-					checkSubject.Alerts[3].PostAlerts.Add(new PostAlert("Недостаточно баллов с эталонных ответов на вопрос №" + checkQuestion.Number.ToString() + " в варианте " + checkVariant.Name + ".", checkData, 7));
-				}
-				else if (currentScore > checkQuestion.MaxScore)
-				{
-					checkSubject.Alerts[3].PostAlerts.Remove(checkedAlert);
-					checkSubject.Alerts[3].PostAlerts.Add(new PostAlert("Избыток баллов с эталонных ответов на вопрос №" + checkQuestion.Number.ToString() + " в варианте " + checkVariant.Name + ".", checkData, 7));
+					if (checkQuestion.Criterion.Trim(' ') == "")
+						checkSubject.Alerts[3].PostAlerts.Add(new PostAlert("Избыток баллов с эталонных ответов на вопрос №" + checkQuestion.InVariant.ToString() + " в варианте " + checkVariant.Name + ".", checkData, 7));
+					else
+						checkSubject.Alerts[3].PostAlerts.Add(new PostAlert("Избыток баллов с эталонных ответов на вопрос №" + checkQuestion.InVariant.ToString() + "-" + checkQuestion.Criterion + " в варианте " + checkVariant.Name + ".", checkData, 7));
 				}
 				else
                 {
@@ -1214,13 +1498,12 @@ namespace TOGIRRO_ControlTesting
 			}
 			else
             {
-				if (currentScore < checkQuestion.MaxScore)
+				if (maxScore > checkQuestion.MaxScore)
 				{
-					checkSubject.Alerts[3].PostAlerts.Add(new PostAlert("Недостаточно баллов с эталонных ответов на вопрос №" + checkQuestion.Number.ToString() + " в варианте " + checkVariant.Name + ".", checkData, 7));
-				}
-				if (currentScore > checkQuestion.MaxScore)
-				{
-					checkSubject.Alerts[3].PostAlerts.Add(new PostAlert("Избыток баллов с эталонных ответов на вопрос №" + checkQuestion.Number.ToString() + " в варианте " + checkVariant.Name + ".", checkData, 7));
+					if (checkQuestion.Criterion.Trim(' ') == "")
+						checkSubject.Alerts[3].PostAlerts.Add(new PostAlert("Избыток баллов с эталонных ответов на вопрос №" + checkQuestion.InVariant.ToString() + " в варианте " + checkVariant.Name + ".", checkData, 7));
+					else
+						checkSubject.Alerts[3].PostAlerts.Add(new PostAlert("Избыток баллов с эталонных ответов на вопрос №" + checkQuestion.InVariant.ToString() + "-" + checkQuestion.Criterion + " в варианте " + checkVariant.Name + ".", checkData, 7));
 				}
 			}
 			
@@ -1236,6 +1519,7 @@ namespace TOGIRRO_ControlTesting
 
 			Subject checkSubject = checkData[0] as Subject;
 			AnswerCharacteristic checkAnswerCharacteristic = checkData[1] as AnswerCharacteristic;
+			bool isDeleting = (bool)checkData[2];
 
 			foreach (PostAlert currentAlert in checkSubject.Alerts[4].PostAlerts)
 			{
@@ -1247,20 +1531,22 @@ namespace TOGIRRO_ControlTesting
 				}
 			}
 
-			if (toDelete && checkedBefore)
+			if (toDelete)
 			{
-				checkSubject.Alerts[4].PostAlerts.Remove(checkedAlert);
+				if (checkedBefore)
+					checkSubject.Alerts[4].PostAlerts.Remove(checkedAlert);
 				return result;
 			}
 
 			if (checkedBefore)
             {
-
-				if ((checkAnswerCharacteristic.Errors.Count <= 0 && !(checkAnswerCharacteristic.QuestionTypeKey == 3 && checkAnswerCharacteristic.CheckTypeKey == 2)) ||
-					((toDelete && checkAnswerCharacteristic.Errors.Count <= 1 && !(checkAnswerCharacteristic.QuestionTypeKey == 3 && checkAnswerCharacteristic.CheckTypeKey == 2))))
+				if ((checkAnswerCharacteristic.Errors.Count <= 0 && !isDeleting) || (checkAnswerCharacteristic.Errors.Count <= 1 && isDeleting))
 				{
 					checkSubject.Alerts[4].PostAlerts.Remove(checkedAlert);
-					checkSubject.Alerts[4].PostAlerts.Add(new PostAlert("Отсутствует разбаловка по количеству ошибок шаблона вопроса №" + checkAnswerCharacteristic.Number.ToString() + ".", checkData, 8));
+					if (checkAnswerCharacteristic.Criterion.Trim(' ') == "")
+						checkSubject.Alerts[4].PostAlerts.Add(new PostAlert("Отсутствует разбалловка по количеству ошибок шаблона вопроса №" + checkAnswerCharacteristic.Number.ToString() + ".", checkData, 8));
+					else
+						checkSubject.Alerts[4].PostAlerts.Add(new PostAlert("Отсутствует разбалловка по количеству ошибок шаблона вопроса №" + checkAnswerCharacteristic.Number.ToString() + "-" + checkAnswerCharacteristic.Criterion + ".", checkData, 8));
 				}
 				else
                 {
@@ -1269,10 +1555,12 @@ namespace TOGIRRO_ControlTesting
 			}
             else
             {
-				if ((checkAnswerCharacteristic.Errors.Count <= 0 && !(checkAnswerCharacteristic.QuestionTypeKey == 3 && checkAnswerCharacteristic.CheckTypeKey == 2)) ||
-					((toDelete && checkAnswerCharacteristic.Errors.Count <= 1 && !(checkAnswerCharacteristic.QuestionTypeKey == 3 && checkAnswerCharacteristic.CheckTypeKey == 2))))
+				if ((checkAnswerCharacteristic.Errors.Count <= 0 && !isDeleting) || (checkAnswerCharacteristic.Errors.Count <= 1 && isDeleting))
 				{
-					checkSubject.Alerts[4].PostAlerts.Add(new PostAlert("Отсутствует разбаловка по количеству ошибок шаблона вопроса №" + checkAnswerCharacteristic.Number.ToString() + ".", checkData, 8));
+					if (checkAnswerCharacteristic.Criterion.Trim(' ') == "")
+						checkSubject.Alerts[4].PostAlerts.Add(new PostAlert("Отсутствует разбалловка по количеству ошибок шаблона вопроса №" + checkAnswerCharacteristic.Number.ToString() + ".", checkData, 8));
+					else
+						checkSubject.Alerts[4].PostAlerts.Add(new PostAlert("Отсутствует разбалловка по количеству ошибок шаблона вопроса №" + checkAnswerCharacteristic.Number.ToString() + "-" + checkAnswerCharacteristic.Criterion + ".", checkData, 8));
 				}
 			}
 

@@ -54,7 +54,6 @@ namespace TOGIRRO_ControlTesting
 			DeleteSubject_Button.IsEnabled = false;
 			MainField.IsEnabled = false;
 			SubjectsList.ItemsSource = Workfield.ActualSubjects;
-			AlertList.ItemsSource = Workfield.CurrentAlerts;
 
 			EditQuestionsMode.IsSelected = true;
 			EditQuestionsMode_Button.IsChecked = true;
@@ -230,7 +229,6 @@ namespace TOGIRRO_ControlTesting
 			Workfield.CurrentSubject = null;
 			MainField.IsEnabled = false;
 			AlertList.ItemsSource = null;
-			Workfield.CurrentAlerts = null;
 			AlertList.Items.Refresh();
 			QuestionList.ItemsSource = null;
 			QuestionList.Items.Refresh();
@@ -251,6 +249,7 @@ namespace TOGIRRO_ControlTesting
 			CurrentSubjectType2.Content = "";
 			CurrentSubjectName3.Content = "";
 			CurrentSubjectType3.Content = "";
+			MaxScoreTextBlock.Text = "-";
 			UpdateSubjectList();
 		}
 
@@ -545,24 +544,51 @@ namespace TOGIRRO_ControlTesting
 				return;
 			}
 
+			Workfield.CurrentVariant.Name = "•" + Workfield.CurrentVariant.VariantID.ToString();
+			if (Workfield.CurrentVariant.Name.Length > 20) Workfield.CurrentVariant.Name = Workfield.CurrentVariant.Name.Substring(0, 20);
+
+			try
+			{
+				string command =
+					"UPDATE Variant SET VariantName='" + Workfield.CurrentVariant.Name + "' WHERE Variant_ID=" + Workfield.CurrentVariant.VariantID.ToString();
+				using (SqlCommand com = new SqlCommand(command, Workfield.SQLConnection))
+				{
+					Workfield.SQLConnection.Open();
+					com.ExecuteNonQuery();
+					Workfield.SQLConnection.Close();
+				}
+			}
+			catch (Exception error)
+			{
+				Workfield.SQLErrorWindow.SQLErrorTextBlock.Text += "\n\n\n" + error.ToString();
+				Workfield.WorkWindow.IsEnabled = false;
+				Workfield.SQLErrorWindow.Show();
+				Workfield.isFatalError = true;
+				return;
+			}
+
 			foreach (AnswerCharacteristic currentQuestion in Workfield.CurrentSubject.Questions)
 			{
 				Question newQuestion = new Question(currentQuestion)
 				{
 					InVariant = currentQuestion.Number,
 					QuestionType = currentQuestion.QuestionType,
-					MaxScore = currentQuestion.MaxScore
+					MaxScore = currentQuestion.MaxScore,
+					CheckType = currentQuestion.CheckType,
+					Criterion = currentQuestion.Criterion
 				};
 				Workfield.CurrentVariant.QuestionsPerVar.Add(newQuestion);
 
 				try
 				{
 					string command =
-						"INSERT INTO Question (Variant_FK, QuestionType_FK, TaskNumber, AnswerCharacteristic_FK, MaxScore) VALUES("
+						"INSERT INTO Question (Variant_FK, QuestionType_FK, TaskNumber, AnswerCharacteristic_FK, MaxScore, CheckType_FK, Criterion) VALUES("
 						+ Workfield.CurrentVariant.VariantID.ToString() + ", "
 						+ Workfield.KeyByValue<int, string>(Workfield.QuestionTypes, newQuestion.QuestionType).ToString() + ", "
 						+ newQuestion.InVariant.ToString() + ", " + newQuestion.QuestionTemplate.AnswerCharacteristicID.ToString()
-						+ ", " + newQuestion.QuestionTemplate.MaxScore.ToString() + ")";
+						+ ", " + newQuestion.QuestionTemplate.MaxScore.ToString() + ", " 
+						+ Workfield.KeyByValue<int, string>(Workfield.CheckTypes, newQuestion.CheckType).ToString() + ", '" 
+						+ newQuestion.Criterion + "')";
 					using (SqlCommand com = new SqlCommand(command, Workfield.SQLConnection))
 					{
 						Workfield.SQLConnection.Open();
@@ -603,7 +629,8 @@ namespace TOGIRRO_ControlTesting
 					return;
 				}
 
-				AlertManager.CheckAlerts(AlertType.NoReferenceResponce, new List<object>() { Workfield.CurrentSubject, Workfield.CurrentVariant, newQuestion });
+				AlertManager.CheckAlerts(AlertType.NoReferenceResponce, new List<object>() { Workfield.CurrentSubject, Workfield.CurrentVariant, newQuestion, false });
+				AlertManager.CheckAlerts(AlertType.NotEnoughOrExcessScoreForQuestion, new List<object>() { Workfield.CurrentSubject, Workfield.CurrentVariant, newQuestion, null });
 			}
 			CurrentVariantTextbox.Text = Workfield.CurrentVariant.Name;
 			AnswerList.ItemsSource = Workfield.CurrentVariant.QuestionsPerVar;
@@ -615,6 +642,8 @@ namespace TOGIRRO_ControlTesting
 		*/
 		private void ButtonC_DeleteVariant(object sender, RoutedEventArgs e)
 		{
+			if (Workfield.CurrentVariant == null) return;
+
 			Variant currentVariant = CurrentVariantCBox.SelectedItem as Variant;
 
 			try
@@ -635,6 +664,16 @@ namespace TOGIRRO_ControlTesting
 				Workfield.SQLErrorWindow.Show();
 				Workfield.isFatalError = true;
 				return;
+			}
+
+			foreach (Question currentQuestion in Workfield.CurrentVariant.QuestionsPerVar)
+			{
+				foreach (Answer currentAnswer in currentQuestion.Answers)
+                {
+					AlertManager.CheckAlerts(AlertType.FieldNotFilled, new List<object>() { (int)2, Workfield.CurrentSubject, Workfield.CurrentVariant, currentQuestion, currentAnswer }, true);
+				}
+				AlertManager.CheckAlerts(AlertType.NoReferenceResponce, new List<object>() { Workfield.CurrentSubject, Workfield.CurrentVariant, currentQuestion, false }, true);
+				AlertManager.CheckAlerts(AlertType.NotEnoughOrExcessScoreForQuestion, new List<object>() { Workfield.CurrentSubject, Workfield.CurrentVariant, currentQuestion, null }, true);
 			}
 
 			Workfield.CurrentSubject.Variants.Remove(currentVariant);
@@ -660,7 +699,7 @@ namespace TOGIRRO_ControlTesting
 		private void ButtonC_EditVariantSuccess(object sender, RoutedEventArgs e)
 		{
 			Workfield.CurrentVariant.Name = CurrentVariantTextbox.Text.Trim(' ');
-			if (Workfield.CurrentVariant.Name.Length > 4) Workfield.CurrentVariant.Name = Workfield.CurrentVariant.Name.Substring(0, 4);
+			if (Workfield.CurrentVariant.Name.Length > 20) Workfield.CurrentVariant.Name = Workfield.CurrentVariant.Name.Substring(0, 20);
 
 			try
 			{
@@ -684,7 +723,12 @@ namespace TOGIRRO_ControlTesting
 
 			foreach (Question currentQuestion in Workfield.CurrentVariant.QuestionsPerVar)
             {
-				AlertManager.CheckAlerts(AlertType.NoReferenceResponce, new List<object>() { Workfield.CurrentSubject, Workfield.CurrentVariant, currentQuestion });
+				foreach (Answer currentAnswer in currentQuestion.Answers)
+				{
+					AlertManager.CheckAlerts(AlertType.FieldNotFilled, new List<object>() { (int)2, Workfield.CurrentSubject, Workfield.CurrentVariant, currentQuestion, currentAnswer });
+				}
+				AlertManager.CheckAlerts(AlertType.NoReferenceResponce, new List<object>() { Workfield.CurrentSubject, Workfield.CurrentVariant, currentQuestion, false });
+				AlertManager.CheckAlerts(AlertType.NotEnoughOrExcessScoreForQuestion, new List<object>() { Workfield.CurrentSubject, Workfield.CurrentVariant, currentQuestion, null });
 			}
 
 			CurrentVariantTextbox.Text = "";
@@ -753,9 +797,22 @@ namespace TOGIRRO_ControlTesting
 			Workfield.CurrentVariant = null;
 			Workfield.CurrentQuestion = null;
 			Workfield.CurrentAnswerCharacteristic = null;
-			Workfield.CurrentAlerts = null;
 
             Workfield.CurrentSubject = currentSubject;
+
+			if (currentSubject.Alerts == null)
+            {
+				currentSubject.Alerts = new ObservableCollection<Alert>()
+				{
+					new Alert(AlertType.FieldNotFilled),
+					new Alert(AlertType.ScoreInconsequence),
+					new Alert(AlertType.NoReferenceResponce),
+					new Alert(AlertType.NotEnoughOrExcessScoreForQuestion),
+					new Alert(AlertType.NoErrorScaleSystem)
+				};
+			}
+
+			AlertManager.CheckAlerts(AlertType.FieldNotFilled, new List<object>() { (int)1, currentSubject });
 
 			currentSubject.Questions = new ObservableCollection<AnswerCharacteristic>() { };
 			try
@@ -769,7 +826,7 @@ namespace TOGIRRO_ControlTesting
 					{
 						while (reader.Read())
 						{
-							currentSubject.Questions.Add(new AnswerCharacteristic()
+							AnswerCharacteristic currentAnswerCharacteristic = new AnswerCharacteristic()
                             {
 								AnswerCharacteristicID = reader.GetInt32(0),
 								Number = reader.GetInt16(2),
@@ -778,13 +835,13 @@ namespace TOGIRRO_ControlTesting
 								QuestionType = Workfield.QuestionTypes[reader.GetInt32(5)],
 								CheckType = Workfield.CheckTypes[reader.GetInt32(6)],
 								MaxScore = reader.GetInt16(7)
-                            });
+                            };
+							currentSubject.Questions.Add(currentAnswerCharacteristic);
+							AlertManager.CheckAlerts(AlertType.FieldNotFilled, new List<object>() { (int)3, currentSubject, currentAnswerCharacteristic });
 						}
 					}
 					Workfield.SQLConnection.Close();
 				}
-
-				
 			}
 			catch (Exception error)
 			{
@@ -827,6 +884,8 @@ namespace TOGIRRO_ControlTesting
 					Workfield.isFatalError = true;
 					return;
 				}
+
+				AlertManager.CheckAlerts(AlertType.NoErrorScaleSystem, new List<object>() { currentSubject, currentAnswerCharacteristic, false });
 			}
 
 			currentSubject.Variants = new ObservableCollection<Variant>() { };
@@ -891,7 +950,9 @@ namespace TOGIRRO_ControlTesting
 									QuestionID = reader.GetInt32(0),
 									QuestionType = Workfield.QuestionTypes[reader.GetInt32(2)],
 									InVariant = (short)reader.GetInt32(3),
-									MaxScore = (short)reader.GetInt32(5)
+									MaxScore = (short)reader.GetInt32(5),
+									CheckType = Workfield.CheckTypes[reader.GetInt32(6)],
+									Criterion = reader.GetString(7)
 								});
 							}
 						}
@@ -921,12 +982,14 @@ namespace TOGIRRO_ControlTesting
 							{
 								while (reader.Read())
 								{
-									currentQuestion.Answers.Add(new Answer()
+									Answer currentAnswer = new Answer()
 									{
 										AnswerID = reader.GetInt32(0),
 										RightAnswer = reader.GetString(2),
 										Score = reader.GetInt16(3)
-									});
+									};
+									currentQuestion.Answers.Add(currentAnswer);
+									AlertManager.CheckAlerts(AlertType.FieldNotFilled, new List<object>() { (int)2, currentSubject, currentVariant, currentQuestion, currentAnswer});
 								}
 							}
 							Workfield.SQLConnection.Close();
@@ -940,9 +1003,13 @@ namespace TOGIRRO_ControlTesting
 						Workfield.isFatalError = true;
 						return;
 					}
+
+					AlertManager.CheckAlerts(AlertType.NoReferenceResponce, new List<object>() { currentSubject, currentVariant, currentQuestion, false });
+					AlertManager.CheckAlerts(AlertType.NotEnoughOrExcessScoreForQuestion, new List<object>() { currentSubject, currentVariant, currentQuestion, null });
 				}
 			}
 
+			short maxScore = 0;
 			currentSubject.ScaleSystem = new ObservableCollection<ScaleUnit>() { };
 			try
 			{
@@ -961,6 +1028,7 @@ namespace TOGIRRO_ControlTesting
 								Mark = reader.GetInt16(2),
 								SecondScore = reader.GetInt16(3)
 							});
+							maxScore = reader.GetInt16(1);
 						}
 					}
 					Workfield.SQLConnection.Close();
@@ -974,9 +1042,11 @@ namespace TOGIRRO_ControlTesting
 				Workfield.isFatalError = true;
 				return;
 			}
+			Workfield.CurrentSubject.MaxScore = maxScore;
+			MaxScoreTextBlock.Text = maxScore.ToString();
 
-			Workfield.CurrentAlerts = currentSubject.Alerts;
-			AlertList.ItemsSource = Workfield.CurrentAlerts;
+			AlertManager.CheckAlerts(AlertType.ScoreInconsequence, new List<object>() { currentSubject });
+
 			AlertList.Items.Refresh();
 			CurrentSubjectName1.Content = currentSubject.Name;
 			CurrentSubjectType1.Content = currentSubject.Type;
@@ -1166,6 +1236,56 @@ namespace TOGIRRO_ControlTesting
 				return;
 			}
 
+			if (((AnswerCharacteristic)e.NewItem).MaxScore >= 0)
+				((AnswerCharacteristic)e.NewItem).Errors[0].Score = ((AnswerCharacteristic)e.NewItem).MaxScore;
+			else
+				((AnswerCharacteristic)e.NewItem).Errors[0].Score = 0;
+
+			try
+			{
+				string command =
+					"INSERT INTO ErrorScaleUnit (AnswerCharacteristic_FK, ErrorCount, Score) VALUES(" + ((AnswerCharacteristic)e.NewItem).AnswerCharacteristicID.ToString() + ", "
+					+ ((AnswerCharacteristic)e.NewItem).Errors[0].ErrorCount.ToString() + ", " + ((AnswerCharacteristic)e.NewItem).Errors[0].Score.ToString() + ")";
+				using (SqlCommand com = new SqlCommand(command, Workfield.SQLConnection))
+				{
+					Workfield.SQLConnection.Open();
+					com.ExecuteNonQuery();
+					Workfield.SQLConnection.Close();
+				}
+			}
+			catch (Exception error)
+			{
+				Workfield.SQLErrorWindow.SQLErrorTextBlock.Text += "\n\n\n" + error.ToString();
+				Workfield.WorkWindow.IsEnabled = false;
+				Workfield.SQLErrorWindow.Show();
+				Workfield.isFatalError = true;
+				return;
+			}
+
+			try
+			{
+				string command =
+					"SELECT MAX(ErrorScaleUnit_ID) FROM ErrorScaleUnit";
+				using (SqlCommand com = new SqlCommand(command, Workfield.SQLConnection))
+				{
+					Workfield.SQLConnection.Open();
+					using (SqlDataReader reader = com.ExecuteReader())
+					{
+						reader.Read();
+						((AnswerCharacteristic)e.NewItem).Errors[0].ErrorScaleUnitID = reader.GetInt32(0);
+					}
+					Workfield.SQLConnection.Close();
+				}
+			}
+			catch (Exception error)
+			{
+				Workfield.SQLErrorWindow.SQLErrorTextBlock.Text += "\n\n\n" + error.ToString();
+				Workfield.WorkWindow.IsEnabled = false;
+				Workfield.SQLErrorWindow.Show();
+				Workfield.isFatalError = true;
+				return;
+			}
+
 			foreach (Variant currentVariant in Workfield.CurrentSubject.Variants)
 			{
 				Question newQuestion = new Question(currentQuestion)
@@ -1177,9 +1297,10 @@ namespace TOGIRRO_ControlTesting
 				try
 				{
 					string command =
-						"INSERT INTO Question (Variant_FK, QuestionType_FK, TaskNumber, AnswerCharacteristic_FK) VALUES(" + currentVariant.VariantID.ToString()
+						"INSERT INTO Question (Variant_FK, QuestionType_FK, TaskNumber, AnswerCharacteristic_FK, CheckType_FK) VALUES(" + currentVariant.VariantID.ToString()
 						+ ", " + Workfield.KeyByValue<int, string>(Workfield.QuestionTypes, newQuestion.QuestionType).ToString() + ", " + newQuestion.InVariant.ToString() + ", "
-						+ newQuestion.QuestionTemplate.AnswerCharacteristicID.ToString() + ")";
+						+ newQuestion.QuestionTemplate.AnswerCharacteristicID.ToString() + ", " 
+						+ Workfield.KeyByValue<int, string>(Workfield.CheckTypes, newQuestion.CheckType).ToString() + ")";
 					using (SqlCommand com = new SqlCommand(command, Workfield.SQLConnection))
 					{
 						Workfield.SQLConnection.Open();
@@ -1245,8 +1366,12 @@ namespace TOGIRRO_ControlTesting
 						{
 							questionToDelete = questionPost;
 
-							AlertManager.CheckAlerts(AlertType.NoReferenceResponce, new List<object>() { Workfield.CurrentSubject, currentVariant, questionPost }, true);
-							AlertManager.CheckAlerts(AlertType.NotEnoughOrExcessScoreForQuestion, new List<object>() { Workfield.CurrentSubject, currentVariant, questionPost }, true);
+							foreach (Answer currentAnswer in questionPost.Answers)
+							{
+								AlertManager.CheckAlerts(AlertType.FieldNotFilled, new List<object>() { (int)2, Workfield.CurrentSubject, Workfield.CurrentVariant, questionPost, currentAnswer }, true);
+							}
+							AlertManager.CheckAlerts(AlertType.NoReferenceResponce, new List<object>() { Workfield.CurrentSubject, currentVariant, questionPost, false }, true);
+							AlertManager.CheckAlerts(AlertType.NotEnoughOrExcessScoreForQuestion, new List<object>() { Workfield.CurrentSubject, currentVariant, questionPost, null }, true);
 						}
 					}
 
@@ -1339,12 +1464,15 @@ namespace TOGIRRO_ControlTesting
 
 					ScaleList.Items.Refresh();
 				}
+				Workfield.CurrentSubject.MaxScore = maxScore;
+				MaxScoreTextBlock.Text = maxScore.ToString();
 
 				e.Handled = true;
 
 				AlertManager.CheckAlerts(AlertType.ScoreInconsequence, new List<object>() { Workfield.CurrentSubject });
 				AlertManager.CheckAlerts(AlertType.FieldNotFilled, new List<object>() { (int)3, Workfield.CurrentSubject, currentQuestion }, true);
-				AlertManager.CheckAlerts(AlertType.NoErrorScaleSystem, new List<object>() { Workfield.CurrentSubject, currentQuestion }, true);
+				AlertManager.CheckAlerts(AlertType.FieldNotFilled, new List<object>() { (int)4, Workfield.CurrentSubject, currentQuestion }, true);
+				AlertManager.CheckAlerts(AlertType.NoErrorScaleSystem, new List<object>() { Workfield.CurrentSubject, currentQuestion, false }, true);
 			}
 		}
 
@@ -1359,6 +1487,7 @@ namespace TOGIRRO_ControlTesting
 				int tempNumber = -1;
 				int tempID = -1;
 				short oldNumber = -1;
+				short maxNumber = -1;
 
 				if (CheckQuestionNumber(((AnswerCharacteristic)e.Row.Item).Number, ((AnswerCharacteristic)e.Row.Item).Criterion))
                 {
@@ -1420,6 +1549,30 @@ namespace TOGIRRO_ControlTesting
 					try
 					{
 						string command =
+							"SELECT MAX(TaskNumber) FROM AnswerCharacteristic WHERE Subject_FK=" + Workfield.CurrentSubject.SubjectID.ToString();
+						using (SqlCommand com = new SqlCommand(command, Workfield.SQLConnection))
+						{
+							Workfield.SQLConnection.Open();
+							using (SqlDataReader reader = com.ExecuteReader())
+							{
+								reader.Read();
+								maxNumber = reader.GetInt16(0);
+							}
+							Workfield.SQLConnection.Close();
+						}
+					}
+					catch (Exception error)
+					{
+						Workfield.SQLErrorWindow.SQLErrorTextBlock.Text += "\n\n\n" + error.ToString();
+						Workfield.WorkWindow.IsEnabled = false;
+						Workfield.SQLErrorWindow.Show();
+						Workfield.isFatalError = true;
+						return;
+					}
+
+					try
+					{
+						string command =
 							"SELECT AnswerCharacteristic_ID FROM AnswerCharacteristic WHERE Subject_FK=" + Workfield.CurrentSubject.SubjectID.ToString() + " AND TaskNumber=" + ((AnswerCharacteristic)e.Row.Item).Number.ToString();
 						using (SqlCommand com = new SqlCommand(command, Workfield.SQLConnection))
 						{
@@ -1443,12 +1596,16 @@ namespace TOGIRRO_ControlTesting
 
 					if (tempNumber != -1 && tempID != ((AnswerCharacteristic)e.Row.Item).AnswerCharacteristicID)
 					{
-						((AnswerCharacteristic)e.Row.Item).Number = oldNumber;
+						if (((AnswerCharacteristic)e.Row.Item).Number == oldNumber)
+							((AnswerCharacteristic)e.Row.Item).Number = ++maxNumber;
+						else
+							((AnswerCharacteristic)e.Row.Item).Number = oldNumber;
 					}
 				}
 
 				AnswerCharacteristic currentQuestion = e.Row.Item as AnswerCharacteristic;
 
+				AlertManager.CheckAlerts(AlertType.FieldNotFilled, new List<object>() { (int)4, Workfield.CurrentSubject, currentQuestion });
 				try
 				{
 					string command =
@@ -1472,6 +1629,35 @@ namespace TOGIRRO_ControlTesting
 					return;
 				}
 
+				if (currentQuestion.Errors.Count == 1)
+                {
+					if (currentQuestion.MaxScore >= 0)
+						((AnswerCharacteristic)e.Row.Item).Errors[0].Score = currentQuestion.MaxScore;
+					else
+						((AnswerCharacteristic)e.Row.Item).Errors[0].Score = 0;
+
+					try
+					{
+						string command =
+							"UPDATE ErrorScaleUnit SET Score=" + currentQuestion.MaxScore.ToString() + " WHERE ErrorScaleUnit_ID="
+							+ currentQuestion.Errors[0].ErrorScaleUnitID.ToString();
+						using (SqlCommand com = new SqlCommand(command, Workfield.SQLConnection))
+						{
+							Workfield.SQLConnection.Open();
+							com.ExecuteNonQuery();
+							Workfield.SQLConnection.Close();
+						}
+					}
+					catch (Exception error)
+					{
+						Workfield.SQLErrorWindow.SQLErrorTextBlock.Text += "\n\n\n" + error.ToString();
+						Workfield.WorkWindow.IsEnabled = false;
+						Workfield.SQLErrorWindow.Show();
+						Workfield.isFatalError = true;
+						return;
+					}
+				}
+
 				foreach (Variant currentVariant in Workfield.CurrentSubject.Variants)
 				{
 					foreach (Question questionPost in currentVariant.QuestionsPerVar)
@@ -1481,13 +1667,17 @@ namespace TOGIRRO_ControlTesting
 							questionPost.InVariant = currentQuestion.Number;
 							questionPost.QuestionType = currentQuestion.QuestionType;
 							questionPost.MaxScore = currentQuestion.MaxScore;
+							questionPost.Criterion = currentQuestion.Criterion;
+							questionPost.CheckType = currentQuestion.CheckType;
 
 							try
 							{
 								string command =
 									"UPDATE Question SET TaskNumber='" + currentQuestion.Number.ToString() + "', QuestionType_FK="
 									+ Workfield.KeyByValue<int, string>(Workfield.QuestionTypes, currentQuestion.QuestionType).ToString()
-									+ ", MaxScore=" + currentQuestion.MaxScore.ToString()
+									+ ", MaxScore=" + currentQuestion.MaxScore.ToString() + ", Criterion='" 
+									+ currentQuestion.Criterion + "' , CheckType_FK=" 
+									+ Workfield.KeyByValue<int, string>(Workfield.CheckTypes, currentQuestion.CheckType).ToString()
 									+ " WHERE Question_ID=" + questionPost.QuestionID.ToString() + " AND Variant_FK="+currentVariant.VariantID.ToString();
 								using (SqlCommand com = new SqlCommand(command, Workfield.SQLConnection))
 								{
@@ -1505,8 +1695,12 @@ namespace TOGIRRO_ControlTesting
 								return;
 							}
 
-							AlertManager.CheckAlerts(AlertType.NoReferenceResponce, new List<object>() { Workfield.CurrentSubject, currentVariant, questionPost });
-							AlertManager.CheckAlerts(AlertType.NotEnoughOrExcessScoreForQuestion, new List<object>() { Workfield.CurrentSubject, currentVariant, questionPost });
+							foreach (Answer currentAnswer in questionPost.Answers)
+                            {
+								AlertManager.CheckAlerts(AlertType.FieldNotFilled, new List<object>() { (int)2, Workfield.CurrentSubject, Workfield.CurrentVariant, questionPost, currentAnswer });
+							}
+							AlertManager.CheckAlerts(AlertType.NoReferenceResponce, new List<object>() { Workfield.CurrentSubject, currentVariant, questionPost, false });
+							AlertManager.CheckAlerts(AlertType.NotEnoughOrExcessScoreForQuestion, new List<object>() { Workfield.CurrentSubject, currentVariant, questionPost, null });
 						}
 					}
 				}
@@ -1580,10 +1774,12 @@ namespace TOGIRRO_ControlTesting
 					}
 					ScaleList.Items.Refresh();
 				}
+				Workfield.CurrentSubject.MaxScore = maxScore;
+				MaxScoreTextBlock.Text = maxScore.ToString();
 
 				AlertManager.CheckAlerts(AlertType.ScoreInconsequence, new List<object>() { Workfield.CurrentSubject });
 				AlertManager.CheckAlerts(AlertType.FieldNotFilled, new List<object>() { (int)3, Workfield.CurrentSubject, currentQuestion });
-				AlertManager.CheckAlerts(AlertType.NoErrorScaleSystem, new List<object>() { Workfield.CurrentSubject, currentQuestion });
+				AlertManager.CheckAlerts(AlertType.NoErrorScaleSystem, new List<object>() { Workfield.CurrentSubject, currentQuestion, false });
 
 				flagfix = false;
 				QuestionList.CommitEdit();
@@ -1605,8 +1801,7 @@ namespace TOGIRRO_ControlTesting
 
 			try
 			{
-				string command = criterion == "" ?
-					"SELECT Count(*) FROM AnswerCharacteristic WHERE TaskNumber=" + number.ToString() + " AND Subject_FK = " + Workfield.CurrentSubject.SubjectID.ToString() :
+				string command = 
 					"SELECT Count(*) FROM AnswerCharacteristic WHERE TaskNumber=" + number.ToString() + " AND Criterion='" + criterion + "' AND Subject_FK=" + Workfield.CurrentSubject.SubjectID.ToString();
 				using (SqlCommand com = new SqlCommand(command, Workfield.SQLConnection))
 				{
@@ -1644,10 +1839,11 @@ namespace TOGIRRO_ControlTesting
 		*/
 		private void AnswersPerQuestionList_AddingNewItem(object sender, AddingNewItemEventArgs e)
 		{
-			e.NewItem = new Answer();
-			Answer newAnswer = e.NewItem as Answer;
-
 			Question currentQuestion = AnswerList.SelectedItem as Question;
+
+			e.NewItem = new Answer();
+			((Answer)e.NewItem).Score = currentQuestion.MaxScore;
+			Answer newAnswer = e.NewItem as Answer;
 
 			try
 			{
@@ -1726,8 +1922,9 @@ namespace TOGIRRO_ControlTesting
 					return;
 				}
 
-				AlertManager.CheckAlerts(AlertType.NotEnoughOrExcessScoreForQuestion, new List<object>() { Workfield.CurrentSubject, Workfield.CurrentVariant, currentQuestion });
-				AlertManager.CheckAlerts(AlertType.NoReferenceResponce, new List<object>() { Workfield.CurrentSubject, Workfield.CurrentVariant, currentQuestion }, true);
+				AlertManager.CheckAlerts(AlertType.FieldNotFilled, new List<object>() { (int)2, Workfield.CurrentSubject, Workfield.CurrentVariant, currentQuestion, currentAnswer }, true);
+				AlertManager.CheckAlerts(AlertType.NotEnoughOrExcessScoreForQuestion, new List<object>() { Workfield.CurrentSubject, Workfield.CurrentVariant, currentQuestion, currentAnswer });
+				AlertManager.CheckAlerts(AlertType.NoReferenceResponce, new List<object>() { Workfield.CurrentSubject, Workfield.CurrentVariant, currentQuestion, true });
 			}
 		}
 
@@ -1763,9 +1960,9 @@ namespace TOGIRRO_ControlTesting
 					return;
 				}
 
-				AlertManager.CheckAlerts(AlertType.FieldNotFilled, new List<object>() { (int)2, Workfield.CurrentSubject, Workfield.CurrentVariant, Workfield.CurrentQuestion, currentAnswer });
-				AlertManager.CheckAlerts(AlertType.NotEnoughOrExcessScoreForQuestion, new List<object>() { Workfield.CurrentSubject, Workfield.CurrentVariant, currentQuestion });
-				AlertManager.CheckAlerts(AlertType.NoReferenceResponce, new List<object>() { Workfield.CurrentSubject, Workfield.CurrentVariant, currentQuestion });
+				AlertManager.CheckAlerts(AlertType.FieldNotFilled, new List<object>() { (int)2, Workfield.CurrentSubject, Workfield.CurrentVariant, currentQuestion, currentAnswer });
+				AlertManager.CheckAlerts(AlertType.NotEnoughOrExcessScoreForQuestion, new List<object>() { Workfield.CurrentSubject, Workfield.CurrentVariant, currentQuestion, null });
+				AlertManager.CheckAlerts(AlertType.NoReferenceResponce, new List<object>() { Workfield.CurrentSubject, Workfield.CurrentVariant, currentQuestion, false });
 			}
 		}
 		#endregion
@@ -1837,8 +2034,8 @@ namespace TOGIRRO_ControlTesting
 			try
 			{
 				string command =
-					"INSERT INTO ErrorScaleUnit (AnswerCharacteristic_FK, ErrorCount, Score) VALUES(" + currentAnswerCharacteristic.AnswerCharacteristicID.ToString() + ", '"
-					+ newErrorScaleUnit.ErrorCount + "', " + newErrorScaleUnit.Score.ToString() + ")";
+					"INSERT INTO ErrorScaleUnit (AnswerCharacteristic_FK, ErrorCount, Score) VALUES(" + currentAnswerCharacteristic.AnswerCharacteristicID.ToString() + ", "
+					+ newErrorScaleUnit.ErrorCount.ToString() + ", " + newErrorScaleUnit.Score.ToString() + ")";
 				using (SqlCommand com = new SqlCommand(command, Workfield.SQLConnection))
 				{
 					Workfield.SQLConnection.Open();
@@ -1911,7 +2108,7 @@ namespace TOGIRRO_ControlTesting
 					return;
 				}
 
-				AlertManager.CheckAlerts(AlertType.NoErrorScaleSystem, new List<object>() { Workfield.CurrentSubject, currentAnswerCharacteristic }, true);
+				AlertManager.CheckAlerts(AlertType.NoErrorScaleSystem, new List<object>() { Workfield.CurrentSubject, currentAnswerCharacteristic, true });
 			}
 		}
 
@@ -1928,7 +2125,7 @@ namespace TOGIRRO_ControlTesting
 				try
 				{
 					string command =
-						"UPDATE ErrorScaleUnit SET ErrorCount=" + currentErrorScaleUnit.ErrorCount + ", Score="
+						"UPDATE ErrorScaleUnit SET ErrorCount=" + currentErrorScaleUnit.ErrorCount.ToString() + ", Score="
 						+ currentErrorScaleUnit.Score.ToString() + " WHERE AnswerCharacteristic_FK=" + currentAnswerCharacteristic.AnswerCharacteristicID.ToString()
 						+ " AND ErrorScaleUnit_ID=" + currentErrorScaleUnit.ErrorScaleUnitID.ToString();
 					using (SqlCommand com = new SqlCommand(command, Workfield.SQLConnection))
@@ -1947,7 +2144,7 @@ namespace TOGIRRO_ControlTesting
 					return;
 				}
 
-				AlertManager.CheckAlerts(AlertType.NoErrorScaleSystem, new List<object>() { Workfield.CurrentSubject, currentAnswerCharacteristic });
+				AlertManager.CheckAlerts(AlertType.NoErrorScaleSystem, new List<object>() { Workfield.CurrentSubject, currentAnswerCharacteristic, false });
 			}
 		}
 		#endregion
@@ -2003,8 +2200,42 @@ namespace TOGIRRO_ControlTesting
 			if (!currentPopup.IsMouseOver)
 				currentPopup.IsOpen = false;
 		}
-        #endregion
-        //------------------------------------------------------------------------------------------------------------------------------------
-    }
+		#endregion
+		//------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+		//------------------------------------------------------------------------------------------------------------------------------------
+		//---Обработка справки----------------------------------------------------------------------------------------------------------------
+		//------------------------------------------------------------------------------------------------------------------------------------
+		#region
+		/*
+			Событие наведения мыши на иконку ошибки
+		*/
+		private void Info_MouseEnter(object sender, MouseEventArgs e)
+		{
+			InfoPopup.IsOpen = true;
+		}
+
+		/*
+			Событие выхода курсора мыши из окна ошибки
+		*/
+		private void InfoPopup_MouseLeave(object sender, MouseEventArgs e)
+		{
+			if (!InfoIcon.IsMouseOver)
+				InfoPopup.IsOpen = false;
+		}
+
+		/*
+			Событие выхода курсора мыши из иконки ошибки
+		*/
+		private void Info_MouseLeave(object sender, MouseEventArgs e)
+		{
+			if (!InfoPopup.IsMouseOver)
+				InfoPopup.IsOpen = false;
+		}
+		#endregion
+		//------------------------------------------------------------------------------------------------------------------------------------
+	}
 	//========================================================================================================================================
 }

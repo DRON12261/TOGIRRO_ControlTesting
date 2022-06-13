@@ -2,8 +2,10 @@
 using System.ComponentModel;
 using System.Globalization;
 using System.Reflection;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Input;
 using System.Windows.Markup;
 
 namespace TOGIRRO_ControlTesting
@@ -83,11 +85,12 @@ namespace TOGIRRO_ControlTesting
 		{
 			TextBox edit = editingElement as TextBox;
 			edit.PreviewTextInput += OnPreviewTextInput;
+			edit.PreviewKeyDown += new KeyEventHandler(OnKeyDown);
 
 			return base.PrepareCellForEdit(editingElement, editingEventArgs);
 		}
 
-		void OnPreviewTextInput(object sender, System.Windows.Input.TextCompositionEventArgs e)
+		private void OnPreviewTextInput(object sender, System.Windows.Input.TextCompositionEventArgs e)
 		{
 			try
 			{
@@ -97,6 +100,17 @@ namespace TOGIRRO_ControlTesting
 			{
 				e.Handled = true;
 			}
+		}
+
+		private void OnKeyDown(object sender, KeyEventArgs e)
+        {
+			if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
+            {
+				if (e.Key == Key.V)
+				{
+					e.Handled = true;
+				}
+            }
 		}
 	}
     #endregion

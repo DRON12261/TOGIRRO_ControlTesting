@@ -124,7 +124,7 @@
                             </Style>
                         </TabControl.Resources>
                         <TabItem Name="Subjects_ListTab">
-                            <DataGrid Name="SubjectsList" AutoGenerateColumns="False" RowDetailsVisibilityMode="VisibleWhenSelected" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True" SelectionChanged="SubjectsList_SelectionChanged">
+                            <DataGrid Name="SubjectsList" AutoGenerateColumns="False" RowDetailsVisibilityMode="VisibleWhenSelected" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True" SelectionChanged="SubjectsList_SelectionChanged" SelectionMode="Single">
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="Название предмета" Width="180" Binding="{Binding Name}"/>
                                     <DataGridTextColumn Header="Тип мероприятия" Width="160" Binding="{Binding Type}"/>
@@ -215,10 +215,18 @@
                                     </Grid.RowDefinitions>
 
                                     <Label Content="Код мероприятия" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Padding="10,0,0,0"/>
-                                    <TextBox Name="CreateSubject_EventCode" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,0,5,0" PreviewTextInput="NumberValidationTextBox"/>
+                                    <TextBox Name="CreateSubject_EventCode" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,0,5,0" PreviewTextInput="NumberValidationTextBox">
+                                        <TextBox.InputBindings>
+                                            <KeyBinding Command="ApplicationCommands.NotACommand" Key="V" Modifiers="Control" />          
+                                        </TextBox.InputBindings>
+                                    </TextBox>
 
                                     <Label Content="Код предмета" Grid.Row="0" Grid.Column="2" Grid.ColumnSpan="1" Padding="10,0,0,0"/>
-                                    <TextBox Name="CreateSubject_SubjectCode" Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="1" Margin="5,0,0,0" PreviewTextInput="NumberValidationTextBox"/>
+                                    <TextBox Name="CreateSubject_SubjectCode" Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="1" Margin="5,0,0,0" PreviewTextInput="NumberValidationTextBox">
+                                        <TextBox.InputBindings>
+                                            <KeyBinding Command="ApplicationCommands.NotACommand" Key="V" Modifiers="Control" />
+                                        </TextBox.InputBindings>
+                                    </TextBox>
 
                                     <Label Content="Название" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Padding="10,0,0,0"/>
                                     <TextBox Name="CreateSubject_Name" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" />
@@ -230,7 +238,11 @@
                                     <ComboBox Name="CreateSubject_Type" Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="3" />
 
                                     <Label Content="Минимальный балл" Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="2" Padding="10,0,0,0"/>
-                                    <TextBox Name="CreateSubject_MinScore" Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="3" PreviewTextInput="NumberValidationTextBox"/>
+                                    <TextBox Name="CreateSubject_MinScore" Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="3" PreviewTextInput="NumberValidationTextBox">
+                                        <TextBox.InputBindings>
+                                            <KeyBinding Command="ApplicationCommands.NotACommand" Key="V" Modifiers="Control" />
+                                        </TextBox.InputBindings>
+                                    </TextBox>
 
                                     <Label Content="Путь к папке с файлами КМ" Grid.Row="10" Grid.Column="0" Grid.ColumnSpan="3" Padding="10,0,0,0"/>
                                     <TextBox Name="CreateSubject_ProjectFolderPath" Grid.Row="11" Grid.Column="0" Grid.ColumnSpan="3"/>
@@ -292,10 +304,18 @@
                                     </Grid.RowDefinitions>
 
                                     <Label Content="Код мероприятия" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Padding="10,0,0,0"/>
-                                    <TextBox Name="EditSubject_EventCode" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,0,5,0" PreviewTextInput="NumberValidationTextBox"/>
+                                    <TextBox Name="EditSubject_EventCode" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,0,5,0" PreviewTextInput="NumberValidationTextBox">
+                                        <TextBox.InputBindings>
+                                            <KeyBinding Command="ApplicationCommands.NotACommand" Key="V" Modifiers="Control" />
+                                        </TextBox.InputBindings>
+                                    </TextBox>
 
                                     <Label Content="Код предмета" Grid.Row="0" Grid.Column="2" Grid.ColumnSpan="1" Padding="10,0,0,0"/>
-                                    <TextBox Name="EditSubject_SubjectCode" Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="1" Margin="5,0,0,0" PreviewTextInput="NumberValidationTextBox"/>
+                                    <TextBox Name="EditSubject_SubjectCode" Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="1" Margin="5,0,0,0" PreviewTextInput="NumberValidationTextBox">
+                                        <TextBox.InputBindings>
+                                            <KeyBinding Command="ApplicationCommands.NotACommand" Key="V" Modifiers="Control" />
+                                        </TextBox.InputBindings>
+                                    </TextBox>
 
                                     <Label Content="Название" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Padding="10,0,0,0"/>
                                     <TextBox Name="EditSubject_Name" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" />
@@ -307,7 +327,11 @@
                                     <ComboBox Name="EditSubject_Type" Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="3" />
 
                                     <Label Content="Минимальный балл" Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="2" Padding="10,0,0,0"/>
-                                    <TextBox Name="EditSubject_MinScore" Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="3" PreviewTextInput="NumberValidationTextBox"/>
+                                    <TextBox Name="EditSubject_MinScore" Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="3" PreviewTextInput="NumberValidationTextBox">
+                                        <TextBox.InputBindings>
+                                            <KeyBinding Command="ApplicationCommands.NotACommand" Key="V" Modifiers="Control" />
+                                        </TextBox.InputBindings>
+                                    </TextBox>
 
                                     <Label Content="Путь к папке с файлами КМ" Grid.Row="10" Grid.Column="0" Grid.ColumnSpan="3" Padding="10,0,0,0"/>
                                     <TextBox Name="EditSubject_ProjectFolderPath" Grid.Row="11" Grid.Column="0" Grid.ColumnSpan="3"/>
@@ -474,16 +498,18 @@
                                 </Button>
                             </Grid>
 
-                            <DataGrid Name="AnswerList" Grid.ColumnSpan="2" Grid.Row="2" AutoGenerateColumns="False" RowDetailsVisibilityMode="VisibleWhenSelected" CanUserAddRows="False" CanUserDeleteRows="False" IsSynchronizedWithCurrentItem="True">
+                            <DataGrid Name="AnswerList" Grid.ColumnSpan="2" Grid.Row="2" AutoGenerateColumns="False" RowDetailsVisibilityMode="VisibleWhenSelected" CanUserAddRows="False" CanUserDeleteRows="False" IsSynchronizedWithCurrentItem="True" SelectionMode="Single">
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="№" Binding="{Binding RelativeSource={RelativeSource AncestorType=DataGridRow}, Converter={local:RowToIndexConverter}}" Width="30" IsReadOnly="True"/>
                                     <DataGridTextColumn Header="Номер в вар." Binding="{Binding InVariant}" Width="100" IsReadOnly="True"/>
-                                    <DataGridComboBoxColumn Header="Тип вопроса" ItemsSource="{Binding Source={x:Static local:Workfield.QuestionTypes}}" SelectedValueBinding="{Binding QuestionTypeKey}" SelectedValuePath="Key" DisplayMemberPath="Value" Width="200" IsReadOnly="True"/>
+                                    <DataGridTextColumn Header="Критерий" Binding="{Binding Criterion}" Width="100" IsReadOnly="True"/>
+                                    <DataGridComboBoxColumn Header="Тип вопроса" ItemsSource="{Binding Source={x:Static local:Workfield.QuestionTypes}}" SelectedValueBinding="{Binding QuestionTypeKey}" SelectedValuePath="Key" DisplayMemberPath="Value" Width="150" IsReadOnly="True"/>
+                                    <DataGridComboBoxColumn Header="Тип вопроса" ItemsSource="{Binding Source={x:Static local:Workfield.CheckTypes}}" SelectedValueBinding="{Binding CheckTypeKey}" SelectedValuePath="Key" DisplayMemberPath="Value" Width="150" IsReadOnly="True"/>
                                     <DataGridTextColumn Header="Максимальный балл" Binding="{Binding MaxScore}" Width="200" IsReadOnly="True"/>
                                 </DataGrid.Columns>
                                 <DataGrid.RowDetailsTemplate>
                                     <DataTemplate>
-                                        <DataGrid Name="AnswersPerQuestionList" ItemsSource="{Binding Answers}" AutoGenerateColumns="False" CanUserDeleteRows="True" CanUserAddRows="True" GridLinesVisibility="Vertical" AddingNewItem="AnswersPerQuestionList_AddingNewItem" CommandManager.PreviewCanExecute="AnswersPerQuestionList_PreviewCanExecute" RowEditEnding="AnswersPerQuestionList_RowEditEnding" IsSynchronizedWithCurrentItem="True">
+                                        <DataGrid Name="AnswersPerQuestionList" ItemsSource="{Binding Answers}" AutoGenerateColumns="False" CanUserDeleteRows="True" CanUserAddRows="True" GridLinesVisibility="Vertical" AddingNewItem="AnswersPerQuestionList_AddingNewItem" CommandManager.PreviewCanExecute="AnswersPerQuestionList_PreviewCanExecute" RowEditEnding="AnswersPerQuestionList_RowEditEnding" IsSynchronizedWithCurrentItem="True" SelectionMode="Single">
                                             <DataGrid.Columns>
                                                 <DataGridTextColumn Header="Эталонный ответ" Binding="{Binding RightAnswer, UpdateSourceTrigger=PropertyChanged}" Width="300"/>
                                                 <local:DataGridNumericColumn Header="Балл" Binding="{Binding Score, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
@@ -515,7 +541,7 @@
                             <Label Name="CurrentSubjectName2" HorizontalAlignment="Center" FontStretch="ExtraExpanded" Grid.Row="0" Grid.Column="0" Margin="0,0,0,10"></Label>
                             <Label Name="CurrentSubjectType2" HorizontalAlignment="Center" FontStretch="ExtraExpanded" Grid.Row="0" Grid.Column="1" Margin="0,0,0,10"></Label>
 
-                            <DataGrid Name="ScaleList" Grid.ColumnSpan="2" Grid.Row="1" AutoGenerateColumns="False" CanUserDeleteRows="False" CanUserAddRows="False" IsSynchronizedWithCurrentItem="True" RowEditEnding="ScaleList_RowEditEnding">
+                            <DataGrid Name="ScaleList" Grid.ColumnSpan="2" Grid.Row="1" AutoGenerateColumns="False" CanUserDeleteRows="False" CanUserAddRows="False" IsSynchronizedWithCurrentItem="True" RowEditEnding="ScaleList_RowEditEnding" SelectionMode="Single">
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="Первичный балл" Binding="{Binding FirstScore, UpdateSourceTrigger=PropertyChanged}" Width="150" IsReadOnly="True"/>
                                     <local:DataGridNumericColumn Header="Оценка" Binding="{Binding Mark, UpdateSourceTrigger=PropertyChanged}" Width="150"/>
@@ -555,13 +581,13 @@
                                 </Button>
                             </Grid>
 
-                            <DataGrid Name="QuestionList" Grid.ColumnSpan="2" Grid.Row="1" AutoGenerateColumns="False" RowDetailsVisibilityMode="VisibleWhenSelected" CanUserAddRows="True" CanUserDeleteRows="True" CanUserReorderColumns="True" CanUserResizeColumns="True" CanUserSortColumns="True" AddingNewItem="QuestionList_AddingNewItem" CommandManager.PreviewCanExecute="QuestionList_PreviewCanExecute" RowEditEnding="QuestionList_RowEditEnding" IsSynchronizedWithCurrentItem="True">
+                            <DataGrid Name="QuestionList" Grid.ColumnSpan="2" Grid.Row="1" AutoGenerateColumns="False" RowDetailsVisibilityMode="VisibleWhenSelected" CanUserAddRows="True" CanUserDeleteRows="True" CanUserReorderColumns="True" CanUserResizeColumns="True" CanUserSortColumns="True" AddingNewItem="QuestionList_AddingNewItem" CommandManager.PreviewCanExecute="QuestionList_PreviewCanExecute" RowEditEnding="QuestionList_RowEditEnding" IsSynchronizedWithCurrentItem="True" SelectionMode="Single">
                                 <DataGrid.Columns>
                                     <local:DataGridNumericColumn Header="№" Binding="{Binding Number, UpdateSourceTrigger=PropertyChanged}"/>
                                     <DataGridTextColumn Header="Критерий" Binding="{Binding Criterion, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
                                     <DataGridTextColumn Header="Допустимые символы" Binding="{Binding ValidChars, UpdateSourceTrigger=PropertyChanged}" Width="200"/>
                                     <DataGridComboBoxColumn Header="Тип вопроса" ItemsSource="{Binding Source={x:Static local:Workfield.QuestionTypes}}" SelectedValueBinding="{Binding QuestionTypeKey, UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="Key" DisplayMemberPath="Value" Width="150"/>
-                                    <DataGridComboBoxColumn Header="Тип проверки" ItemsSource="{Binding Source={x:Static local:Workfield.CheckTypes}}" SelectedValueBinding="{Binding CheckTypeKey, UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="Key" DisplayMemberPath="Value" Width="150"/>
+                                    <DataGridComboBoxColumn Header="Тип проверки" ItemsSource="{Binding CheckTypeList, UpdateSourceTrigger=PropertyChanged}" SelectedValueBinding="{Binding CheckTypeKey, UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="Key" DisplayMemberPath="Value" Width="150"/>
                                     <local:DataGridNumericColumn Header="Максимальный балл" Binding="{Binding MaxScore, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
                                 </DataGrid.Columns>
                                 <DataGrid.RowDetailsTemplate>
@@ -569,7 +595,7 @@
                                         <Grid>
                                             <TextBlock Text='Для вопросов типа "C выбором ответа" и с типом проверки "Полное совпадение" функция ввода баллов не предусмотрена.'/>
 
-                                            <DataGrid Name="ErrorsPerQuestionList" ItemsSource="{Binding Errors}" AutoGenerateColumns="False" CanUserDeleteRows="True" CanUserAddRows="True" GridLinesVisibility="Vertical" AddingNewItem="ErrorsPerQuestionList_AddingNewItem"  CommandManager.PreviewCanExecute="ErrorsPerQuestionList_PreviewCanExecute"  RowEditEnding="ErrorsPerQuestionList_RowEditEnding"  IsSynchronizedWithCurrentItem="True">
+                                            <DataGrid Name="ErrorsPerQuestionList" ItemsSource="{Binding Errors}" AutoGenerateColumns="False" CanUserDeleteRows="True" CanUserAddRows="True" GridLinesVisibility="Vertical" AddingNewItem="ErrorsPerQuestionList_AddingNewItem"  CommandManager.PreviewCanExecute="ErrorsPerQuestionList_PreviewCanExecute"  RowEditEnding="ErrorsPerQuestionList_RowEditEnding"  IsSynchronizedWithCurrentItem="True" SelectionMode="Single">
                                                 <DataGrid.Style>
                                                     <Style TargetType="DataGrid">
                                                         <Style.Triggers>
@@ -603,7 +629,74 @@
 
         <StatusBar Grid.Column="0" Grid.Row="3">
             <StatusBarItem HorizontalAlignment="Left">
-                <TextBlock Text="Программа разработана студентами ТюмГУ Скочко Андреем и Чипак Данилой. 2022 г." />
+                <TextBlock Text="Программа разработана студентами ТюмГУ Скочко Андреем и Чипак Данилой. 2022 г." TextWrapping="Wrap" Width="250"/>
+            </StatusBarItem>
+            <StatusBarItem HorizontalAlignment="Left">
+                <Border BorderBrush="DarkGray" BorderThickness="1" Height="50"/>
+            </StatusBarItem>
+            <StatusBarItem HorizontalAlignment="Left">
+                <Grid>
+                    <Border Name="InfoIcon" BorderThickness="1" BorderBrush="MidnightBlue" Background="SteelBlue" MouseEnter="Info_MouseEnter" MouseLeave="Info_MouseLeave">
+                        <Image Width="40" Source="Icons/Info.png" Margin="0"/>
+                    </Border>
+                    <Popup Name="InfoPopup" Placement="Top" StaysOpen="True" MouseLeave="InfoPopup_MouseLeave" MaxWidth="1000">
+                        <Border BorderThickness="3" BorderBrush="MidnightBlue">
+                            <Grid Background="LightSteelBlue">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition/>
+                                    <RowDefinition MinHeight="100"/>
+                                </Grid.RowDefinitions>
+                                <Border Grid.Row="0" BorderThickness="1" BorderBrush="MidnightBlue">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition MaxWidth="48"/>
+                                            <ColumnDefinition MinWidth="400" MaxWidth="1000"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Image Grid.Column="0" Width="48" Source="Icons/Info.png"/>
+                                        <TextBlock Grid.Column="1" FontWeight="Bold" FontSize="32" Foreground="MidnightBlue" Text="Советы пользователю" TextAlignment="Left"/>
+                                    </Grid>
+                                </Border>
+                                <Border Grid.Row="1" BorderThickness="1" BorderBrush="MidnightBlue">
+                                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                        <Grid Margin="4">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition/>
+                                                <RowDefinition/>
+                                                <RowDefinition/>
+                                                <RowDefinition/>
+                                            </Grid.RowDefinitions>
+                                            <TextBlock Grid.Row="0" FontWeight="Bold" FontSize="22" Foreground="MidnightBlue">Руководство по составлению выражения допустимых символов</TextBlock>
+                                            <TextBlock Grid.Row="1" FontSize="18" Padding="10,0,0,0" Foreground="MidnightBlue" TextWrapping="Wrap">
+                                                При вводе допустимых символов во время настройки шаблона вопроса можно задать некоторые наиболее 
+                                                часто используемые последовательности символов путем составления специальных выражений вида ~(X), 
+                                                где X может принимать следующие значения:
+                                            </TextBlock>
+                                            <TextBlock Grid.Row="2" FontSize="18" Padding="40,0,0,0" Foreground="MidnightBlue">
+                                                    A-Z - английский алфавит в верхнем регистре;<LineBreak/>
+                                                    a-z - английский алфавит в нижнем регистре;<LineBreak/>
+                                                    А-Я - русский алфавит в верхнем регистре;<LineBreak/>
+                                                    а-я - русский алфавит в нижнем регистре;<LineBreak/>
+                                                    0-9 - все цифры.
+                                            </TextBlock>
+                                            <TextBlock Grid.Row="3" FontSize="18" Padding="10,0,0,0" Foreground="MidnightBlue">
+                                                Например, выражение вида ~(0-9) автоматически будет преобразовано в 0123456789 и т.п.
+                                            </TextBlock>
+                                        </Grid>
+                                    </ScrollViewer>
+                                </Border>
+                            </Grid>
+                        </Border>
+                    </Popup>
+                </Grid>
+            </StatusBarItem>
+            <StatusBarItem HorizontalAlignment="Left">
+                <Border BorderBrush="DarkGray" BorderThickness="1" Height="50"/>
+            </StatusBarItem>
+            <StatusBarItem HorizontalAlignment="Left">
+                <TextBlock Text="Максимальный балл:" FontSize="24"/>
+            </StatusBarItem>
+            <StatusBarItem HorizontalAlignment="Left">
+                <TextBlock Name="MaxScoreTextBlock"  Text="-" FontSize="30"/>
             </StatusBarItem>
             <StatusBarItem HorizontalAlignment="Right">
                 <ListBox Name="AlertList" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Disabled" Padding="0" Margin="0" BorderBrush="Transparent" IsEnabled="True">
@@ -627,7 +720,7 @@
                                 <Border Name="AlertIcon" BorderThickness="1" BorderBrush="Red" Background="DarkRed" MouseEnter="Alert_MouseEnter" MouseLeave="Alert_MouseLeave">
                                     <Image Width="32" Source="{Binding Icon}" Margin="0"/>
                                 </Border>
-                                <Popup Name="AlertPopup" Placement="Top" StaysOpen="True" MouseLeave="AlertPopup_MouseLeave">
+                                <Popup Name="AlertPopup" Placement="Top" StaysOpen="True" MouseLeave="AlertPopup_MouseLeave" MaxWidth="1000">
                                     <Border BorderThickness="3" BorderBrush="DarkRed">
                                         <Grid Background="AntiqueWhite">
                                             <Grid.RowDefinitions>
@@ -637,19 +730,19 @@
                                             <Border Grid.Row="0" BorderThickness="1" BorderBrush="DarkRed">
                                                 <Grid>
                                                     <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition/>
-                                                        <ColumnDefinition MinWidth="400"/>
+                                                        <ColumnDefinition MaxWidth="48"/>
+                                                        <ColumnDefinition MinWidth="400" MaxWidth="1000"/>
                                                     </Grid.ColumnDefinitions>
                                                     <Image Grid.Column="0" Width="48" Source="{Binding Icon}"/>
-                                                    <TextBlock Grid.Column="1" FontStretch="Expanded" FontSize="32" Foreground="DarkRed" Text="{Binding Header}"/>
+                                                    <TextBlock Grid.Column="1" FontWeight="Bold" FontSize="32" Foreground="DarkRed" Text="{Binding Header}" TextAlignment="Left"/>
                                                 </Grid>
                                             </Border>
                                             <Border Grid.Row="1" BorderThickness="1" BorderBrush="DarkRed">
                                                 <ListBox ItemsSource="{Binding PostAlerts}">
                                                     <ListBox.ItemTemplate>
                                                         <DataTemplate>
-                                                            <Border BorderThickness="1" BorderBrush="DarkRed">
-                                                                <TextBlock Width="400" TextWrapping="Wrap" FontSize="16" Foreground="DarkRed" Text="{Binding Description}"/>
+                                                            <Border BorderThickness="1" BorderBrush="DarkRed" Padding="2" MinWidth="950" MaxWidth="950">
+                                                                <TextBlock MinWidth="400" MaxWidth="950" TextWrapping="Wrap" FontSize="16" Foreground="DarkRed" Text="{Binding Description}"/>
                                                             </Border>
                                                         </DataTemplate>
                                                     </ListBox.ItemTemplate>
