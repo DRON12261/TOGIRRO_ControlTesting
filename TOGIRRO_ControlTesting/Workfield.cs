@@ -7,28 +7,11 @@ using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.Windows.Input;
 using System.Windows.Media;
 using Microsoft.Data.SqlClient;
 
 /*
-------Запилить вспомогательный класс для отображения в таблице ответов
-------Реализовать шкалирование (Класс)
-------Настроить таблицу шкалирования
-------Настроить таблицу ответов
-------Добавление изменение и удаление вариантов
-------Добавление и удаление вопросов
-------Привязка данных текущего предмета
-------Авто отслеживание и сопоставление всех трех таблиц
-------Доп инфа о текущем предмете в ListView
-------Автонумерация таблицы
-------DataGridNumericColumn
-------Отслеживание ввода в таблице шкалирования
-------Поиск в предметах
-------алерты в трее
-------Привязка к БД
-------Разбаловка шаблона вопроса
-------кнопки переключения видимости подтаблиц
-
 Ошибки:
 Непоследовательность итоговых баллов
 Непоследовательность оценок
@@ -78,6 +61,23 @@ using Microsoft.Data.SqlClient;
 непр доп симв
 несоотв эталон отв доп симв
 
+------Запилить вспомогательный класс для отображения в таблице ответов
+------Реализовать шкалирование (Класс)
+------Настроить таблицу шкалирования
+------Настроить таблицу ответов
+------Добавление изменение и удаление вариантов
+------Добавление и удаление вопросов
+------Привязка данных текущего предмета
+------Авто отслеживание и сопоставление всех трех таблиц
+------Доп инфа о текущем предмете в ListView
+------Автонумерация таблицы
+------DataGridNumericColumn
+------Отслеживание ввода в таблице шкалирования
+------Поиск в предметах
+------алерты в трее
+------Привязка к БД
+------Разбаловка шаблона вопроса
+------кнопки переключения видимости подтаблиц
 ------нумерация вопросов
 ------пофиксить -1 у макс балла
 ------пофиксить автоввод 0 у кода мер и пред
@@ -89,14 +89,21 @@ using Microsoft.Data.SqlClient;
 ------навесить изменение алертов на изменении и удалении вариантов
 ------навесить изменение алертов при изменении взаимосвязанных данных (номер в варике например)
 ------пресеты доп символов
-подсказки
-соответствие эталонного ответа с доп симв
+------подсказки
+------соответствие эталонного ответа с доп симв
 ------нах множ выделение
 ------уникальное название варика неправ варики начинаются на !
 ------запрет вставки в вводе
-тип проверки уникальный
+------тип проверки уникальный
 ------Макс балл в трее
 ------пофиксить -1 балл у эталонного ответа
+пока есть тесты прорешанные нельзя удалить
+район код района   и   школа, название код   в бд - для организаци id школы в районе, у теста ссылка на id школы
+номер кима
+номер бланка рег
+номер бланка отв 1
+номер бланка отв 2 
+номер бланка отв 2 доп
 */
 
 namespace TOGIRRO_ControlTesting
@@ -122,6 +129,7 @@ namespace TOGIRRO_ControlTesting
 		static public Variant CurrentVariant = null;
 		static public AnswerCharacteristic CurrentAnswerCharacteristic = null;
 		static public Question CurrentQuestion = null;
+		static public Dictionary<int, string> CurrentBlankTypes = new Dictionary<int, string>() { };
 
 		//SQL подключение
 		static public SqlConnectionStringBuilder SQLBuilder = new SqlConnectionStringBuilder();
@@ -135,7 +143,7 @@ namespace TOGIRRO_ControlTesting
 		static public Dictionary<int, string> CheckTypes1 = new Dictionary<int, string>() { };
 		static public Dictionary<int, string> CheckTypes2 = new Dictionary<int, string>() { };
 		static public Dictionary<int, string> CheckTypes3 = new Dictionary<int, string>() { };
-		static public List<Dictionary<int, string>> CheckTypesList = null;
+		static public Dictionary<int, Dictionary<int, string>> BlankTypes = new Dictionary<int, Dictionary<int, string>>() { };
 
 		/*
 			Получение ключа по значению из Dictionary
@@ -165,6 +173,8 @@ namespace TOGIRRO_ControlTesting
 			SubjectTypes.Add(1, "НЕ ОБОЗНАЧЕНО");
 			QuestionTypes.Add(1, "НЕ ОБОЗНАЧЕНО");
 			CheckTypes.Add(1, "НЕ ОБОЗНАЧЕНО");
+			BlankTypes.Add(0, new Dictionary<int, string>() { });
+			BlankTypes[0].Add(1, "НЕ ОБОЗНАЧЕНО");
 
 			INIReader ConfigFile = new INIReader("Config/Config.ini");
 			SQLBuilder.DataSource = ConfigFile.Read("DataSource", "SQL");
@@ -189,6 +199,8 @@ namespace TOGIRRO_ControlTesting
 						{
 							if (reader.GetInt32(0) == 1) continue;
 							SubjectTypes.Add(reader.GetInt32(0), reader.GetString(1));
+							BlankTypes.Add(reader.GetInt32(0), new Dictionary<int, string>() { });
+							BlankTypes[reader.GetInt32(0)].Add(1, "НЕ ОБОЗНАЧЕНО");
 						}
 					}
 					SQLConnection.Close();
@@ -257,11 +269,35 @@ namespace TOGIRRO_ControlTesting
 			CheckTypes1.Add(2, CheckTypes[2]);
 			CheckTypes1.Add(3, CheckTypes[3]);
 			CheckTypes2.Add(1, CheckTypes[1]);
-			CheckTypes2.Add(2, CheckTypes[4]);
-			CheckTypes2.Add(3, CheckTypes[5]);
-			CheckTypes2.Add(4, CheckTypes[6]);
+			CheckTypes2.Add(4, CheckTypes[4]);
+			CheckTypes2.Add(5, CheckTypes[5]);
+			CheckTypes2.Add(6, CheckTypes[6]);
 			CheckTypes3.Add(1, CheckTypes[1]);
-			CheckTypesList = new List<Dictionary<int, string>>() { CheckTypes1, CheckTypes2, CheckTypes3 };
+
+			try
+			{
+				using (SqlCommand com = new SqlCommand("SELECT * FROM BlankType", SQLConnection))
+				{
+					SQLConnection.Open();
+					using (SqlDataReader reader = com.ExecuteReader())
+					{
+						while (reader.Read())
+						{
+							if (reader.GetInt32(0) == 1) continue;
+							BlankTypes[reader.GetInt32(2)].Add(reader.GetInt32(0), reader.GetString(1));
+						}
+					}
+					SQLConnection.Close();
+				}
+			}
+			catch (Exception e)
+			{
+				SQLErrorWindow.SQLErrorTextBlock.Text += "\n\n\n" + e.ToString();
+				WorkWindow.IsEnabled = false;
+				SQLErrorWindow.Show();
+				isFatalError = true;
+				return;
+			}
 
 			ActualSubjects = Subjects;
 		}
@@ -399,6 +435,12 @@ namespace TOGIRRO_ControlTesting
 			}
 			return null;
 		}
+
+		public static void SelectRowByIndex(DataGrid grid, int index)
+		{
+			//DataGridRow row = dataGrid.ItemContainerGenerator.ContainerFromIndex(rowIndex) as DataGridRow;
+			
+		}
 		#region
 		static public IEnumerable<AlertType> AlertTypeValues => Enum.GetValues(typeof(AlertType)).Cast<AlertType>();
 		#endregion
@@ -495,6 +537,8 @@ namespace TOGIRRO_ControlTesting
 		public ObservableCollection<Variant> Variants = null;
 
 		public ObservableCollection<AnswerCharacteristic> Questions = null;
+		public ObservableCollection<Blank> Blanks = null;
+		public ObservableCollection<PrintBlank> PrintBlanks = null;
 
 		public Subject()
 		{
@@ -510,6 +554,8 @@ namespace TOGIRRO_ControlTesting
 			Questions = new ObservableCollection<AnswerCharacteristic> { };
 			Variants = new ObservableCollection<Variant> { };
 			ScaleSystem = new ObservableCollection<ScaleUnit>() { };
+			Blanks = new ObservableCollection<Blank>() { };
+			PrintBlanks = new ObservableCollection<PrintBlank>() { };
 			Alerts = new ObservableCollection<Alert>() 
 			{ 
 				new Alert(AlertType.FieldNotFilled),
@@ -591,11 +637,11 @@ namespace TOGIRRO_ControlTesting
 		{
 			get
 			{
-				return Workfield.KeyByValue<int, string>(Workfield.CheckTypes, CheckType);
+				return Workfield.KeyByValue<int, string>(CheckTypeList, CheckType);
 			}
 			set
 			{
-				CheckType = Workfield.CheckTypes[value];
+				CheckType = CheckTypeList[value];
 			}
 		}
 		public short MaxScore { get; set; }
@@ -784,6 +830,8 @@ namespace TOGIRRO_ControlTesting
 			6 - NoReferenceResponce
 			7 - NotEnoughOrExcessScoreForQuestion
 			8 - NoErrorScaleSystem
+			9 - FieldNotFilled, 4
+			10 - FIeldNotFilled, 5
 		*/
 
 		public PostAlert(string Description, List<object> ProblemData, int ProblemCode)
@@ -794,6 +842,58 @@ namespace TOGIRRO_ControlTesting
 			this.ProblemCode = ProblemCode;
         }
     }
+	#endregion
+	//----------------------------------------------------------------------------------------------------------------------------------------
+
+	//----------------------------------------------------------------------------------------------------------------------------------------
+	//---Класс Blank для бланков предмета-----------------------------------------------------------------------------------------------------
+	//----------------------------------------------------------------------------------------------------------------------------------------
+	#region
+	class Blank
+	{
+		public int BlankID { get; set; }
+		public string Type { get; set; }
+		public int TypeKey
+        {
+			get
+            {
+				return Workfield.KeyByValue<int, string>(CurrentBlankTypes, Type);
+            }
+			set
+            {
+				Type = CurrentBlankTypes[value];
+            }
+        }
+		public string Path { get; set; }
+		public Dictionary<int, string> CurrentBlankTypes { get; set; }
+
+		public Blank()
+		{
+			BlankID = 0;	Path = "";
+			Type = Workfield.BlankTypes[0][1];
+			CurrentBlankTypes = Workfield.BlankTypes[Workfield.KeyByValue<int, string>(Workfield.SubjectTypes, Workfield.CurrentSubject.Type)];
+		}
+	}
+	#endregion
+	//----------------------------------------------------------------------------------------------------------------------------------------
+
+	//----------------------------------------------------------------------------------------------------------------------------------------
+	//---Класс PrintBlank для очереди бланков на печать---------------------------------------------------------------------------------------
+	//----------------------------------------------------------------------------------------------------------------------------------------
+	#region
+	class PrintBlank
+	{
+		public Variant Variant { get; set; }
+		public int Count { get; set; }
+		public ObservableCollection<Variant> CurrentVariants { get; set; }
+
+		public PrintBlank()
+		{
+			Variant = null;
+			Count = 0;
+			CurrentVariants = Workfield.CurrentSubject.Variants;
+		}
+	}
 	#endregion
 	//----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -883,7 +983,7 @@ namespace TOGIRRO_ControlTesting
 							errorFields += errorFields == "" ? "минимального балла" : ", минимального балла";
 							errorCount++;
 						}
-						if (checkSubject.ProjectFolderPath == "")
+						/*if (checkSubject.ProjectFolderPath == "")
 						{
 							errorFields += errorFields == "" ? "пути к папке с файлами КМ" : ", пути к папке с файлами КМ";
 							errorCount++;
@@ -907,7 +1007,7 @@ namespace TOGIRRO_ControlTesting
 						{
 							errorFields += errorFields == "" ? "имени файла протоколов" : ", имени файла протоколов";
 							errorCount++;
-						}
+						}*/
 
 						if (checkedBefore)
 						{
@@ -1066,7 +1166,7 @@ namespace TOGIRRO_ControlTesting
 							errorFields += errorFields == "" ? "типа вопроса" : ", типа вопроса";
 							errorCount++;
 						}
-						if (checkAnswerCharacteristic.CheckType == Workfield.CheckTypes[1])
+						if (checkAnswerCharacteristic.CheckType == Workfield.CheckTypes[1] && checkAnswerCharacteristic.QuestionType != Workfield.QuestionTypes[4])
 						{
 							errorFields += errorFields == "" ? "типа проверки" : ", типа проверки";
 							errorCount++;
@@ -1264,6 +1364,65 @@ namespace TOGIRRO_ControlTesting
 									else
 										checkSubject.Alerts[0].PostAlerts.Add(new PostAlert("Неверно составлено выражение диапазона символов в вопросе №" + checkAnswerCharacteristic.Number.ToString() + "-" + checkAnswerCharacteristic.Criterion + ".", checkData, 9));
 								}
+							}
+						}
+					}
+
+					break;
+
+				case 5: //Таблица бланков
+					{
+						Subject checkSubject = checkData[1] as Subject;
+						Blank checkBlank = checkData[2] as Blank;
+
+						int errorCount = 0;
+						string errorFields = "";
+
+						foreach (PostAlert currentAlert in checkSubject.Alerts[0].PostAlerts)
+						{
+							if (currentAlert.ProblemCode == 10 && ((Subject)currentAlert.ProblemData[1]).SubjectID == checkSubject.SubjectID &&
+								((Blank)currentAlert.ProblemData[2]).BlankID == checkBlank.BlankID)
+							{
+								checkedBefore = true;
+								checkedAlert = currentAlert;
+							}
+						}
+
+						if (toDelete)
+						{
+							if (checkedBefore)
+								checkSubject.Alerts[0].PostAlerts.Remove(checkedAlert);
+							break;
+						}
+
+						if (checkBlank.Type == Workfield.BlankTypes[0][1])
+						{
+							errorFields += errorFields == "" ? "типа бланка" : ", типа бланка";
+							errorCount++;
+						}
+						if (checkBlank.Path == "")
+						{
+							errorFields += errorFields == "" ? "пути к файлу бланка" : ", пути к файлу бланка";
+							errorCount++;
+						}
+
+						if (checkedBefore)
+						{
+							if (errorCount <= 0)
+							{
+								checkSubject.Alerts[0].PostAlerts.Remove(checkedAlert);
+							}
+							else
+							{
+								checkSubject.Alerts[0].PostAlerts.Remove(checkedAlert);
+								checkSubject.Alerts[0].PostAlerts.Add(new PostAlert("В настройках бланка не настроено(-ы) поле(-я) " + errorFields + ".", checkData, 10));
+							}
+						}
+						else
+						{
+							if (errorCount > 0)
+							{
+								checkSubject.Alerts[0].PostAlerts.Add(new PostAlert("В настройках бланка не настроено(-ы) поле(-я) " + errorFields + ".", checkData, 10));
 							}
 						}
 					}

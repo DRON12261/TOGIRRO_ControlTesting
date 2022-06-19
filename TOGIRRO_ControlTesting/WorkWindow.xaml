@@ -19,29 +19,8 @@
 
         <Grid Grid.Column="0" Grid.Row="0">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="64"/>
-                <ColumnDefinition Width="64"/>
-                <ColumnDefinition Width="64"/>
-                <ColumnDefinition Width="64"/>
-                <ColumnDefinition Width="64"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-
-            <Button Margin="6" Grid.Column="0">
-                <Image Source="Icons/TodoList.png"/>
-            </Button>
-            <Button Margin="6" Grid.Column="1">
-                <Image Source="Icons/EditBlanks.png"/>
-            </Button>
-            <Button Margin="6" Grid.Column="2">
-                <Image Source="Icons/Print1.png"/>
-            </Button>
-            <Button Margin="6" Grid.Column="3">
-                <Image Source="Icons/CheckResults.png"/>
-            </Button>
-            <Button Margin="6" Grid.Column="4">
-                <Image Source="Icons/Print2.png"/>
-            </Button>
 
             <TabControl Grid.Column="5" Margin="0,0,6,0" Padding="0">
                 <TabControl.Resources>
@@ -56,20 +35,40 @@
                 <TabItem>
                     <Grid Margin="0">
                         <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="64"/>
+                            <ColumnDefinition Width="64"/>
+                            <ColumnDefinition Width="64"/>
+                            <ColumnDefinition Width="64"/>
+                            <ColumnDefinition Width="8"/>
+                            <ColumnDefinition Width="64"/>
+                            <ColumnDefinition Width="64"/>
+                            <ColumnDefinition Width="64"/>
                             <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="64"/>
-                            <ColumnDefinition Width="64"/>
-                            <ColumnDefinition Width="64"/>
                         </Grid.ColumnDefinitions>
 
-                        <ToggleButton Name="EditQuestionsMode_Button" Margin="6" Grid.Column="1" Click="ButtonC_EditQuestionsMode">
+                        <ToggleButton Name="EditQuestionsMode_Button" Margin="6" Grid.Column="0" Click="ButtonC_EditQuestionsMode" ToolTip="Режим настройки шаблонов вопросов">
                             <Image Source="Icons/Pattern.png"/>
                         </ToggleButton>
-                        <ToggleButton Name="EditScaleMode_Button" Margin="6" Grid.Column="2" Click="ButtonC_EditScaleMode">
+                        <ToggleButton Name="EditScaleMode_Button" Margin="6" Grid.Column="1" Click="ButtonC_EditScaleMode" ToolTip="Режим настройки системы шкалирования">
                             <Image Source="Icons/Scale.png"/>
                         </ToggleButton>
-                        <ToggleButton Name="EditAnswersMode_Button" Margin="6" Grid.Column="3" Click="ButtonC_EditAnswersMode">
+                        <ToggleButton Name="EditAnswersMode_Button" Margin="6" Grid.Column="2" Click="ButtonC_EditAnswersMode" ToolTip="Режим настройки шаблонов и эталонных ответов">
                             <Image Source="Icons/Variant.png"/>
+                        </ToggleButton>
+                        <ToggleButton Name="EditBlanksMode_Button" Margin="6" Grid.Column="3" Click="ButtonC_EditBlanksMode" ToolTip="Режим настройки бланков предмета">
+                            <Image Source="Icons/EditBlanks.png"/>
+                        </ToggleButton>
+                        <StatusBarItem Grid.Column="4">
+                            <Border BorderBrush="DarkGray" BorderThickness="1" Height="50"/>
+                        </StatusBarItem>
+                        <ToggleButton Name="PrintBlanksMode_Button" Margin="6" Grid.Column="5" Click="ButtonC_PrintBlanksMode" ToolTip="Печать бланков">
+                            <Image Source="Icons/Print1.png"/>
+                        </ToggleButton>
+                        <ToggleButton Name="CheckResultsMode_Button" Margin="6" Grid.Column="6" Click="ButtonC_CheckResultMode" ToolTip="Просмотр результатов">
+                            <Image Source="Icons/CheckResults.png"/>
+                        </ToggleButton>
+                        <ToggleButton Name="PrintReportMode_Button" Margin="6" Grid.Column="7" Click="ButtonC_PrintReportMode" ToolTip="Печать отчетов">
+                            <Image Source="Icons/Print2.png"/>
                         </ToggleButton>
                     </Grid>
                 </TabItem>
@@ -142,11 +141,11 @@
                                                 <RowDefinition/>
                                                 <RowDefinition/>
                                                 <RowDefinition/>
+                                                <!--<RowDefinition/>
                                                 <RowDefinition/>
                                                 <RowDefinition/>
                                                 <RowDefinition/>
-                                                <RowDefinition/>
-                                                <RowDefinition/>
+                                                <RowDefinition/>-->
                                             </Grid.RowDefinitions>
 
                                             <Label Grid.Column="0" Grid.Row="0">Описание</Label>
@@ -160,7 +159,7 @@
 
                                             <Label Grid.Column="0" Grid.Row="3">Минимальный балл</Label>
                                             <TextBox Grid.Column="1" Grid.Row="3" IsReadOnly="True" Text="{Binding MinScore}"></TextBox>
-
+<!--
                                             <Label Grid.Column="0" Grid.Row="4">Путь к папке с файлами КМ</Label>
                                             <TextBox Grid.Column="1" Grid.Row="4" IsReadOnly="True" Text="{Binding ProjectFolderPath}"></TextBox>
 
@@ -175,9 +174,9 @@
 
                                             <Label Grid.Column="0" Grid.Row="8">Имя файла протоколов</Label>
                                             <TextBox Grid.Column="1" Grid.Row="8" IsReadOnly="True" Text="{Binding LogFile}"></TextBox>
-
-                                            <Label Grid.Column="0" Grid.Row="9">Система оценивания</Label>
-                                            <TextBox Grid.Column="1" Grid.Row="9" IsReadOnly="True" Text="{Binding IsMarkValue}"></TextBox>
+-->
+                                            <Label Grid.Column="0" Grid.Row="4">Система оценивания</Label>
+                                            <TextBox Grid.Column="1" Grid.Row="4" IsReadOnly="True" Text="{Binding IsMarkValue}"></TextBox>
                                         </Grid>
                                     </DataTemplate>
                                 </DataGrid.RowDetailsTemplate>
@@ -203,13 +202,13 @@
                                         <RowDefinition Height="24"/>
                                         <RowDefinition Height="24"/>
                                         <RowDefinition Height="24"/>
+                                        <!--<RowDefinition Height="24"/>
                                         <RowDefinition Height="24"/>
                                         <RowDefinition Height="24"/>
                                         <RowDefinition Height="24"/>
                                         <RowDefinition Height="24"/>
                                         <RowDefinition Height="24"/>
-                                        <RowDefinition Height="24"/>
-                                        <RowDefinition Height="24"/>
+                                        <RowDefinition Height="24"/>-->
                                         <RowDefinition MinHeight="24"/>
                                         <RowDefinition Height="64"/>
                                     </Grid.RowDefinitions>
@@ -243,7 +242,7 @@
                                             <KeyBinding Command="ApplicationCommands.NotACommand" Key="V" Modifiers="Control" />
                                         </TextBox.InputBindings>
                                     </TextBox>
-
+<!--
                                     <Label Content="Путь к папке с файлами КМ" Grid.Row="10" Grid.Column="0" Grid.ColumnSpan="3" Padding="10,0,0,0"/>
                                     <TextBox Name="CreateSubject_ProjectFolderPath" Grid.Row="11" Grid.Column="0" Grid.ColumnSpan="3"/>
 
@@ -257,16 +256,16 @@
                                     <TextBox Name="CreateSubject_AnswersForm2" Grid.Row="15" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,0,5,0"/>
 
                                     <Label Content="Имя файла протоколов" Grid.Row="14" Grid.Column="2" Grid.ColumnSpan="1" Padding="10,0,0,0"/>
-                                    <TextBox Name="CreateSubject_LogFile" Grid.Row="15" Grid.Column="2" Grid.ColumnSpan="1" Margin="5,0,0,0"/>
+                                    <TextBox Name="CreateSubject_LogFile" Grid.Row="15" Grid.Column="2" Grid.ColumnSpan="1" Margin="5,0,0,0"/>-->
 
-                                    <Label Content="Система оценивания" Grid.Row="16" Grid.Column="0" Grid.ColumnSpan="2" Padding="10,0,0,0"/>
-                                    <RadioButton Name="CreateSubject_ScoreSystem" GroupName="GradeSystem" Content="Балл" IsChecked="True" Grid.Row="17" Grid.Column="0" Grid.ColumnSpan="3"/>
-                                    <RadioButton Name="CreateSubject_MarkSystem" GroupName="GradeSystem" Content="Оценка" Grid.Row="17" Grid.Column="1" Grid.ColumnSpan="3"/>
+                                    <Label Content="Система оценивания" Grid.Row="10" Grid.Column="0" Grid.ColumnSpan="2" Padding="10,0,0,0"/>
+                                    <RadioButton Name="CreateSubject_ScoreSystem" GroupName="GradeSystem" Content="Балл" IsChecked="True" Grid.Row="11" Grid.Column="0" Grid.ColumnSpan="3"/>
+                                    <RadioButton Name="CreateSubject_MarkSystem" GroupName="GradeSystem" Content="Оценка" Grid.Row="11" Grid.Column="1" Grid.ColumnSpan="3"/>
 
-                                    <Button Margin="0,0,5,0" Grid.Row="19" Grid.Column="0" Click="ButtonC_CreateSubject_Create" Grid.ColumnSpan="2">
+                                    <Button Margin="0,0,5,0" Grid.Row="12" Grid.Column="0" Click="ButtonC_CreateSubject_Create" Grid.ColumnSpan="2" ToolTip="Подтверждение создания">
                                         <Image Source="Icons/Ok.png"/>
                                     </Button>
-                                    <Button Margin="5,0,0,0" Grid.Row="19" Grid.Column="2" Click="ButtonC_CreateSubject_Cancel">
+                                    <Button Margin="5,0,0,0" Grid.Row="12" Grid.Column="2" Click="ButtonC_CreateSubject_Cancel" ToolTip="Отмена создания">
                                         <Image Source="Icons/Cancel.png"/>
                                     </Button>
                                 </Grid>
@@ -292,13 +291,13 @@
                                         <RowDefinition Height="24"/>
                                         <RowDefinition Height="24"/>
                                         <RowDefinition Height="24"/>
+                                        <!--<RowDefinition Height="24"/>
                                         <RowDefinition Height="24"/>
                                         <RowDefinition Height="24"/>
                                         <RowDefinition Height="24"/>
                                         <RowDefinition Height="24"/>
                                         <RowDefinition Height="24"/>
-                                        <RowDefinition Height="24"/>
-                                        <RowDefinition Height="24"/>
+                                        <RowDefinition Height="24"/>-->
                                         <RowDefinition MinHeight="24"/>
                                         <RowDefinition Height="64"/>
                                     </Grid.RowDefinitions>
@@ -332,7 +331,7 @@
                                             <KeyBinding Command="ApplicationCommands.NotACommand" Key="V" Modifiers="Control" />
                                         </TextBox.InputBindings>
                                     </TextBox>
-
+<!--
                                     <Label Content="Путь к папке с файлами КМ" Grid.Row="10" Grid.Column="0" Grid.ColumnSpan="3" Padding="10,0,0,0"/>
                                     <TextBox Name="EditSubject_ProjectFolderPath" Grid.Row="11" Grid.Column="0" Grid.ColumnSpan="3"/>
 
@@ -346,16 +345,16 @@
                                     <TextBox Name="EditSubject_AnswersForm2" Grid.Row="15" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,0,5,0"/>
 
                                     <Label Content="Имя файла протоколов" Grid.Row="14" Grid.Column="2" Grid.ColumnSpan="1" Padding="10,0,0,0"/>
-                                    <TextBox Name="EditSubject_LogFile" Grid.Row="15" Grid.Column="2" Grid.ColumnSpan="1" Margin="5,0,0,0"/>
+                                    <TextBox Name="EditSubject_LogFile" Grid.Row="15" Grid.Column="2" Grid.ColumnSpan="1" Margin="5,0,0,0"/>-->
 
-                                    <Label Content="Система оценивания" Grid.Row="16" Grid.Column="0" Grid.ColumnSpan="2" Padding="10,0,0,0"/>
-                                    <RadioButton Name="EditSubject_ScoreSystem" GroupName="GradeSystem" Content="Балл" IsChecked="True" Grid.Row="17" Grid.Column="0" Grid.ColumnSpan="3"/>
-                                    <RadioButton Name="EditSubject_MarkSystem" GroupName="GradeSystem" Content="Оценка" Grid.Row="17" Grid.Column="1" Grid.ColumnSpan="3"/>
+                                    <Label Content="Система оценивания" Grid.Row="10" Grid.Column="0" Grid.ColumnSpan="2" Padding="10,0,0,0"/>
+                                    <RadioButton Name="EditSubject_ScoreSystem" GroupName="GradeSystem" Content="Балл" IsChecked="True" Grid.Row="11" Grid.Column="0" Grid.ColumnSpan="3"/>
+                                    <RadioButton Name="EditSubject_MarkSystem" GroupName="GradeSystem" Content="Оценка" Grid.Row="11" Grid.Column="1" Grid.ColumnSpan="3"/>
 
-                                    <Button Margin="0,0,5,0" Grid.Row="19" Grid.Column="0" Click="ButtonC_EditSubject_Edit" Grid.ColumnSpan="2">
+                                    <Button Margin="0,0,5,0" Grid.Row="12" Grid.Column="0" Click="ButtonC_EditSubject_Edit" Grid.ColumnSpan="2" ToolTip="Подтвердить редактирование">
                                         <Image Source="Icons/Ok.png"/>
                                     </Button>
-                                    <Button Margin="5,0,0,0" Grid.Row="19" Grid.Column="2" Click="ButtonC_EditSubject_Cancel">
+                                    <Button Margin="5,0,0,0" Grid.Row="12" Grid.Column="2" Click="ButtonC_EditSubject_Cancel" ToolTip="Отмена редактирования">
                                         <Image Source="Icons/Cancel.png"/>
                                     </Button>
                                 </Grid>
@@ -372,17 +371,17 @@
                     </Grid.ColumnDefinitions>
 
                     <Grid Margin="10,0,10,10" Grid.Column="0">
-                        <ToggleButton Name="CreateSubjectMenu_Button" Click="ButtonC_CreateSubject">
+                        <ToggleButton Name="CreateSubjectMenu_Button" Click="ButtonC_CreateSubject" ToolTip="Создание предмета">
                             <Image Source="Icons/Plus.png"/>
                         </ToggleButton>
                     </Grid>
                     <Grid Margin="0,0,0,10" Grid.Column="1">
-                        <ToggleButton Name="EditSubjectMenu_Button" Click="ButtonC_EditSubject">
+                        <ToggleButton Name="EditSubjectMenu_Button" Click="ButtonC_EditSubject" ToolTip="Редактирование предмета">
                             <Image Source="Icons/Edit.png"/>
                         </ToggleButton>
                     </Grid>
                     <Grid Margin="10,0,10,10" Grid.Column="2">
-                        <Button Name="DeleteSubject_Button" Click="ButtonC_DeleteSubject">
+                        <Button Name="DeleteSubject_Button" Click="ButtonC_DeleteSubject" ToolTip="Удаление предмета">
                             <Image Source="Icons/Trash.png"/>
                         </Button>
                     </Grid>
@@ -426,7 +425,7 @@
                                 </Grid.ColumnDefinitions>
 
                                 <Label Name="CurrentSubjectType1" HorizontalAlignment="Center" FontStretch="ExtraExpanded" Grid.Row="0" Grid.Column="0"></Label>
-                                <Button Name="AnswerList_ChangeTableVisibilityButton" Click="AnswerList_ChangeTableVisibilityButton_Click" Grid.Column="1">
+                                <Button Name="AnswerList_ChangeTableVisibilityButton" Click="AnswerList_ChangeTableVisibilityButton_Click" Grid.Column="1" ToolTip="Вкл./Выкл. видимость всех элементов">
                                     <Image Name="AnswerList_VisibilityButton" Source="Icons/Show.png"/>
                                 </Button>
                             </Grid>
@@ -454,13 +453,13 @@
                                         <Label>Вариант:</Label>
                                         <ComboBox Name="CurrentVariantCBox" DisplayMemberPath="Name" Grid.Column="1" SelectionChanged="CurrentVariantCBox_SelectionChanged" IsSynchronizedWithCurrentItem="True">
                                         </ComboBox>
-                                        <Button Grid.Column="2" Click="ButtonC_CreateVariant">
+                                        <Button Grid.Column="2" Click="ButtonC_CreateVariant" ToolTip="Создать вариант">
                                             <Image Source="Icons/Plus.png"/>
                                         </Button>
-                                        <Button Grid.Column="3" Click="ButtonC_EditVariantNameMode">
+                                        <Button Grid.Column="3" Click="ButtonC_EditVariantNameMode" ToolTip="Редактировать название варианта">
                                             <Image Source="Icons/Edit.png"/>
                                         </Button>
-                                        <Button Grid.Column="4" Click="ButtonC_DeleteVariant">
+                                        <Button Grid.Column="4" Click="ButtonC_DeleteVariant" ToolTip="Удалить вариант">
                                             <Image Source="Icons/Delete.png"/>
                                         </Button>
                                     </Grid>
@@ -476,10 +475,10 @@
 
                                         <Label>Вариант:</Label>
                                         <TextBox Name="CurrentVariantTextbox" Grid.Column="1" KeyDown="CurrentVariantTextbox_KeyDown"/>
-                                        <Button Grid.Column="2" Click="ButtonC_EditVariantSuccess">
+                                        <Button Grid.Column="2" Click="ButtonC_EditVariantSuccess" ToolTip="Подтвердить редактирование">
                                             <Image Source="Icons/Ok.png"/>
                                         </Button>
-                                        <Button Grid.Column="3" Click="ButtonC_EditVariantCancel">
+                                        <Button Grid.Column="3" Click="ButtonC_EditVariantCancel" ToolTip="Отменить редактирование">
                                             <Image Source="Icons/Cancel.png"/>
                                         </Button>
                                     </Grid>
@@ -492,8 +491,8 @@
                                     <ColumnDefinition Width="32"/>
                                 </Grid.ColumnDefinitions>
 
-                                <TextBox Grid.Column="0">Выберите путь к файлу варианта</TextBox>
-                                <Button Grid.Column="1">
+                                <TextBox Name="VariantFilePathLabel" Grid.Column="0" IsReadOnly="True">Выберите путь к файлу варианта</TextBox>
+                                <Button Name="OpenVariantBlankButton" Grid.Column="1" ToolTip="Загрузить файл" Click="OpenVariantBlankButton_Click">
                                     <Image Source="Icons/OpenFolder.png"/>
                                 </Button>
                             </Grid>
@@ -576,24 +575,35 @@
                                 </Grid.ColumnDefinitions>
 
                                 <Label Name="CurrentSubjectType3" HorizontalAlignment="Center" FontStretch="ExtraExpanded" Grid.Row="0" Grid.Column="0"></Label>
-                                <Button Name="QuestionList_ChangeTableVisibilityButton" Click="QuestionList_ChangeTableVisibilityButton_Click" Grid.Column="1">
+                                <Button Name="QuestionList_ChangeTableVisibilityButton" Click="QuestionList_ChangeTableVisibilityButton_Click" Grid.Column="1" ToolTip="Вкл./Выкл. видимость всех элементов">
                                     <Image Name="QuestionList_VisibilityButton" Source="Icons/Show.png"/>
                                 </Button>
                             </Grid>
 
-                            <DataGrid Name="QuestionList" Grid.ColumnSpan="2" Grid.Row="1" AutoGenerateColumns="False" RowDetailsVisibilityMode="VisibleWhenSelected" CanUserAddRows="True" CanUserDeleteRows="True" CanUserReorderColumns="True" CanUserResizeColumns="True" CanUserSortColumns="True" AddingNewItem="QuestionList_AddingNewItem" CommandManager.PreviewCanExecute="QuestionList_PreviewCanExecute" RowEditEnding="QuestionList_RowEditEnding" IsSynchronizedWithCurrentItem="True" SelectionMode="Single">
+                            <DataGrid Name="QuestionList" Grid.ColumnSpan="2" Grid.Row="1" AutoGenerateColumns="False" RowDetailsVisibilityMode="VisibleWhenSelected" CanUserAddRows="True" CanUserDeleteRows="True" CanUserReorderColumns="True" CanUserResizeColumns="True" CanUserSortColumns="True" AddingNewItem="QuestionList_AddingNewItem" CommandManager.PreviewCanExecute="QuestionList_PreviewCanExecute" RowEditEnding="QuestionList_RowEditEnding" IsSynchronizedWithCurrentItem="True" SelectionMode="Single" SelectedCellsChanged="QuestionList_SelectedCellsChanged">
                                 <DataGrid.Columns>
                                     <local:DataGridNumericColumn Header="№" Binding="{Binding Number, UpdateSourceTrigger=PropertyChanged}"/>
                                     <DataGridTextColumn Header="Критерий" Binding="{Binding Criterion, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
                                     <DataGridTextColumn Header="Допустимые символы" Binding="{Binding ValidChars, UpdateSourceTrigger=PropertyChanged}" Width="200"/>
                                     <DataGridComboBoxColumn Header="Тип вопроса" ItemsSource="{Binding Source={x:Static local:Workfield.QuestionTypes}}" SelectedValueBinding="{Binding QuestionTypeKey, UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="Key" DisplayMemberPath="Value" Width="150"/>
-                                    <DataGridComboBoxColumn Header="Тип проверки" ItemsSource="{Binding CheckTypeList, UpdateSourceTrigger=PropertyChanged}" SelectedValueBinding="{Binding CheckTypeKey, UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="Key" DisplayMemberPath="Value" Width="150"/>
+                                    <DataGridComboBoxColumn Header="Тип проверки" SelectedValueBinding="{Binding CheckTypeKey, UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="Key" DisplayMemberPath="Value" Width="150">
+                                        <DataGridComboBoxColumn.ElementStyle>
+                                            <Style TargetType="ComboBox">
+                                                <Setter Property="ItemsSource" Value="{Binding Path=CheckTypeList, UpdateSourceTrigger=PropertyChanged}" />
+                                            </Style>
+                                        </DataGridComboBoxColumn.ElementStyle>
+                                        <DataGridComboBoxColumn.EditingElementStyle>
+                                            <Style TargetType="ComboBox">
+                                                <Setter Property="ItemsSource" Value="{Binding Path=CheckTypeList, UpdateSourceTrigger=PropertyChanged}" />
+                                            </Style>
+                                        </DataGridComboBoxColumn.EditingElementStyle>
+                                    </DataGridComboBoxColumn>
                                     <local:DataGridNumericColumn Header="Максимальный балл" Binding="{Binding MaxScore, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
                                 </DataGrid.Columns>
                                 <DataGrid.RowDetailsTemplate>
                                     <DataTemplate>
                                         <Grid>
-                                            <TextBlock Text='Для вопросов типа "C выбором ответа" и с типом проверки "Полное совпадение" функция ввода баллов не предусмотрена.'/>
+                                            <TextBlock Text='Для вопросов c таким типом проверки функция ввода баллов не предусмотрена.'/>
 
                                             <DataGrid Name="ErrorsPerQuestionList" ItemsSource="{Binding Errors}" AutoGenerateColumns="False" CanUserDeleteRows="True" CanUserAddRows="True" GridLinesVisibility="Vertical" AddingNewItem="ErrorsPerQuestionList_AddingNewItem"  CommandManager.PreviewCanExecute="ErrorsPerQuestionList_PreviewCanExecute"  RowEditEnding="ErrorsPerQuestionList_RowEditEnding"  IsSynchronizedWithCurrentItem="True" SelectionMode="Single">
                                                 <DataGrid.Style>
@@ -601,8 +611,17 @@
                                                         <Style.Triggers>
                                                             <MultiDataTrigger>
                                                                 <MultiDataTrigger.Conditions>
-                                                                    <Condition Binding="{Binding Path=QuestionTypeKey}" Value="3"/>
+                                                                    <Condition Binding="{Binding Path=QuestionTypeKey}" Value="2"/>
                                                                     <Condition Binding="{Binding Path=CheckTypeKey}" Value="2"/>
+                                                                </MultiDataTrigger.Conditions>
+                                                                <MultiDataTrigger.Setters>
+                                                                    <Setter Property="Visibility" Value="Hidden"/>
+                                                                </MultiDataTrigger.Setters>
+                                                            </MultiDataTrigger>
+                                                            <MultiDataTrigger>
+                                                                <MultiDataTrigger.Conditions>
+                                                                    <Condition Binding="{Binding Path=QuestionTypeKey}" Value="3"/>
+                                                                    <Condition Binding="{Binding Path=CheckTypeKey}" Value="4"/>
                                                                 </MultiDataTrigger.Conditions>
                                                                 <MultiDataTrigger.Setters>
                                                                     <Setter Property="Visibility" Value="Hidden"/>
@@ -620,6 +639,120 @@
                                         </Grid>
                                     </DataTemplate>
                                 </DataGrid.RowDetailsTemplate>
+                            </DataGrid>
+                        </Grid>
+                    </Grid>
+                </TabItem>
+                <TabItem Name="EditBlanksMode">
+                    <Grid Margin="0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="107*"/>
+                            <RowDefinition Height="559*"/>
+                        </Grid.RowDefinitions>
+
+                        <Grid Grid.RowSpan="2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="42"/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+
+                            <Label Name="CurrentSubjectName4" HorizontalAlignment="Center" FontStretch="ExtraExpanded" Grid.Row="0" Grid.Column="0" Margin="0,0,0,10"></Label>
+                            <Label Name="CurrentSubjectType4" HorizontalAlignment="Center" FontStretch="ExtraExpanded" Grid.Row="0" Grid.Column="1" Margin="0,0,0,10"></Label>
+
+                            <DataGrid Name="BlankList" Grid.ColumnSpan="2" Grid.Row="1" AutoGenerateColumns="False" CanUserAddRows="True" CanUserDeleteRows="True" CanUserReorderColumns="True" CanUserResizeColumns="True" CanUserSortColumns="True" IsSynchronizedWithCurrentItem="True" AddingNewItem="BlankList_AddingNewItem" CommandManager.PreviewCanExecute="BlankList_PreviewCanExecute" RowEditEnding="BlankList_RowEditEnding" SelectionMode="Single">
+                                <DataGrid.Columns>
+                                    <DataGridComboBoxColumn Header="Тип бланка" SelectedValueBinding="{Binding TypeKey, UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="Key" DisplayMemberPath="Value" Width="300">
+                                        <DataGridComboBoxColumn.ElementStyle>
+                                            <Style TargetType="ComboBox">
+                                                <Setter Property="ItemsSource" Value="{Binding Path=CurrentBlankTypes, UpdateSourceTrigger=PropertyChanged}" />
+                                            </Style>
+                                        </DataGridComboBoxColumn.ElementStyle>
+                                        <DataGridComboBoxColumn.EditingElementStyle>
+                                            <Style TargetType="ComboBox">
+                                                <Setter Property="ItemsSource" Value="{Binding Path=CurrentBlankTypes, UpdateSourceTrigger=PropertyChanged}" />
+                                            </Style>
+                                        </DataGridComboBoxColumn.EditingElementStyle>
+                                    </DataGridComboBoxColumn>
+                                    <DataGridTemplateColumn Header="Путь к файлу бланка"  Width="300">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <DockPanel LastChildFill="True" HorizontalAlignment="Left">
+                                                    <!--<Button Name="OpenFileBlankButton" DockPanel.Dock="Left" Width="24" Margin="1" Click="OpenFileBlankButton_Click" Focusable="False">
+                                                        <Image Source="Icons/OpenFolder.png" ToolTip="Загрузить файл"/>
+                                                    </Button>-->
+                                                    <TextBlock Name="BlankFileNameTBox" Margin="4,0,0,0" DockPanel.Dock="Right" Text="{Binding Path, UpdateSourceTrigger=PropertyChanged}"/>
+                                                </DockPanel>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                        <DataGridTemplateColumn.CellEditingTemplate>
+                                            <DataTemplate>
+                                                <DockPanel LastChildFill="True" HorizontalAlignment="Left">
+                                                    <Button Name="OpenFileBlankButton" DockPanel.Dock="Left" Width="24" Margin="1" Click="OpenFileBlankButton_Click" Focusable="False">
+                                                        <Image Source="Icons/OpenFolder.png" ToolTip="Загрузить файл"/>
+                                                    </Button>
+                                                    <TextBlock Name="BlankFileNameTBox" Margin="4,0,0,0" DockPanel.Dock="Right" Text="{Binding Path, UpdateSourceTrigger=PropertyChanged}"/>
+                                                </DockPanel>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellEditingTemplate>
+                                    </DataGridTemplateColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Grid>
+                    </Grid>
+                </TabItem>
+                <TabItem Name="PrintBlankMode">
+                    <Grid Margin="0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="107*"/>
+                            <RowDefinition Height="559*"/>
+                        </Grid.RowDefinitions>
+
+                        <Grid Grid.RowSpan="2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="42"/>
+                                <RowDefinition Height="42"/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+
+                            <Label Name="CurrentSubjectName5" HorizontalAlignment="Center" FontStretch="ExtraExpanded" Grid.Row="0" Grid.Column="0" Margin="0,0,0,10"></Label>
+                            <Label Name="CurrentSubjectType5" HorizontalAlignment="Center" FontStretch="ExtraExpanded" Grid.Row="0" Grid.Column="1" Margin="0,0,0,10"></Label>
+
+                            <Grid Grid.Row="1" Grid.ColumnSpan="2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+
+                                <Button Name="PrepareCodesButton" Content="Сформировать коды" Grid.Column="0" Margin="4"/>
+                                <Button Name="PrintBlanksButton" Content="Отправить на печать" Grid.Column="1" Margin="4"/>
+                                <Button Name="ClearQueueButton" Content="Очистить очередь" Grid.Column="2" Margin="4" Click="ButtonC_ClearQueueButton"/>
+                            </Grid>
+
+                            <DataGrid Name="PrintBlankList" Grid.ColumnSpan="2" Grid.Row="2" AutoGenerateColumns="False" CanUserAddRows="True" CanUserDeleteRows="True" CanUserReorderColumns="True" CanUserResizeColumns="True" CanUserSortColumns="True" IsSynchronizedWithCurrentItem="True" SelectionMode="Single">
+                                <DataGrid.Columns>
+                                    <DataGridComboBoxColumn Header="Вариант" SelectedValueBinding="{Binding Variant, UpdateSourceTrigger=PropertyChanged}" DisplayMemberPath="Name" Width="300">
+                                        <DataGridComboBoxColumn.ElementStyle>
+                                            <Style TargetType="ComboBox">
+                                                <Setter Property="ItemsSource" Value="{Binding Path=CurrentVariants, UpdateSourceTrigger=PropertyChanged}" />
+                                            </Style>
+                                        </DataGridComboBoxColumn.ElementStyle>
+                                        <DataGridComboBoxColumn.EditingElementStyle>
+                                            <Style TargetType="ComboBox">
+                                                <Setter Property="ItemsSource" Value="{Binding Path=CurrentVariants, UpdateSourceTrigger=PropertyChanged}" />
+                                            </Style>
+                                        </DataGridComboBoxColumn.EditingElementStyle>
+                                    </DataGridComboBoxColumn>
+                                    <local:DataGridNumericColumn Header="Количество экземпляров" Binding="{Binding Count, UpdateSourceTrigger=PropertyChanged}" Width="300"/>
+                                </DataGrid.Columns>
                             </DataGrid>
                         </Grid>
                     </Grid>
@@ -725,7 +858,7 @@
                                         <Grid Background="AntiqueWhite">
                                             <Grid.RowDefinitions>
                                                 <RowDefinition/>
-                                                <RowDefinition MinHeight="100"/>
+                                                <RowDefinition MinHeight="10"/>
                                             </Grid.RowDefinitions>
                                             <Border Grid.Row="0" BorderThickness="1" BorderBrush="DarkRed">
                                                 <Grid>

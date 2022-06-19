@@ -11,6 +11,8 @@ using System.Windows.Controls.Primitives;
 using Microsoft.Data.SqlClient;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Reflection;
+using Microsoft.Win32;
 
 namespace TOGIRRO_ControlTesting
 {
@@ -156,11 +158,11 @@ namespace TOGIRRO_ControlTesting
 			CreateSubject_Description.Text = "";
 			CreateSubject_Type.SelectedIndex = 0;
 			CreateSubject_MinScore.Text = "";
-			CreateSubject_ProjectFolderPath.Text = "";
-			CreateSubject_RegistrationForm.Text = "";
-			CreateSubject_AnswersForm1.Text = "";
-			CreateSubject_AnswersForm2.Text = "";
-			CreateSubject_LogFile.Text = "";
+			//CreateSubject_ProjectFolderPath.Text = "";
+			//CreateSubject_RegistrationForm.Text = "";
+			//CreateSubject_AnswersForm1.Text = "";
+			//CreateSubject_AnswersForm2.Text = "";
+			//CreateSubject_LogFile.Text = "";
 			CreateSubject_ScoreSystem.IsChecked = true;
 			Subjects_CreateTab.IsSelected = true;
 		}
@@ -188,11 +190,11 @@ namespace TOGIRRO_ControlTesting
 				EditSubject_Description.Text = SelectedSubject.Description;
 				EditSubject_Type.SelectedIndex = Workfield.KeyByValue<int, string>(Workfield.SubjectTypes, SelectedSubject.Type)-1;
 				EditSubject_MinScore.Text = SelectedSubject.MinScore.ToString();
-				EditSubject_ProjectFolderPath.Text = SelectedSubject.ProjectFolderPath;
-				EditSubject_RegistrationForm.Text = SelectedSubject.RegistrationForm;
-				EditSubject_AnswersForm1.Text = SelectedSubject.AnswersForm1;
-				EditSubject_AnswersForm2.Text = SelectedSubject.AnswersForm2;
-				EditSubject_LogFile.Text = SelectedSubject.LogFile;
+				//EditSubject_ProjectFolderPath.Text = SelectedSubject.ProjectFolderPath;
+				//EditSubject_RegistrationForm.Text = SelectedSubject.RegistrationForm;
+				//EditSubject_AnswersForm1.Text = SelectedSubject.AnswersForm1;
+				//EditSubject_AnswersForm2.Text = SelectedSubject.AnswersForm2;
+				//EditSubject_LogFile.Text = SelectedSubject.LogFile;
 				if (SelectedSubject.IsMark) EditSubject_MarkSystem.IsChecked = true; else EditSubject_ScoreSystem.IsChecked = true;
 				ICollectionView view = CollectionViewSource.GetDefaultView(Workfield.Subjects);
 				view.Refresh();
@@ -249,6 +251,10 @@ namespace TOGIRRO_ControlTesting
 			CurrentSubjectType2.Content = "";
 			CurrentSubjectName3.Content = "";
 			CurrentSubjectType3.Content = "";
+			CurrentSubjectName4.Content = "";
+			CurrentSubjectType4.Content = "";
+			CurrentSubjectName5.Content = "";
+			CurrentSubjectType5.Content = "";
 			MaxScoreTextBlock.Text = "-";
 			UpdateSubjectList();
 		}
@@ -278,11 +284,11 @@ namespace TOGIRRO_ControlTesting
 					Description = CreateSubject_Description.Text.Trim(' '),
 					Type = Workfield.SubjectTypes[CreateSubject_Type.SelectedIndex+1],
 					MinScore = minScore,
-					ProjectFolderPath = CreateSubject_ProjectFolderPath.Text.Trim(' '),
-					RegistrationForm = CreateSubject_RegistrationForm.Text.Trim(' '),
-					AnswersForm1 = CreateSubject_AnswersForm1.Text.Trim(' '),
-					AnswersForm2 = CreateSubject_AnswersForm2.Text.Trim(' '),
-					LogFile = CreateSubject_LogFile.Text.Trim(' '),
+					//ProjectFolderPath = CreateSubject_ProjectFolderPath.Text.Trim(' '),
+					//RegistrationForm = CreateSubject_RegistrationForm.Text.Trim(' '),
+					//AnswersForm1 = CreateSubject_AnswersForm1.Text.Trim(' '),
+					//AnswersForm2 = CreateSubject_AnswersForm2.Text.Trim(' '),
+					//LogFile = CreateSubject_LogFile.Text.Trim(' '),
 					IsMark = CreateSubject_MarkSystem.IsChecked.Value
 				};
 				
@@ -370,11 +376,11 @@ namespace TOGIRRO_ControlTesting
 				SelectedSubject.Description = EditSubject_Description.Text.Trim(' ');
 				SelectedSubject.Type = Workfield.SubjectTypes[EditSubject_Type.SelectedIndex+1];
 				SelectedSubject.MinScore = EditSubject_MinScore.Text.Trim(' ') == "" ? (short)-1 : short.Parse(EditSubject_MinScore.Text.Trim(' '));
-				SelectedSubject.ProjectFolderPath = EditSubject_ProjectFolderPath.Text.Trim(' ');
-				SelectedSubject.RegistrationForm = EditSubject_RegistrationForm.Text.Trim(' ');
-				SelectedSubject.AnswersForm1 = EditSubject_AnswersForm1.Text.Trim(' ');
-				SelectedSubject.AnswersForm2 = EditSubject_AnswersForm2.Text.Trim(' ');
-				SelectedSubject.LogFile = EditSubject_LogFile.Text.Trim(' ');
+				//SelectedSubject.ProjectFolderPath = EditSubject_ProjectFolderPath.Text.Trim(' ');
+				//SelectedSubject.RegistrationForm = EditSubject_RegistrationForm.Text.Trim(' ');
+				//SelectedSubject.AnswersForm1 = EditSubject_AnswersForm1.Text.Trim(' ');
+				//SelectedSubject.AnswersForm2 = EditSubject_AnswersForm2.Text.Trim(' ');
+				//SelectedSubject.LogFile = EditSubject_LogFile.Text.Trim(' ');
 				SelectedSubject.IsMark = EditSubject_MarkSystem.IsChecked.Value;
 
 				try
@@ -416,6 +422,39 @@ namespace TOGIRRO_ControlTesting
 				CreateSubjectMenu_Button.IsChecked = false;
 				EditSubjectMenu_Button.IsChecked = false;
 				UpdateSubjectList();
+
+				foreach (Blank currentBlank in SelectedSubject.Blanks)
+                {
+					currentBlank.CurrentBlankTypes = Workfield.BlankTypes[Workfield.KeyByValue<int, string>(Workfield.SubjectTypes, SelectedSubject.Type)];
+					currentBlank.Type = currentBlank.CurrentBlankTypes[1];
+
+					try
+					{
+						string command =
+							"UPDATE Blank SET BlankType_FK=" + Workfield.KeyByValue<int, string>(Workfield.BlankTypes[Workfield.KeyByValue<int, string>(Workfield.SubjectTypes, Workfield.CurrentSubject.Type)], currentBlank.Type).ToString()
+							+ ", FilePath='" + currentBlank.Path + "' WHERE Subject_FK=" + Workfield.CurrentSubject.SubjectID.ToString()
+							+ " AND Blank_ID=" + currentBlank.BlankID.ToString();
+						using (SqlCommand com = new SqlCommand(command, Workfield.SQLConnection))
+						{
+							Workfield.SQLConnection.Open();
+							com.ExecuteNonQuery();
+							Workfield.SQLConnection.Close();
+						}
+					}
+					catch (Exception error)
+					{
+						Workfield.SQLErrorWindow.SQLErrorTextBlock.Text += "\n\n\n" + error.ToString();
+						Workfield.WorkWindow.IsEnabled = false;
+						Workfield.SQLErrorWindow.Show();
+						Workfield.isFatalError = true;
+						return;
+					}
+
+					AlertManager.CheckAlerts(AlertType.FieldNotFilled, new List<object>() { (int)5, SelectedSubject, currentBlank });
+				}
+
+				Workfield.CurrentBlankTypes = Workfield.BlankTypes[Workfield.KeyByValue<int, string>(Workfield.QuestionTypes, SelectedSubject.Type)];
+				BlankList.Items.Refresh();
 			}
 		}
 
@@ -446,6 +485,10 @@ namespace TOGIRRO_ControlTesting
 			EditQuestionsMode_Button.IsChecked = true;
 			EditScaleMode_Button.IsChecked = false;
 			EditAnswersMode_Button.IsChecked = false;
+			EditBlanksMode_Button.IsChecked = false;
+			PrintBlanksMode_Button.IsChecked = false;
+			CheckResultsMode_Button.IsChecked = false;
+			PrintReportMode_Button.IsChecked = false;
 		}
 
 		/*
@@ -457,6 +500,10 @@ namespace TOGIRRO_ControlTesting
 			EditQuestionsMode_Button.IsChecked = false;
 			EditScaleMode_Button.IsChecked = true;
 			EditAnswersMode_Button.IsChecked = false;
+			EditBlanksMode_Button.IsChecked = false;
+			PrintBlanksMode_Button.IsChecked = false;
+			CheckResultsMode_Button.IsChecked = false;
+			PrintReportMode_Button.IsChecked = false;
 		}
 
 		/*
@@ -468,20 +515,82 @@ namespace TOGIRRO_ControlTesting
 			EditQuestionsMode_Button.IsChecked = false;
 			EditScaleMode_Button.IsChecked = false;
 			EditAnswersMode_Button.IsChecked = true;
+			EditBlanksMode_Button.IsChecked = false;
+			PrintBlanksMode_Button.IsChecked = false;
+			CheckResultsMode_Button.IsChecked = false;
+			PrintReportMode_Button.IsChecked = false;
 		}
-        #endregion
-        //------------------------------------------------------------------------------------------------------------------------------------
+
+		/*
+			Кнопка перехода в режим редактирования бланков
+		*/
+		private void ButtonC_EditBlanksMode(object sender, RoutedEventArgs e)
+		{
+			EditBlanksMode.IsSelected = true;
+			EditQuestionsMode_Button.IsChecked = false;
+			EditScaleMode_Button.IsChecked = false;
+			EditAnswersMode_Button.IsChecked = false;
+			EditBlanksMode_Button.IsChecked = true;
+			PrintBlanksMode_Button.IsChecked = false;
+			CheckResultsMode_Button.IsChecked = false;
+			PrintReportMode_Button.IsChecked = false;
+		}
+
+		/*
+			Кнопка перехода в режим печати бланков
+		*/
+		private void ButtonC_PrintBlanksMode(object sender, RoutedEventArgs e)
+		{
+			PrintBlankMode.IsSelected = true;
+			EditQuestionsMode_Button.IsChecked = false;
+			EditScaleMode_Button.IsChecked = false;
+			EditAnswersMode_Button.IsChecked = false;
+			EditBlanksMode_Button.IsChecked = false;
+			PrintBlanksMode_Button.IsChecked = true;
+			CheckResultsMode_Button.IsChecked = false;
+			PrintReportMode_Button.IsChecked = false;
+		}
+
+		/*
+			Кнопка перехода в режим просмотра результатов
+		*/
+		private void ButtonC_CheckResultMode(object sender, RoutedEventArgs e)
+		{
+			EditQuestionsMode_Button.IsChecked = false;
+			EditScaleMode_Button.IsChecked = false;
+			EditAnswersMode_Button.IsChecked = false;
+			EditBlanksMode_Button.IsChecked = false;
+			PrintBlanksMode_Button.IsChecked = false;
+			CheckResultsMode_Button.IsChecked = true;
+			PrintReportMode_Button.IsChecked = false;
+		}
+
+		/*
+			Кнопка перехода в режим печати отчета
+		*/
+		private void ButtonC_PrintReportMode(object sender, RoutedEventArgs e)
+		{
+			EditQuestionsMode_Button.IsChecked = false;
+			EditScaleMode_Button.IsChecked = false;
+			EditAnswersMode_Button.IsChecked = false;
+			EditBlanksMode_Button.IsChecked = false;
+			PrintBlanksMode_Button.IsChecked = false;
+			CheckResultsMode_Button.IsChecked = false;
+			PrintReportMode_Button.IsChecked = true;
+		}
+		#endregion
+		//------------------------------------------------------------------------------------------------------------------------------------
 
 
 
-        //------------------------------------------------------------------------------------------------------------------------------------
-        //---Создание, редактирование и удаление вариантов------------------------------------------------------------------------------------
-        //------------------------------------------------------------------------------------------------------------------------------------
-        #region
-        /*
+		//------------------------------------------------------------------------------------------------------------------------------------
+		//---Создание, редактирование и удаление вариантов------------------------------------------------------------------------------------
+		//------------------------------------------------------------------------------------------------------------------------------------
+		#region
+		/*
 			Кнопка перехода в режим редактирования названия варианта
 		*/
-        private void ButtonC_EditVariantNameMode(object sender, RoutedEventArgs e)
+		private void ButtonC_EditVariantNameMode(object sender, RoutedEventArgs e)
 		{
 			CurrentVariantTextbox.Text = Workfield.CurrentVariant.Name;
 			EditVariantMode.IsSelected = true;
@@ -757,7 +866,12 @@ namespace TOGIRRO_ControlTesting
 		{
 			if (CurrentVariantCBox.SelectedIndex < 0) return;
 			if (Workfield.CurrentSubject.Variants.Count <= 0) return;
+
 			Workfield.CurrentVariant = Workfield.CurrentSubject.Variants[CurrentVariantCBox.SelectedIndex];
+
+			VariantFilePathLabel.Text = Workfield.CurrentVariant.VariantFilePath;
+			if (VariantFilePathLabel.Text.Trim(' ') == "") VariantFilePathLabel.Text = "Выберите путь к файлу варианта";
+
 			AnswerList.ItemsSource = Workfield.CurrentVariant.QuestionsPerVar;
 			AnswerList.Items.Refresh();
 		}
@@ -770,6 +884,39 @@ namespace TOGIRRO_ControlTesting
 			if (e.Key == Key.Enter)
 			{
 				ButtonC_EditVariantSuccess(sender, e);
+			}
+		}
+
+		/*
+			Кнопка выбора файла бланка варианта
+		*/
+		private void OpenVariantBlankButton_Click(object sender, RoutedEventArgs e)
+		{
+			OpenFileDialog openFileDialog = new OpenFileDialog();
+			if (Workfield.CurrentVariant != null && openFileDialog.ShowDialog() == true)
+            {
+				Workfield.CurrentVariant.VariantFilePath = openFileDialog.FileName;
+				VariantFilePathLabel.Text = openFileDialog.FileName;
+
+				try
+				{
+					string command =
+						"UPDATE Variant SET VariantFilePath='" + Workfield.CurrentVariant.VariantFilePath + "' WHERE Variant_ID=" + Workfield.CurrentVariant.VariantID.ToString();
+					using (SqlCommand com = new SqlCommand(command, Workfield.SQLConnection))
+					{
+						Workfield.SQLConnection.Open();
+						com.ExecuteNonQuery();
+						Workfield.SQLConnection.Close();
+					}
+				}
+				catch (Exception error)
+				{
+					Workfield.SQLErrorWindow.SQLErrorTextBlock.Text += "\n\n\n" + error.ToString();
+					Workfield.WorkWindow.IsEnabled = false;
+					Workfield.SQLErrorWindow.Show();
+					Workfield.isFatalError = true;
+					return;
+				}
 			}
 		}
 		#endregion
@@ -795,8 +942,10 @@ namespace TOGIRRO_ControlTesting
 				Workfield.CurrentSubject.Alerts = null;
 			}
 			Workfield.CurrentVariant = null;
+			VariantFilePathLabel.Text = "Выберите путь к файлу варианта";
 			Workfield.CurrentQuestion = null;
 			Workfield.CurrentAnswerCharacteristic = null;
+			Workfield.CurrentBlankTypes = new Dictionary<int, string>() { };
 
             Workfield.CurrentSubject = currentSubject;
 
@@ -813,6 +962,41 @@ namespace TOGIRRO_ControlTesting
 			}
 
 			AlertManager.CheckAlerts(AlertType.FieldNotFilled, new List<object>() { (int)1, currentSubject });
+
+			currentSubject.Blanks = new ObservableCollection<Blank>() { };
+			try
+			{
+				string command =
+					"SELECT * FROM Blank WHERE Subject_FK=" + currentSubject.SubjectID.ToString();
+				using (SqlCommand com = new SqlCommand(command, Workfield.SQLConnection))
+				{
+					Workfield.SQLConnection.Open();
+					using (SqlDataReader reader = com.ExecuteReader())
+					{
+						while (reader.Read())
+						{
+							Blank currentBlank = new Blank()
+							{
+								BlankID = reader.GetInt32(0),
+								Type = Workfield.BlankTypes[Workfield.KeyByValue<int, string>(Workfield.SubjectTypes, currentSubject.Type)][reader.GetInt32(1)],
+								Path = reader.GetString(3),
+								CurrentBlankTypes = Workfield.BlankTypes[Workfield.KeyByValue<int, string>(Workfield.SubjectTypes, Workfield.CurrentSubject.Type)]
+							};
+							currentSubject.Blanks.Add(currentBlank);
+							AlertManager.CheckAlerts(AlertType.FieldNotFilled, new List<object>() { (int)5, currentSubject, currentBlank });
+						}
+					}
+					Workfield.SQLConnection.Close();
+				}
+			}
+			catch (Exception error)
+			{
+				Workfield.SQLErrorWindow.SQLErrorTextBlock.Text += "\n\n\n" + error.ToString();
+				Workfield.WorkWindow.IsEnabled = false;
+				Workfield.SQLErrorWindow.Show();
+				Workfield.isFatalError = true;
+				return;
+			}
 
 			currentSubject.Questions = new ObservableCollection<AnswerCharacteristic>() { };
 			try
@@ -836,6 +1020,18 @@ namespace TOGIRRO_ControlTesting
 								CheckType = Workfield.CheckTypes[reader.GetInt32(6)],
 								MaxScore = reader.GetInt16(7)
                             };
+							if (currentAnswerCharacteristic.QuestionType == Workfield.QuestionTypes[1] || currentAnswerCharacteristic.QuestionType == Workfield.QuestionTypes[4])
+                            {
+								currentAnswerCharacteristic.CheckTypeList = Workfield.CheckTypes3;
+                            }
+							else if (currentAnswerCharacteristic.QuestionType == Workfield.QuestionTypes[2])
+                            {
+								currentAnswerCharacteristic.CheckTypeList = Workfield.CheckTypes1;
+                            }
+							else if (currentAnswerCharacteristic.QuestionType == Workfield.QuestionTypes[3])
+                            {
+								currentAnswerCharacteristic.CheckTypeList = Workfield.CheckTypes2;
+                            }
 							currentSubject.Questions.Add(currentAnswerCharacteristic);
 							AlertManager.CheckAlerts(AlertType.FieldNotFilled, new List<object>() { (int)3, currentSubject, currentAnswerCharacteristic });
 						}
@@ -1054,6 +1250,10 @@ namespace TOGIRRO_ControlTesting
 			CurrentSubjectType2.Content = currentSubject.Type;
 			CurrentSubjectName3.Content = currentSubject.Name;
 			CurrentSubjectType3.Content = currentSubject.Type;
+			CurrentSubjectName4.Content = currentSubject.Name;
+			CurrentSubjectType4.Content = currentSubject.Type;
+			CurrentSubjectName5.Content = currentSubject.Name;
+			CurrentSubjectType5.Content = currentSubject.Type;
 			ScaleList.ItemsSource = currentSubject.ScaleSystem;
 			ScaleList.Items.Refresh();
 			QuestionList.ItemsSource = currentSubject.Questions;
@@ -1073,8 +1273,13 @@ namespace TOGIRRO_ControlTesting
 			CurrentVariantCBox.SelectedIndex = 0;
 			CurrentVariantCBox.Items.Refresh();
 			AnswerList.Items.Refresh();
+			Workfield.CurrentBlankTypes = Workfield.BlankTypes[Workfield.KeyByValue<int, string>(Workfield.QuestionTypes, currentSubject.Type)];
+			BlankList.ItemsSource = currentSubject.Blanks;
+			BlankList.Items.Refresh();
 			EditSubjectMenu_Button.IsEnabled = true;
 			DeleteSubject_Button.IsEnabled = true;
+			PrintBlankList.ItemsSource = currentSubject.PrintBlanks;
+			PrintBlankList.Items.Refresh();
 			MainField.IsEnabled = true;
 		}
 
@@ -1784,9 +1989,6 @@ namespace TOGIRRO_ControlTesting
 				flagfix = false;
 				QuestionList.CommitEdit();
 				QuestionList.CommitEdit();  //shit
-				QuestionList.CommitEdit();	//shit
-				QuestionList.CommitEdit();  //shit
-				QuestionList.CommitEdit();  //shit
 				flagfix = true;
 				QuestionList.Items.Refresh();
 			}
@@ -1825,6 +2027,34 @@ namespace TOGIRRO_ControlTesting
 
 			return result;
         }
+
+		/*
+			Перезагрузка содержимого datagrid
+		*/
+		private void QuestionList_SelectedCellsChanged(object sender, SelectedCellsChangedEventArgs e)
+		{
+			int temp = QuestionList.SelectedIndex;
+			try
+			{
+				DataGridRow row1 = (DataGridRow)QuestionList.ItemContainerGenerator.ContainerFromIndex(QuestionList.SelectedIndex);
+				if (row1 == null) return;
+				QuestionList.Items.Refresh();
+				QuestionList.SelectedIndex = temp;
+				if (temp >= QuestionList.Items.Count) return;
+				DataGridRow row = (DataGridRow)QuestionList.ItemContainerGenerator.ContainerFromIndex(temp);
+				if (row == null)
+				{
+					QuestionList.UpdateLayout();
+					QuestionList.ScrollIntoView(QuestionList.Items[temp]);
+					row = (DataGridRow)QuestionList.ItemContainerGenerator.ContainerFromIndex(temp);
+				}
+				if (row != null)
+				{
+					row.MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
+				}
+			}
+			catch { }
+		}
 		#endregion
 		//------------------------------------------------------------------------------------------------------------------------------------
 
@@ -2153,6 +2383,151 @@ namespace TOGIRRO_ControlTesting
 
 
 		//------------------------------------------------------------------------------------------------------------------------------------
+		//---Создание, редактирование и удаление бланков--------------------------------------------------------------------------------------
+		//------------------------------------------------------------------------------------------------------------------------------------
+		#region
+		/*
+			Событие добавления нового бланка в DataGrid
+		*/
+		private void BlankList_AddingNewItem(object sender, AddingNewItemEventArgs e)
+		{
+			e.NewItem = new Blank();
+			Blank newBlank = e.NewItem as Blank;
+
+			try
+			{
+				string command =
+					"INSERT INTO Blank (Subject_FK, BlankType_FK, FilePath) VALUES(" + Workfield.CurrentSubject.SubjectID.ToString() + ", "
+					+ Workfield.KeyByValue<int, string>(Workfield.BlankTypes[Workfield.KeyByValue<int, string>(Workfield.SubjectTypes, Workfield.CurrentSubject.Type)], newBlank.Type).ToString() 
+					+ ", '" + newBlank.Path + "')";
+				using (SqlCommand com = new SqlCommand(command, Workfield.SQLConnection))
+				{
+					Workfield.SQLConnection.Open();
+					com.ExecuteNonQuery();
+					Workfield.SQLConnection.Close();
+				}
+			}
+			catch (Exception error)
+			{
+				Workfield.SQLErrorWindow.SQLErrorTextBlock.Text += "\n\n\n" + error.ToString();
+				Workfield.WorkWindow.IsEnabled = false;
+				Workfield.SQLErrorWindow.Show();
+				Workfield.isFatalError = true;
+				return;
+			}
+
+			try
+			{
+				string command =
+					"SELECT MAX(Blank_ID) FROM Blank";
+				using (SqlCommand com = new SqlCommand(command, Workfield.SQLConnection))
+				{
+					Workfield.SQLConnection.Open();
+					using (SqlDataReader reader = com.ExecuteReader())
+					{
+						reader.Read();
+						((Blank)e.NewItem).BlankID = reader.GetInt32(0);
+					}
+					Workfield.SQLConnection.Close();
+				}
+			}
+			catch (Exception error)
+			{
+				Workfield.SQLErrorWindow.SQLErrorTextBlock.Text += "\n\n\n" + error.ToString();
+				Workfield.WorkWindow.IsEnabled = false;
+				Workfield.SQLErrorWindow.Show();
+				Workfield.isFatalError = true;
+				return;
+			}
+		}
+
+		/*
+			Событие удаления бланка в DataGrid
+		*/
+		private void BlankList_PreviewCanExecute(object sender, CanExecuteRoutedEventArgs e)
+		{
+			DataGrid grid = (DataGrid)sender;
+			if (e.Command == DataGrid.DeleteCommand)
+			{
+				Blank currentBlank = grid.SelectedItem as Blank;
+
+				try
+				{
+					string command =
+						"DELETE FROM Blank WHERE Blank_ID=" + currentBlank.BlankID.ToString();
+					using (SqlCommand com = new SqlCommand(command, Workfield.SQLConnection))
+					{
+						Workfield.SQLConnection.Open();
+						com.ExecuteNonQuery();
+						Workfield.SQLConnection.Close();
+					}
+				}
+				catch (Exception error)
+				{
+					Workfield.SQLErrorWindow.SQLErrorTextBlock.Text += "\n\n\n" + error.ToString();
+					Workfield.WorkWindow.IsEnabled = false;
+					Workfield.SQLErrorWindow.Show();
+					Workfield.isFatalError = true;
+					return;
+				}
+
+				AlertManager.CheckAlerts(AlertType.FieldNotFilled, new List<object>() { (int)5, Workfield.CurrentSubject, currentBlank }, true);
+			}
+		}
+
+		/*
+			Событие подтверждения редактирования бланка в DataGrid
+		*/
+		private void BlankList_RowEditEnding(object sender, DataGridRowEditEndingEventArgs e)
+		{
+			if (e.EditAction == DataGridEditAction.Commit)
+			{
+				Blank currentBlank = e.Row.Item as Blank;
+
+				try
+				{
+					string command =
+						"UPDATE Blank SET BlankType_FK=" + Workfield.KeyByValue<int, string>(Workfield.BlankTypes[Workfield.KeyByValue<int, string>(Workfield.SubjectTypes, Workfield.CurrentSubject.Type)], currentBlank.Type).ToString()
+						+ ", FilePath='" + currentBlank.Path + "' WHERE Subject_FK=" + Workfield.CurrentSubject.SubjectID.ToString()
+						+ " AND Blank_ID=" + currentBlank.BlankID.ToString();
+					using (SqlCommand com = new SqlCommand(command, Workfield.SQLConnection))
+					{
+						Workfield.SQLConnection.Open();
+						com.ExecuteNonQuery();
+						Workfield.SQLConnection.Close();
+					}
+				}
+				catch (Exception error)
+				{
+					Workfield.SQLErrorWindow.SQLErrorTextBlock.Text += "\n\n\n" + error.ToString();
+					Workfield.WorkWindow.IsEnabled = false;
+					Workfield.SQLErrorWindow.Show();
+					Workfield.isFatalError = true;
+					return;
+				}
+
+				AlertManager.CheckAlerts(AlertType.FieldNotFilled, new List<object>() { (int)5, Workfield.CurrentSubject, currentBlank });
+			}
+		}
+
+		/*
+			Кнопка выбора файла бланка
+		*/
+		private void OpenFileBlankButton_Click(object sender, RoutedEventArgs e)
+		{
+			OpenFileDialog openFileDialog = new OpenFileDialog();
+			Blank currentBlank = BlankList.SelectedItem as Blank;
+			if (currentBlank != null && openFileDialog.ShowDialog() == true)
+            {
+				currentBlank.Path = openFileDialog.FileName;
+            }
+		}
+		#endregion
+		//------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+		//------------------------------------------------------------------------------------------------------------------------------------
 		//---Обработка ошибок предметов-------------------------------------------------------------------------------------------------------
 		//------------------------------------------------------------------------------------------------------------------------------------
 		#region
@@ -2210,7 +2585,7 @@ namespace TOGIRRO_ControlTesting
 		//------------------------------------------------------------------------------------------------------------------------------------
 		#region
 		/*
-			Событие наведения мыши на иконку ошибки
+			Событие наведения мыши на иконку советов
 		*/
 		private void Info_MouseEnter(object sender, MouseEventArgs e)
 		{
@@ -2218,7 +2593,7 @@ namespace TOGIRRO_ControlTesting
 		}
 
 		/*
-			Событие выхода курсора мыши из окна ошибки
+			Событие выхода курсора мыши из окна советов
 		*/
 		private void InfoPopup_MouseLeave(object sender, MouseEventArgs e)
 		{
@@ -2227,15 +2602,22 @@ namespace TOGIRRO_ControlTesting
 		}
 
 		/*
-			Событие выхода курсора мыши из иконки ошибки
+			Событие выхода курсора мыши из иконки советов
 		*/
 		private void Info_MouseLeave(object sender, MouseEventArgs e)
 		{
 			if (!InfoPopup.IsMouseOver)
 				InfoPopup.IsOpen = false;
 		}
-		#endregion
-		//------------------------------------------------------------------------------------------------------------------------------------
-	}
+
+        private void ButtonC_ClearQueueButton(object sender, RoutedEventArgs e)
+        {
+			Workfield.CurrentSubject.PrintBlanks = new ObservableCollection<PrintBlank>() { };
+			PrintBlankList.ItemsSource = Workfield.CurrentSubject.PrintBlanks;
+			PrintBlankList.Items.Refresh();
+        }
+        #endregion
+        //------------------------------------------------------------------------------------------------------------------------------------
+    }
 	//========================================================================================================================================
 }
