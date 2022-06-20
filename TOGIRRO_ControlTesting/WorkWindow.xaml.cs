@@ -945,6 +945,8 @@ namespace TOGIRRO_ControlTesting
 			VariantFilePathLabel.Text = "Выберите путь к файлу варианта";
 			Workfield.CurrentQuestion = null;
 			Workfield.CurrentAnswerCharacteristic = null;
+			Workfield.CurrentBlank = null;
+			Workfield.CurrentCodeField = null;
 			Workfield.CurrentBlankTypes = new Dictionary<int, string>() { };
 
             Workfield.CurrentSubject = currentSubject;
@@ -996,6 +998,46 @@ namespace TOGIRRO_ControlTesting
 				Workfield.SQLErrorWindow.Show();
 				Workfield.isFatalError = true;
 				return;
+			}
+			foreach (Blank currentBlank in currentSubject.Blanks)
+            {
+				currentBlank.CodeFields = new ObservableCollection<CodeField>() { };
+				try
+				{
+					string command =
+						"SELECT * FROM CodeField WHERE Blank_FK=" + currentBlank.BlankID.ToString();
+					using (SqlCommand com = new SqlCommand(command, Workfield.SQLConnection))
+					{
+						Workfield.SQLConnection.Open();
+						using (SqlDataReader reader = com.ExecuteReader())
+						{
+							while (reader.Read())
+							{
+								CodeField currentCodeField = new CodeField()
+								{
+									CodeFieldID = reader.GetInt32(0),
+									CodeType = Workfield.CodeTypes[reader.GetInt32(1)],
+									Orientation = Workfield.OrientationTypes[reader.GetInt32(2)],
+									X1 = reader.GetInt32(4),
+									Y1 = reader.GetInt32(5),
+									X2 = reader.GetInt32(6),
+									Y2 = reader.GetInt32(7)
+								};
+								currentBlank.CodeFields.Add(currentCodeField);
+								AlertManager.CheckAlerts(AlertType.FieldNotFilled, new List<object>() { (int)6, currentSubject, currentBlank, currentCodeField });
+							}
+						}
+						Workfield.SQLConnection.Close();
+					}
+				}
+				catch (Exception error)
+				{
+					Workfield.SQLErrorWindow.SQLErrorTextBlock.Text += "\n\n\n" + error.ToString();
+					Workfield.WorkWindow.IsEnabled = false;
+					Workfield.SQLErrorWindow.Show();
+					Workfield.isFatalError = true;
+					return;
+				}
 			}
 
 			currentSubject.Questions = new ObservableCollection<AnswerCharacteristic>() { };
@@ -2471,6 +2513,7 @@ namespace TOGIRRO_ControlTesting
 					return;
 				}
 
+				Workfield.CurrentBlank = null;
 				AlertManager.CheckAlerts(AlertType.FieldNotFilled, new List<object>() { (int)5, Workfield.CurrentSubject, currentBlank }, true);
 			}
 		}
@@ -2517,10 +2560,294 @@ namespace TOGIRRO_ControlTesting
 		{
 			OpenFileDialog openFileDialog = new OpenFileDialog();
 			Blank currentBlank = BlankList.SelectedItem as Blank;
+
+			openFileDialog.Filter = "Страница бланка в формате изображения|*png;*jpeg;*jpg";
+
 			if (currentBlank != null && openFileDialog.ShowDialog() == true)
             {
 				currentBlank.Path = openFileDialog.FileName;
+				if (currentBlank.Path.Trim(' ') != "")
+                {
+					BlankImageField.Source = new BitmapImage(new Uri(currentBlank.Path, UriKind.Absolute));
+				}
             }
+		}
+
+		/*
+			Выбор типа бланка
+		*/
+		private void BlankList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+		{
+			Blank currentBlank = BlankList.SelectedItem as Blank;
+
+			if (currentBlank != null)
+            {
+				Workfield.CurrentBlank = currentBlank;
+				if (currentBlank.Path.Trim(' ') != "")
+				{
+					BlankImageField.Source = new BitmapImage(new Uri(currentBlank.Path, UriKind.Absolute));
+					CodeFieldsList.ItemsSource = currentBlank.CodeFields;
+				}
+			}
+		}
+		#endregion
+		//------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+		//------------------------------------------------------------------------------------------------------------------------------------
+		//---Создание, редактирование и удаление полей кодов--------------------------------------------------------------------------------------
+		//------------------------------------------------------------------------------------------------------------------------------------
+		#region
+		private void CodeFieldsList_AddingNewItem(object sender, AddingNewItemEventArgs e)
+		{
+			e.NewItem = new CodeField();
+			CodeField newCodeField = e.NewItem as CodeField;
+
+			try
+			{
+				string command =
+					"INSERT INTO CodeField (Blank_FK, CodeType_FK, Orientation, X1, Y1, X2, Y2) VALUES(" + Workfield.CurrentBlank.BlankID.ToString() + ", "
+					+ Workfield.KeyByValue<int, string>(Workfield.CodeTypes, newCodeField.CodeType).ToString()
+					+ ", " + Workfield.KeyByValue<int, string>(Workfield.OrientationTypes, newCodeField.Orientation).ToString() + ", " 
+					+ newCodeField.X1.ToString() + ", " + newCodeField.Y1.ToString() + ", " + newCodeField.X2.ToString() + ", " + newCodeField.Y2.ToString() + ")";
+				using (SqlCommand com = new SqlCommand(command, Workfield.SQLConnection))
+				{
+					Workfield.SQLConnection.Open();
+					com.ExecuteNonQuery();
+					Workfield.SQLConnection.Close();
+				}
+			}
+			catch (Exception error)
+			{
+				Workfield.SQLErrorWindow.SQLErrorTextBlock.Text += "\n\n\n" + error.ToString();
+				Workfield.WorkWindow.IsEnabled = false;
+				Workfield.SQLErrorWindow.Show();
+				Workfield.isFatalError = true;
+				return;
+			}
+
+			try
+			{
+				string command =
+					"SELECT MAX(CodeField_ID) FROM CodeField";
+				using (SqlCommand com = new SqlCommand(command, Workfield.SQLConnection))
+				{
+					Workfield.SQLConnection.Open();
+					using (SqlDataReader reader = com.ExecuteReader())
+					{
+						reader.Read();
+						((CodeField)e.NewItem).CodeFieldID = reader.GetInt32(0);
+					}
+					Workfield.SQLConnection.Close();
+				}
+			}
+			catch (Exception error)
+			{
+				Workfield.SQLErrorWindow.SQLErrorTextBlock.Text += "\n\n\n" + error.ToString();
+				Workfield.WorkWindow.IsEnabled = false;
+				Workfield.SQLErrorWindow.Show();
+				Workfield.isFatalError = true;
+				return;
+			}
+		}
+
+		private void CodeFieldsList_PreviewCanExecute(object sender, CanExecuteRoutedEventArgs e)
+		{
+			DataGrid grid = (DataGrid)sender;
+			if (e.Command == DataGrid.DeleteCommand)
+			{
+				CodeField currentCodeField = grid.SelectedItem as CodeField;
+
+				try
+				{
+					string command =
+						"DELETE FROM CodeField WHERE CodeField_ID=" + currentCodeField.CodeFieldID.ToString();
+					using (SqlCommand com = new SqlCommand(command, Workfield.SQLConnection))
+					{
+						Workfield.SQLConnection.Open();
+						com.ExecuteNonQuery();
+						Workfield.SQLConnection.Close();
+					}
+				}
+				catch (Exception error)
+				{
+					Workfield.SQLErrorWindow.SQLErrorTextBlock.Text += "\n\n\n" + error.ToString();
+					Workfield.WorkWindow.IsEnabled = false;
+					Workfield.SQLErrorWindow.Show();
+					Workfield.isFatalError = true;
+					return;
+				}
+
+				Workfield.CurrentCodeField = null;
+				AlertManager.CheckAlerts(AlertType.FieldNotFilled, new List<object>() { (int)6, Workfield.CurrentSubject, Workfield.CurrentBlank, currentCodeField }, true);
+				CodeBorder.Visibility = Visibility.Hidden;
+			}
+		}
+
+		private void CodeFieldsList_RowEditEnding(object sender, DataGridRowEditEndingEventArgs e)
+		{
+			if (e.EditAction == DataGridEditAction.Commit)
+			{
+				CodeField currentCodeField = e.Row.Item as CodeField;
+
+				try
+				{
+					string command =
+						"UPDATE CodeField SET CodeType_FK=" + Workfield.KeyByValue<int, string>(Workfield.CodeTypes, currentCodeField.CodeType).ToString()
+						+ ", Orientation=" + Workfield.KeyByValue<int, string>(Workfield.OrientationTypes, currentCodeField.Orientation).ToString() 
+						+ ", X1=" + currentCodeField.X1.ToString() + ", Y1=" + currentCodeField.Y1.ToString()
+						+ ", X2=" + currentCodeField.X2.ToString() + ", Y2=" + currentCodeField.Y2.ToString()
+						+ " WHERE CodeField_ID=" + currentCodeField.CodeFieldID.ToString();
+					using (SqlCommand com = new SqlCommand(command, Workfield.SQLConnection))
+					{
+						Workfield.SQLConnection.Open();
+						com.ExecuteNonQuery();
+						Workfield.SQLConnection.Close();
+					}
+				}
+				catch (Exception error)
+				{
+					Workfield.SQLErrorWindow.SQLErrorTextBlock.Text += "\n\n\n" + error.ToString();
+					Workfield.WorkWindow.IsEnabled = false;
+					Workfield.SQLErrorWindow.Show();
+					Workfield.isFatalError = true;
+					return;
+				}
+
+				AlertManager.CheckAlerts(AlertType.FieldNotFilled, new List<object>() { (int)6, Workfield.CurrentSubject, Workfield.CurrentBlank, currentCodeField });
+			}
+		}
+
+		private void CodeFieldsList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+		{
+			CodeField currentCodeField = CodeFieldsList.SelectedItem as CodeField;
+
+			if (currentCodeField != null)
+            {
+				Workfield.CurrentCodeField = currentCodeField;
+				UpdateRectangle();
+				CodeBorder.Visibility = Visibility.Visible;
+            }
+		}
+
+		private void BlankImageField_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+		{
+			if (Workfield.CurrentCodeField != null)
+            {
+				Image currentImage = sender as Image;
+
+				if (currentImage != null && currentImage.Source != null)
+				{
+					// Convert from control space to image space
+					int x = (int)Math.Floor(e.GetPosition(currentImage).X * (currentImage.Source as BitmapSource).PixelWidth / currentImage.ActualWidth);
+					int y = (int)Math.Floor(e.GetPosition(currentImage).Y * (currentImage.Source as BitmapSource).PixelHeight / currentImage.ActualHeight);
+
+					Workfield.CurrentCodeField.X1 = x;
+					Workfield.CurrentCodeField.Y1 = y;
+					CodeFieldsList.Items.Refresh();
+
+					try
+					{
+						string command =
+							"UPDATE CodeField SET CodeType_FK=" + Workfield.KeyByValue<int, string>(Workfield.CodeTypes, Workfield.CurrentCodeField.CodeType).ToString()
+							+ ", Orientation=" + Workfield.KeyByValue<int, string>(Workfield.OrientationTypes, Workfield.CurrentCodeField.Orientation).ToString()
+							+ ", X1=" + Workfield.CurrentCodeField.X1.ToString() + ", Y1=" + Workfield.CurrentCodeField.Y1.ToString()
+							+ ", X2=" + Workfield.CurrentCodeField.X2.ToString() + ", Y2=" + Workfield.CurrentCodeField.Y2.ToString()
+							+ " WHERE CodeField_ID=" + Workfield.CurrentCodeField.CodeFieldID.ToString();
+						using (SqlCommand com = new SqlCommand(command, Workfield.SQLConnection))
+						{
+							Workfield.SQLConnection.Open();
+							com.ExecuteNonQuery();
+							Workfield.SQLConnection.Close();
+						}
+					}
+					catch (Exception error)
+					{
+						Workfield.SQLErrorWindow.SQLErrorTextBlock.Text += "\n\n\n" + error.ToString();
+						Workfield.WorkWindow.IsEnabled = false;
+						Workfield.SQLErrorWindow.Show();
+						Workfield.isFatalError = true;
+						return;
+					}
+
+					UpdateRectangle();
+					CodeBorder.Visibility = Visibility.Visible;
+				}
+			}
+		}
+
+		private void BlankImageField_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
+		{
+			if (Workfield.CurrentCodeField != null)
+			{
+				if (BlankImageField != null && BlankImageField.Source != null)
+				{
+					// Convert from control space to image space
+					int x = (int)Math.Floor(e.GetPosition(BlankImageField).X * (BlankImageField.Source as BitmapSource).PixelWidth / BlankImageField.ActualWidth);
+					int y = (int)Math.Floor(e.GetPosition(BlankImageField).Y * (BlankImageField.Source as BitmapSource).PixelHeight / BlankImageField.ActualHeight);
+
+					Workfield.CurrentCodeField.X2 = x;
+					Workfield.CurrentCodeField.Y2 = y;
+					CodeFieldsList.Items.Refresh();
+
+					try
+					{
+						string command =
+							"UPDATE CodeField SET CodeType_FK=" + Workfield.KeyByValue<int, string>(Workfield.CodeTypes, Workfield.CurrentCodeField.CodeType).ToString()
+							+ ", Orientation=" + Workfield.KeyByValue<int, string>(Workfield.OrientationTypes, Workfield.CurrentCodeField.Orientation).ToString()
+							+ ", X1=" + Workfield.CurrentCodeField.X1.ToString() + ", Y1=" + Workfield.CurrentCodeField.Y1.ToString()
+							+ ", X2=" + Workfield.CurrentCodeField.X2.ToString() + ", Y2=" + Workfield.CurrentCodeField.Y2.ToString()
+							+ " WHERE CodeField_ID=" + Workfield.CurrentCodeField.CodeFieldID.ToString();
+						using (SqlCommand com = new SqlCommand(command, Workfield.SQLConnection))
+						{
+							Workfield.SQLConnection.Open();
+							com.ExecuteNonQuery();
+							Workfield.SQLConnection.Close();
+						}
+					}
+					catch (Exception error)
+					{
+						Workfield.SQLErrorWindow.SQLErrorTextBlock.Text += "\n\n\n" + error.ToString();
+						Workfield.WorkWindow.IsEnabled = false;
+						Workfield.SQLErrorWindow.Show();
+						Workfield.isFatalError = true;
+						return;
+					}
+
+					UpdateRectangle();
+					CodeBorder.Visibility = Visibility.Visible;
+				}
+			}
+		}
+
+		private void UpdateRectangle()
+        {
+			if (Workfield.CurrentCodeField.X2 < Workfield.CurrentCodeField.X1)
+			{
+				Canvas.SetLeft(CodeBorder, (double)Workfield.CurrentCodeField.X2 * BlankImageField.ActualWidth / (BlankImageField.Source as BitmapSource).PixelWidth);
+				CodeBorder.SetValue(Canvas.WidthProperty, (double)(Workfield.CurrentCodeField.X1 - Workfield.CurrentCodeField.X2) * BlankImageField.ActualWidth / (BlankImageField.Source as BitmapSource).PixelWidth);
+			}
+			else
+			{
+				Canvas.SetLeft(CodeBorder, (double)Workfield.CurrentCodeField.X1 * BlankImageField.ActualWidth / (BlankImageField.Source as BitmapSource).PixelWidth);
+				CodeBorder.SetValue(Canvas.WidthProperty, (double)(Workfield.CurrentCodeField.X2 - Workfield.CurrentCodeField.X1) * BlankImageField.ActualWidth / (BlankImageField.Source as BitmapSource).PixelWidth);
+			}
+			if (Workfield.CurrentCodeField.Y2 < Workfield.CurrentCodeField.Y1)
+			{
+				Canvas.SetTop(CodeBorder, (double)Workfield.CurrentCodeField.Y2 * BlankImageField.ActualHeight / (BlankImageField.Source as BitmapSource).PixelHeight);
+				CodeBorder.SetValue(Canvas.HeightProperty, (double)(Workfield.CurrentCodeField.Y1 - Workfield.CurrentCodeField.Y2) * BlankImageField.ActualHeight / (BlankImageField.Source as BitmapSource).PixelHeight);
+			}
+			else
+			{
+				Canvas.SetTop(CodeBorder, (double)Workfield.CurrentCodeField.Y1 * BlankImageField.ActualHeight / (BlankImageField.Source as BitmapSource).PixelHeight);
+				CodeBorder.SetValue(Canvas.HeightProperty, (double)(Workfield.CurrentCodeField.Y2 - Workfield.CurrentCodeField.Y1) * BlankImageField.ActualHeight / (BlankImageField.Source as BitmapSource).PixelHeight);
+			}
+		}
+
+		private void BlankImageField_SizeChanged(object sender, SizeChangedEventArgs e)
+		{
+			UpdateRectangle();
 		}
 		#endregion
 		//------------------------------------------------------------------------------------------------------------------------------------

@@ -663,44 +663,99 @@
                             <Label Name="CurrentSubjectName4" HorizontalAlignment="Center" FontStretch="ExtraExpanded" Grid.Row="0" Grid.Column="0" Margin="0,0,0,10"></Label>
                             <Label Name="CurrentSubjectType4" HorizontalAlignment="Center" FontStretch="ExtraExpanded" Grid.Row="0" Grid.Column="1" Margin="0,0,0,10"></Label>
 
-                            <DataGrid Name="BlankList" Grid.ColumnSpan="2" Grid.Row="1" AutoGenerateColumns="False" CanUserAddRows="True" CanUserDeleteRows="True" CanUserReorderColumns="True" CanUserResizeColumns="True" CanUserSortColumns="True" IsSynchronizedWithCurrentItem="True" AddingNewItem="BlankList_AddingNewItem" CommandManager.PreviewCanExecute="BlankList_PreviewCanExecute" RowEditEnding="BlankList_RowEditEnding" SelectionMode="Single">
-                                <DataGrid.Columns>
-                                    <DataGridComboBoxColumn Header="Тип бланка" SelectedValueBinding="{Binding TypeKey, UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="Key" DisplayMemberPath="Value" Width="300">
-                                        <DataGridComboBoxColumn.ElementStyle>
-                                            <Style TargetType="ComboBox">
-                                                <Setter Property="ItemsSource" Value="{Binding Path=CurrentBlankTypes, UpdateSourceTrigger=PropertyChanged}" />
-                                            </Style>
-                                        </DataGridComboBoxColumn.ElementStyle>
-                                        <DataGridComboBoxColumn.EditingElementStyle>
-                                            <Style TargetType="ComboBox">
-                                                <Setter Property="ItemsSource" Value="{Binding Path=CurrentBlankTypes, UpdateSourceTrigger=PropertyChanged}" />
-                                            </Style>
-                                        </DataGridComboBoxColumn.EditingElementStyle>
-                                    </DataGridComboBoxColumn>
-                                    <DataGridTemplateColumn Header="Путь к файлу бланка"  Width="300">
-                                        <DataGridTemplateColumn.CellTemplate>
-                                            <DataTemplate>
-                                                <DockPanel LastChildFill="True" HorizontalAlignment="Left">
-                                                    <!--<Button Name="OpenFileBlankButton" DockPanel.Dock="Left" Width="24" Margin="1" Click="OpenFileBlankButton_Click" Focusable="False">
+                            <Grid Grid.ColumnSpan="2" Grid.Row="1">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="300"/>
+                                    <ColumnDefinition Width="5"/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition/>
+                                    <RowDefinition Height="5"/>
+                                    <RowDefinition/>
+                                </Grid.RowDefinitions>
+                                <GridSplitter Width="5" Grid.Column="1" Grid.RowSpan="3" HorizontalAlignment="Stretch" ResizeBehavior="PreviousAndNext"/>
+                                <GridSplitter Height="5" Grid.Row="1" Grid.Column="0" ResizeDirection="Rows" HorizontalAlignment="Stretch" ResizeBehavior="PreviousAndNext"/>
+
+                                <DataGrid Name="BlankList" Grid.Row="0" AutoGenerateColumns="False" CanUserAddRows="True" CanUserDeleteRows="True" CanUserReorderColumns="True" CanUserResizeColumns="True" CanUserSortColumns="True" IsSynchronizedWithCurrentItem="True" AddingNewItem="BlankList_AddingNewItem" CommandManager.PreviewCanExecute="BlankList_PreviewCanExecute" RowEditEnding="BlankList_RowEditEnding" SelectionChanged="BlankList_SelectionChanged" SelectionMode="Single">
+                                    <DataGrid.Columns>
+                                        <DataGridComboBoxColumn Header="Тип бланка" SelectedValueBinding="{Binding TypeKey, UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="Key" DisplayMemberPath="Value" Width="150">
+                                            <DataGridComboBoxColumn.ElementStyle>
+                                                <Style TargetType="ComboBox">
+                                                    <Setter Property="ItemsSource" Value="{Binding Path=CurrentBlankTypes, UpdateSourceTrigger=PropertyChanged}" />
+                                                </Style>
+                                            </DataGridComboBoxColumn.ElementStyle>
+                                            <DataGridComboBoxColumn.EditingElementStyle>
+                                                <Style TargetType="ComboBox">
+                                                    <Setter Property="ItemsSource" Value="{Binding Path=CurrentBlankTypes, UpdateSourceTrigger=PropertyChanged}" />
+                                                </Style>
+                                            </DataGridComboBoxColumn.EditingElementStyle>
+                                        </DataGridComboBoxColumn>
+                                        <DataGridTemplateColumn Header="Путь к файлу бланка"  Width="300">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <DockPanel LastChildFill="True" HorizontalAlignment="Left">
+                                                        <!--<Button Name="OpenFileBlankButton" DockPanel.Dock="Left" Width="24" Margin="1" Click="OpenFileBlankButton_Click" Focusable="False">
                                                         <Image Source="Icons/OpenFolder.png" ToolTip="Загрузить файл"/>
                                                     </Button>-->
-                                                    <TextBlock Name="BlankFileNameTBox" Margin="4,0,0,0" DockPanel.Dock="Right" Text="{Binding Path, UpdateSourceTrigger=PropertyChanged}"/>
-                                                </DockPanel>
-                                            </DataTemplate>
-                                        </DataGridTemplateColumn.CellTemplate>
-                                        <DataGridTemplateColumn.CellEditingTemplate>
-                                            <DataTemplate>
-                                                <DockPanel LastChildFill="True" HorizontalAlignment="Left">
-                                                    <Button Name="OpenFileBlankButton" DockPanel.Dock="Left" Width="24" Margin="1" Click="OpenFileBlankButton_Click" Focusable="False">
-                                                        <Image Source="Icons/OpenFolder.png" ToolTip="Загрузить файл"/>
-                                                    </Button>
-                                                    <TextBlock Name="BlankFileNameTBox" Margin="4,0,0,0" DockPanel.Dock="Right" Text="{Binding Path, UpdateSourceTrigger=PropertyChanged}"/>
-                                                </DockPanel>
-                                            </DataTemplate>
-                                        </DataGridTemplateColumn.CellEditingTemplate>
-                                    </DataGridTemplateColumn>
-                                </DataGrid.Columns>
-                            </DataGrid>
+                                                        <TextBlock Name="BlankFileNameTBox" Margin="4,0,0,0" DockPanel.Dock="Right" Text="{Binding Path, UpdateSourceTrigger=PropertyChanged}"/>
+                                                    </DockPanel>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                            <DataGridTemplateColumn.CellEditingTemplate>
+                                                <DataTemplate>
+                                                    <DockPanel LastChildFill="True" HorizontalAlignment="Left">
+                                                        <Button Name="OpenFileBlankButton" DockPanel.Dock="Left" Width="24" Margin="1" Click="OpenFileBlankButton_Click" Focusable="False">
+                                                            <Image Source="Icons/OpenFolder.png" ToolTip="Загрузить файл"/>
+                                                        </Button>
+                                                        <TextBlock Name="BlankFileNameTBox" Margin="4,0,0,0" DockPanel.Dock="Right" Text="{Binding Path, UpdateSourceTrigger=PropertyChanged}"/>
+                                                    </DockPanel>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellEditingTemplate>
+                                        </DataGridTemplateColumn>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+
+                                <DataGrid Name="CodeFieldsList" Grid.Row="2" AutoGenerateColumns="False" CanUserAddRows="True" CanUserDeleteRows="True" CanUserReorderColumns="True" CanUserResizeColumns="True" CanUserSortColumns="True" IsSynchronizedWithCurrentItem="True" AddingNewItem="CodeFieldsList_AddingNewItem" CommandManager.PreviewCanExecute="CodeFieldsList_PreviewCanExecute" RowEditEnding="CodeFieldsList_RowEditEnding" SelectionChanged="CodeFieldsList_SelectionChanged" SelectionMode="Single">
+                                    <DataGrid.Columns>
+                                        <DataGridComboBoxColumn Header="Тип кода" SelectedValueBinding="{Binding CodeTypeKey, UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="Key" DisplayMemberPath="Value" Width="100">
+                                            <DataGridComboBoxColumn.ElementStyle>
+                                                <Style TargetType="ComboBox">
+                                                    <Setter Property="ItemsSource" Value="{Binding Source={x:Static local:Workfield.CodeTypes}, UpdateSourceTrigger=PropertyChanged}" />
+                                                </Style>
+                                            </DataGridComboBoxColumn.ElementStyle>
+                                            <DataGridComboBoxColumn.EditingElementStyle>
+                                                <Style TargetType="ComboBox">
+                                                    <Setter Property="ItemsSource" Value="{Binding Source={x:Static local:Workfield.CodeTypes}, UpdateSourceTrigger=PropertyChanged}" />
+                                                </Style>
+                                            </DataGridComboBoxColumn.EditingElementStyle>
+                                        </DataGridComboBoxColumn>
+                                        <DataGridComboBoxColumn Header="Ориентация" SelectedValueBinding="{Binding OrientationKey, UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="Key" DisplayMemberPath="Value" Width="100">
+                                            <DataGridComboBoxColumn.ElementStyle>
+                                                <Style TargetType="ComboBox">
+                                                    <Setter Property="ItemsSource" Value="{Binding Source={x:Static local:Workfield.OrientationTypes}, UpdateSourceTrigger=PropertyChanged}" />
+                                                </Style>
+                                            </DataGridComboBoxColumn.ElementStyle>
+                                            <DataGridComboBoxColumn.EditingElementStyle>
+                                                <Style TargetType="ComboBox">
+                                                    <Setter Property="ItemsSource" Value="{Binding Source={x:Static local:Workfield.OrientationTypes}, UpdateSourceTrigger=PropertyChanged}" />
+                                                </Style>
+                                            </DataGridComboBoxColumn.EditingElementStyle>
+                                        </DataGridComboBoxColumn>
+                                        <local:DataGridNumericColumn Header="X1" Binding="{Binding X1, UpdateSourceTrigger=PropertyChanged}" Width="50"/>
+                                        <local:DataGridNumericColumn Header="Y1" Binding="{Binding Y1, UpdateSourceTrigger=PropertyChanged}" Width="50"/>
+                                        <local:DataGridNumericColumn Header="X2" Binding="{Binding X2, UpdateSourceTrigger=PropertyChanged}" Width="50"/>
+                                        <local:DataGridNumericColumn Header="Y2" Binding="{Binding Y2, UpdateSourceTrigger=PropertyChanged}" Width="50"/>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+
+                                <Border Grid.Column="2" Grid.RowSpan="3" BorderBrush="Gray" BorderThickness="3" Background="LightGray">
+                                    <Canvas Name="BlankCanvas">
+                                        <Image Name="BlankImageField" RenderOptions.BitmapScalingMode="Fant" MouseLeftButtonDown="BlankImageField_MouseLeftButtonDown" MouseRightButtonDown="BlankImageField_MouseRightButtonDown" Stretch="Uniform" Width="{Binding Path=ActualWidth, ElementName=BlankCanvas}" Height="{Binding Path=ActualHeight, ElementName=BlankCanvas}" HorizontalAlignment="Left" VerticalAlignment="Top" SizeChanged="BlankImageField_SizeChanged"/>
+                                        <Border Name="CodeBorder" Visibility="Hidden" BorderBrush="Red" BorderThickness="2" HorizontalAlignment="Left" VerticalAlignment="Top"></Border>
+                                    </Canvas>
+                                </Border>
+                            </Grid>
                         </Grid>
                     </Grid>
                 </TabItem>

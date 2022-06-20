@@ -104,6 +104,9 @@ using Microsoft.Data.SqlClient;
 номер бланка отв 1
 номер бланка отв 2 
 номер бланка отв 2 доп
+
+допилить алерты под коды
+допилить правильное обновление состояния прямоугольника
 */
 
 namespace TOGIRRO_ControlTesting
@@ -130,6 +133,8 @@ namespace TOGIRRO_ControlTesting
 		static public AnswerCharacteristic CurrentAnswerCharacteristic = null;
 		static public Question CurrentQuestion = null;
 		static public Dictionary<int, string> CurrentBlankTypes = new Dictionary<int, string>() { };
+		static public Blank CurrentBlank = null;
+		static public CodeField CurrentCodeField = null;
 
 		//SQL подключение
 		static public SqlConnectionStringBuilder SQLBuilder = new SqlConnectionStringBuilder();
@@ -144,6 +149,8 @@ namespace TOGIRRO_ControlTesting
 		static public Dictionary<int, string> CheckTypes2 = new Dictionary<int, string>() { };
 		static public Dictionary<int, string> CheckTypes3 = new Dictionary<int, string>() { };
 		static public Dictionary<int, Dictionary<int, string>> BlankTypes = new Dictionary<int, Dictionary<int, string>>() { };
+		static public Dictionary<int, string> CodeTypes = new Dictionary<int, string>() { };
+		static public Dictionary<int, string> OrientationTypes = new Dictionary<int, string>() { };
 
 		/*
 			Получение ключа по значению из Dictionary
@@ -175,6 +182,12 @@ namespace TOGIRRO_ControlTesting
 			CheckTypes.Add(1, "НЕ ОБОЗНАЧЕНО");
 			BlankTypes.Add(0, new Dictionary<int, string>() { });
 			BlankTypes[0].Add(1, "НЕ ОБОЗНАЧЕНО");
+			CodeTypes.Add(1, "НЕ ОБОЗНАЧЕНО");
+
+			OrientationTypes.Add(0, "0°");
+			OrientationTypes.Add(1, "90°");
+			OrientationTypes.Add(2, "180°");
+			OrientationTypes.Add(3, "270°");
 
 			INIReader ConfigFile = new INIReader("Config/Config.ini");
 			SQLBuilder.DataSource = ConfigFile.Read("DataSource", "SQL");
@@ -285,6 +298,31 @@ namespace TOGIRRO_ControlTesting
 						{
 							if (reader.GetInt32(0) == 1) continue;
 							BlankTypes[reader.GetInt32(2)].Add(reader.GetInt32(0), reader.GetString(1));
+						}
+					}
+					SQLConnection.Close();
+				}
+			}
+			catch (Exception e)
+			{
+				SQLErrorWindow.SQLErrorTextBlock.Text += "\n\n\n" + e.ToString();
+				WorkWindow.IsEnabled = false;
+				SQLErrorWindow.Show();
+				isFatalError = true;
+				return;
+			}
+
+			try
+			{
+				using (SqlCommand com = new SqlCommand("SELECT * FROM CodeType", SQLConnection))
+				{
+					SQLConnection.Open();
+					using (SqlDataReader reader = com.ExecuteReader())
+					{
+						while (reader.Read())
+						{
+							if (reader.GetInt32(0) == 1) continue;
+							CodeTypes.Add(reader.GetInt32(0), reader.GetString(1));
 						}
 					}
 					SQLConnection.Close();
@@ -866,12 +904,14 @@ namespace TOGIRRO_ControlTesting
         }
 		public string Path { get; set; }
 		public Dictionary<int, string> CurrentBlankTypes { get; set; }
+		public ObservableCollection<CodeField> CodeFields { get; set; }
 
 		public Blank()
 		{
 			BlankID = 0;	Path = "";
 			Type = Workfield.BlankTypes[0][1];
 			CurrentBlankTypes = Workfield.BlankTypes[Workfield.KeyByValue<int, string>(Workfield.SubjectTypes, Workfield.CurrentSubject.Type)];
+			CodeFields = new ObservableCollection<CodeField>() { };
 		}
 	}
 	#endregion
@@ -892,6 +932,52 @@ namespace TOGIRRO_ControlTesting
 			Variant = null;
 			Count = 0;
 			CurrentVariants = Workfield.CurrentSubject.Variants;
+		}
+	}
+	#endregion
+	//----------------------------------------------------------------------------------------------------------------------------------------
+
+	//----------------------------------------------------------------------------------------------------------------------------------------
+	//---Класс CodeField для полей с кодами---------------------------------------------------------------------------------------------------
+	//----------------------------------------------------------------------------------------------------------------------------------------
+	#region
+	class CodeField
+	{
+		public int CodeFieldID { get; set; }
+		public string CodeType { get; set; }
+		public int CodeTypeKey
+        {
+            get
+            {
+				return Workfield.KeyByValue<int, string>(Workfield.CodeTypes, CodeType);
+            }
+            set
+            {
+				CodeType = Workfield.CodeTypes[value];
+            }
+        }
+		public string Orientation { get; set; }
+		public int OrientationKey
+        {
+			get
+            {
+				return Workfield.KeyByValue<int, string>(Workfield.OrientationTypes, Orientation);
+            }
+			set
+            {
+				Orientation = Workfield.OrientationTypes[value];
+            }
+        }
+		public int X1 { get; set; }
+		public int Y1 { get; set; }
+		public int X2 { get; set; }
+		public int Y2 { get; set; }
+
+		public CodeField()
+		{
+			Orientation = Workfield.OrientationTypes[0];
+			X1 = 0; Y1 = 0; X2 = 0; Y2 = 0; 
+			CodeType = Workfield.CodeTypes[1];
 		}
 	}
 	#endregion
