@@ -43,6 +43,7 @@
                             <ColumnDefinition Width="64"/>
                             <ColumnDefinition Width="64"/>
                             <ColumnDefinition Width="64"/>
+                            <ColumnDefinition Width="64"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
@@ -64,10 +65,13 @@
                         <ToggleButton Name="PrintBlanksMode_Button" Margin="6" Grid.Column="5" Click="ButtonC_PrintBlanksMode" ToolTip="Печать бланков">
                             <Image Source="Icons/Print1.png"/>
                         </ToggleButton>
-                        <ToggleButton Name="CheckResultsMode_Button" Margin="6" Grid.Column="6" Click="ButtonC_CheckResultMode" ToolTip="Просмотр результатов">
+                        <ToggleButton Name="LoadCSV_Button" Margin="6" Grid.Column="6" Click="LoadCSV_Button_Click"  ToolTip="Загрузка данных из CSV файлов">
+                            <Image Source="Icons/LoadResults.png"/>
+                        </ToggleButton>
+                        <ToggleButton Name="CheckResultsMode_Button" Margin="6" Grid.Column="7" Click="ButtonC_CheckResultMode" ToolTip="Просмотр результатов">
                             <Image Source="Icons/CheckResults.png"/>
                         </ToggleButton>
-                        <ToggleButton Name="PrintReportMode_Button" Margin="6" Grid.Column="7" Click="ButtonC_PrintReportMode" ToolTip="Печать отчетов">
+                        <ToggleButton Name="PrintReportMode_Button" Margin="6" Grid.Column="8" Click="ButtonC_PrintReportMode" ToolTip="Печать отчетов">
                             <Image Source="Icons/Print2.png"/>
                         </ToggleButton>
                     </Grid>
@@ -124,6 +128,9 @@
                         </TabControl.Resources>
                         <TabItem Name="Subjects_ListTab">
                             <DataGrid Name="SubjectsList" AutoGenerateColumns="False" RowDetailsVisibilityMode="VisibleWhenSelected" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True" SelectionChanged="SubjectsList_SelectionChanged" SelectionMode="Single">
+                                <DataGrid.Resources>
+                                    <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="LightSteelBlue"/>
+                                </DataGrid.Resources>
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="Название предмета" Width="180" Binding="{Binding Name}"/>
                                     <DataGridTextColumn Header="Тип мероприятия" Width="160" Binding="{Binding Type}"/>
@@ -498,6 +505,9 @@
                             </Grid>
 
                             <DataGrid Name="AnswerList" Grid.ColumnSpan="2" Grid.Row="2" AutoGenerateColumns="False" RowDetailsVisibilityMode="VisibleWhenSelected" CanUserAddRows="False" CanUserDeleteRows="False" IsSynchronizedWithCurrentItem="True" SelectionMode="Single">
+                                <DataGrid.Resources>
+                                    <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="LightSteelBlue"/>
+                                </DataGrid.Resources>
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="№" Binding="{Binding RelativeSource={RelativeSource AncestorType=DataGridRow}, Converter={local:RowToIndexConverter}}" Width="30" IsReadOnly="True"/>
                                     <DataGridTextColumn Header="Номер в вар." Binding="{Binding InVariant}" Width="100" IsReadOnly="True"/>
@@ -509,6 +519,9 @@
                                 <DataGrid.RowDetailsTemplate>
                                     <DataTemplate>
                                         <DataGrid Name="AnswersPerQuestionList" ItemsSource="{Binding Answers}" AutoGenerateColumns="False" CanUserDeleteRows="True" CanUserAddRows="True" GridLinesVisibility="Vertical" AddingNewItem="AnswersPerQuestionList_AddingNewItem" CommandManager.PreviewCanExecute="AnswersPerQuestionList_PreviewCanExecute" RowEditEnding="AnswersPerQuestionList_RowEditEnding" IsSynchronizedWithCurrentItem="True" SelectionMode="Single">
+                                            <DataGrid.Resources>
+                                                <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="LightSteelBlue"/>
+                                            </DataGrid.Resources>
                                             <DataGrid.Columns>
                                                 <DataGridTextColumn Header="Эталонный ответ" Binding="{Binding RightAnswer, UpdateSourceTrigger=PropertyChanged}" Width="300"/>
                                                 <local:DataGridNumericColumn Header="Балл" Binding="{Binding Score, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
@@ -541,6 +554,9 @@
                             <Label Name="CurrentSubjectType2" HorizontalAlignment="Center" FontStretch="ExtraExpanded" Grid.Row="0" Grid.Column="1" Margin="0,0,0,10"></Label>
 
                             <DataGrid Name="ScaleList" Grid.ColumnSpan="2" Grid.Row="1" AutoGenerateColumns="False" CanUserDeleteRows="False" CanUserAddRows="False" IsSynchronizedWithCurrentItem="True" RowEditEnding="ScaleList_RowEditEnding" SelectionMode="Single">
+                                <DataGrid.Resources>
+                                    <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="LightSteelBlue"/>
+                                </DataGrid.Resources>
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="Первичный балл" Binding="{Binding FirstScore, UpdateSourceTrigger=PropertyChanged}" Width="150" IsReadOnly="True"/>
                                     <local:DataGridNumericColumn Header="Оценка" Binding="{Binding Mark, UpdateSourceTrigger=PropertyChanged}" Width="150"/>
@@ -581,6 +597,9 @@
                             </Grid>
 
                             <DataGrid Name="QuestionList" Grid.ColumnSpan="2" Grid.Row="1" AutoGenerateColumns="False" RowDetailsVisibilityMode="VisibleWhenSelected" CanUserAddRows="True" CanUserDeleteRows="True" CanUserReorderColumns="True" CanUserResizeColumns="True" CanUserSortColumns="True" AddingNewItem="QuestionList_AddingNewItem" CommandManager.PreviewCanExecute="QuestionList_PreviewCanExecute" RowEditEnding="QuestionList_RowEditEnding" IsSynchronizedWithCurrentItem="True" SelectionMode="Single" SelectedCellsChanged="QuestionList_SelectedCellsChanged">
+                                <DataGrid.Resources>
+                                    <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="LightSteelBlue"/>
+                                </DataGrid.Resources>
                                 <DataGrid.Columns>
                                     <local:DataGridNumericColumn Header="№" Binding="{Binding Number, UpdateSourceTrigger=PropertyChanged}"/>
                                     <DataGridTextColumn Header="Критерий" Binding="{Binding Criterion, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
@@ -606,6 +625,9 @@
                                             <TextBlock Text='Для вопросов c таким типом проверки функция ввода баллов не предусмотрена.'/>
 
                                             <DataGrid Name="ErrorsPerQuestionList" ItemsSource="{Binding Errors}" AutoGenerateColumns="False" CanUserDeleteRows="True" CanUserAddRows="True" GridLinesVisibility="Vertical" AddingNewItem="ErrorsPerQuestionList_AddingNewItem"  CommandManager.PreviewCanExecute="ErrorsPerQuestionList_PreviewCanExecute"  RowEditEnding="ErrorsPerQuestionList_RowEditEnding"  IsSynchronizedWithCurrentItem="True" SelectionMode="Single">
+                                                <DataGrid.Resources>
+                                                    <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="LightSteelBlue"/>
+                                                </DataGrid.Resources>
                                                 <DataGrid.Style>
                                                     <Style TargetType="DataGrid">
                                                         <Style.Triggers>
@@ -678,6 +700,9 @@
                                 <GridSplitter Height="5" Grid.Row="1" Grid.Column="0" ResizeDirection="Rows" HorizontalAlignment="Stretch" ResizeBehavior="PreviousAndNext"/>
 
                                 <DataGrid Name="BlankList" Grid.Row="0" AutoGenerateColumns="False" CanUserAddRows="True" CanUserDeleteRows="True" CanUserReorderColumns="True" CanUserResizeColumns="True" CanUserSortColumns="True" IsSynchronizedWithCurrentItem="True" AddingNewItem="BlankList_AddingNewItem" CommandManager.PreviewCanExecute="BlankList_PreviewCanExecute" RowEditEnding="BlankList_RowEditEnding" SelectionChanged="BlankList_SelectionChanged" SelectionMode="Single">
+                                    <DataGrid.Resources>
+                                        <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="LightSteelBlue"/>
+                                    </DataGrid.Resources>
                                     <DataGrid.Columns>
                                         <DataGridComboBoxColumn Header="Тип бланка" SelectedValueBinding="{Binding TypeKey, UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="Key" DisplayMemberPath="Value" Width="150">
                                             <DataGridComboBoxColumn.ElementStyle>
@@ -717,6 +742,9 @@
                                 </DataGrid>
 
                                 <DataGrid Name="CodeFieldsList" Grid.Row="2" AutoGenerateColumns="False" CanUserAddRows="True" CanUserDeleteRows="True" CanUserReorderColumns="True" CanUserResizeColumns="True" CanUserSortColumns="True" IsSynchronizedWithCurrentItem="True" AddingNewItem="CodeFieldsList_AddingNewItem" CommandManager.PreviewCanExecute="CodeFieldsList_PreviewCanExecute" RowEditEnding="CodeFieldsList_RowEditEnding" SelectionChanged="CodeFieldsList_SelectionChanged" SelectionMode="Single">
+                                    <DataGrid.Resources>
+                                        <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="LightSteelBlue"/>
+                                    </DataGrid.Resources>
                                     <DataGrid.Columns>
                                         <DataGridComboBoxColumn Header="Тип кода" SelectedValueBinding="{Binding CodeTypeKey, UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="Key" DisplayMemberPath="Value" Width="100">
                                             <DataGridComboBoxColumn.ElementStyle>
@@ -751,8 +779,12 @@
 
                                 <Border Grid.Column="2" Grid.RowSpan="3" BorderBrush="Gray" BorderThickness="3" Background="LightGray">
                                     <Canvas Name="BlankCanvas">
-                                        <Image Name="BlankImageField" RenderOptions.BitmapScalingMode="Fant" MouseLeftButtonDown="BlankImageField_MouseLeftButtonDown" MouseRightButtonDown="BlankImageField_MouseRightButtonDown" Stretch="Uniform" Width="{Binding Path=ActualWidth, ElementName=BlankCanvas}" Height="{Binding Path=ActualHeight, ElementName=BlankCanvas}" HorizontalAlignment="Left" VerticalAlignment="Top" SizeChanged="BlankImageField_SizeChanged"/>
-                                        <Border Name="CodeBorder" Visibility="Hidden" BorderBrush="Red" BorderThickness="2" HorizontalAlignment="Left" VerticalAlignment="Top"></Border>
+                                        <Image Name="BlankImageField" RenderOptions.BitmapScalingMode="Fant" MouseLeftButtonDown="BlankImageField_MouseLeftButtonDown" MouseRightButtonDown="BlankImageField_MouseRightButtonDown" MouseMove="BlankImageField_MouseMove" Stretch="Uniform" Width="{Binding Path=ActualWidth, ElementName=BlankCanvas}" Height="{Binding Path=ActualHeight, ElementName=BlankCanvas}" HorizontalAlignment="Left" VerticalAlignment="Top" SizeChanged="BlankImageField_SizeChanged"/>
+                                        <Border Name="CodeBorder" Visibility="Hidden" BorderBrush="Red" BorderThickness="2" HorizontalAlignment="Left" VerticalAlignment="Top" IsHitTestVisible="False">
+                                            <Viewbox StretchDirection="Both" Stretch="Fill" IsHitTestVisible="False">
+                                                <TextBlock Text="0000000000000" HorizontalAlignment="Center" IsHitTestVisible="False" FontFamily="Arial"/>
+                                            </Viewbox>
+                                        </Border>
                                     </Canvas>
                                 </Border>
                             </Grid>
@@ -787,12 +819,15 @@
                                     <ColumnDefinition/>
                                 </Grid.ColumnDefinitions>
 
-                                <Button Name="PrepareCodesButton" Content="Сформировать коды" Grid.Column="0" Margin="4"/>
-                                <Button Name="PrintBlanksButton" Content="Отправить на печать" Grid.Column="1" Margin="4"/>
+                                <Button Name="PrepareCodesButton" Content="Сформировать коды" Grid.Column="0" Margin="4" Click="PrepareCodesButton_Click"/>
+                                <Button Name="PrintBlanksButton" Content="Отправить на печать" Grid.Column="1" Margin="4" Click="PrintBlanksButton_Click"/>
                                 <Button Name="ClearQueueButton" Content="Очистить очередь" Grid.Column="2" Margin="4" Click="ButtonC_ClearQueueButton"/>
                             </Grid>
 
                             <DataGrid Name="PrintBlankList" Grid.ColumnSpan="2" Grid.Row="2" AutoGenerateColumns="False" CanUserAddRows="True" CanUserDeleteRows="True" CanUserReorderColumns="True" CanUserResizeColumns="True" CanUserSortColumns="True" IsSynchronizedWithCurrentItem="True" SelectionMode="Single">
+                                <DataGrid.Resources>
+                                    <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="LightSteelBlue"/>
+                                </DataGrid.Resources>
                                 <DataGrid.Columns>
                                     <DataGridComboBoxColumn Header="Вариант" SelectedValueBinding="{Binding Variant, UpdateSourceTrigger=PropertyChanged}" DisplayMemberPath="Name" Width="300">
                                         <DataGridComboBoxColumn.ElementStyle>
@@ -807,6 +842,165 @@
                                         </DataGridComboBoxColumn.EditingElementStyle>
                                     </DataGridComboBoxColumn>
                                     <local:DataGridNumericColumn Header="Количество экземпляров" Binding="{Binding Count, UpdateSourceTrigger=PropertyChanged}" Width="300"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Grid>
+                    </Grid>
+                </TabItem>
+                <TabItem Name="LoadCSVMode">
+                    <Grid Margin="0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="107*"/>
+                            <RowDefinition Height="559*"/>
+                        </Grid.RowDefinitions>
+
+                        <Grid Grid.RowSpan="2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                                <ColumnDefinition Width="42"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="42"/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+
+                            <Label Name="CurrentSubjectName6" HorizontalAlignment="Center" FontStretch="ExtraExpanded" Grid.Row="0" Grid.Column="0" Margin="0,0,0,10"></Label>
+                            <Label Name="CurrentSubjectType6" HorizontalAlignment="Center" FontStretch="ExtraExpanded" Grid.Row="0" Grid.Column="1" Margin="0,0,0,10"></Label>
+                            <Button Name="LoadResultsButton" Grid.Column="2" ToolTip="Загрузить данные в базу данных" Click="LoadResultsButton_Click">
+                                <Image Source="Icons/LoadToDB.png"/>
+                            </Button>
+
+                            <DataGrid Name="CSVList" Grid.ColumnSpan="3" Grid.Row="1" AutoGenerateColumns="False" CanUserAddRows="True" CanUserDeleteRows="True" CanUserReorderColumns="True" CanUserResizeColumns="True" CanUserSortColumns="True" IsSynchronizedWithCurrentItem="True" SelectionMode="Single" AddingNewItem="CSVList_AddingNewItem" RowEditEnding="CSVList_RowEditEnding" CommandManager.PreviewCanExecute="CSVList_PreviewCanExecute">
+                                <DataGrid.Resources>
+                                    <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="LightSteelBlue"/>
+                                </DataGrid.Resources>
+                                <DataGrid.Columns>
+                                    <DataGridComboBoxColumn Header="Тип бланка" SelectedValueBinding="{Binding TypeKey, UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="Key" DisplayMemberPath="Value" Width="300">
+                                        <DataGridComboBoxColumn.ElementStyle>
+                                            <Style TargetType="ComboBox">
+                                                <Setter Property="ItemsSource" Value="{Binding Path=CurrentBlankTypes, UpdateSourceTrigger=PropertyChanged}" />
+                                            </Style>
+                                        </DataGridComboBoxColumn.ElementStyle>
+                                        <DataGridComboBoxColumn.EditingElementStyle>
+                                            <Style TargetType="ComboBox">
+                                                <Setter Property="ItemsSource" Value="{Binding Path=CurrentBlankTypes, UpdateSourceTrigger=PropertyChanged}" />
+                                            </Style>
+                                        </DataGridComboBoxColumn.EditingElementStyle>
+                                    </DataGridComboBoxColumn>
+                                    <DataGridTemplateColumn Header="Путь к CSV файлу бланка"  Width="300">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <DockPanel LastChildFill="True" HorizontalAlignment="Left">
+                                                    <!--<Button Name="OpenCSVBlankButton" DockPanel.Dock="Left" Width="24" Margin="1" Click="OpenCSVBlankButton_Click" Focusable="False">
+                                                        <Image Source="Icons/OpenFolder.png" ToolTip="Загрузить файл"/>
+                                                    </Button>-->
+                                                    <TextBlock Name="BlankFileNameTBox" Margin="4,0,0,0" DockPanel.Dock="Right" Text="{Binding CSVPath, UpdateSourceTrigger=PropertyChanged}"/>
+                                                </DockPanel>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                        <DataGridTemplateColumn.CellEditingTemplate>
+                                            <DataTemplate>
+                                                <DockPanel LastChildFill="True" HorizontalAlignment="Left">
+                                                    <Button Name="OpenCSVBlankButton" DockPanel.Dock="Left" Width="24" Margin="1" Click="OpenCSVBlankButton_Click"  Focusable="False">
+                                                        <Image Source="Icons/OpenFolder.png" ToolTip="Загрузить файл"/>
+                                                    </Button>
+                                                    <TextBlock Name="BlankFileNameTBox" Margin="4,0,0,0" DockPanel.Dock="Right" Text="{Binding CSVPath, UpdateSourceTrigger=PropertyChanged}"/>
+                                                </DockPanel>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellEditingTemplate>
+                                    </DataGridTemplateColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Grid>
+                    </Grid>
+                </TabItem>
+                <TabItem Name="CheckResultsMode">
+                    <Grid Margin="0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="107*"/>
+                            <RowDefinition Height="559*"/>
+                        </Grid.RowDefinitions>
+
+                        <Grid Grid.RowSpan="2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                                <ColumnDefinition Width="64"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="42"/>
+                                <RowDefinition Height="42"/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+
+                            <Label Name="CurrentSubjectName7" HorizontalAlignment="Center" FontStretch="ExtraExpanded" Grid.Row="0" Grid.Column="0" Margin="0,0,0,10"></Label>
+                            <Label Name="CurrentSubjectType7" HorizontalAlignment="Center" FontStretch="ExtraExpanded" Grid.Row="0" Grid.Column="1" Margin="0,0,0,10"></Label>
+                            <Label Name="EventDateLabel" HorizontalAlignment="Center" FontStretch="ExtraExpanded" Grid.Row="0" Grid.Column="2" Margin="0,0,0,10">Дата проведения: 30.05.2022</Label>
+                            <Label Name="BlankRegCount" HorizontalAlignment="Center" FontStretch="ExtraExpanded" Grid.Row="1" Grid.Column="0" Margin="0,0,0,10">Бланков регистрации: 6</Label>
+                            <Label Name="BlankAns1Count" HorizontalAlignment="Center" FontStretch="ExtraExpanded" Grid.Row="1" Grid.Column="1" Margin="0,0,0,10">Бланков ответов №1: 6</Label>
+                            <Label Name="BlankAns2Count" HorizontalAlignment="Center" FontStretch="ExtraExpanded" Grid.Row="1" Grid.Column="2" Margin="0,0,0,10">Бланков ответов №2: 6</Label>
+
+                            <DataGrid Name="CheckResultsList" Grid.ColumnSpan="4" Grid.Row="2" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="True" CanUserReorderColumns="True" CanUserResizeColumns="True" CanUserSortColumns="True" IsSynchronizedWithCurrentItem="True" SelectionMode="Single" RowEditEnding="CheckResultsList_RowEditEnding" CommandManager.PreviewCanExecute="CheckResultsList_PreviewCanExecute" ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Auto">
+                                <DataGrid.Resources>
+                                    <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="LightSteelBlue"/>
+                                </DataGrid.Resources>
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Фамилия" Binding="{Binding SecondName, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
+                                    <DataGridTextColumn Header="Имя" Binding="{Binding FirstName, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
+                                    <DataGridTextColumn Header="Отчество" Binding="{Binding Patronymic, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
+                                    <DataGridTextColumn Header="Серия" Binding="{Binding Serial, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
+                                    <DataGridTextColumn Header="Номер" Binding="{Binding Number, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
+                                    <DataGridTextColumn Header="Школа" Binding="{Binding School, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
+                                    <DataGridTextColumn Header="Вариант" Binding="{Binding VariantName, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
+                                    <DataGridTextColumn Header="Бланк регистрации" Binding="{Binding RegPacketNumber, UpdateSourceTrigger=PropertyChanged}" Width="150"/>
+                                    <DataGridTextColumn Header="Бланк ответов №1" Binding="{Binding Ans1PacketNumber, UpdateSourceTrigger=PropertyChanged}" Width="150"/>
+                                    <DataGridTextColumn Header="Бланк ответов №2" Binding="{Binding Ans2PacketNumber, UpdateSourceTrigger=PropertyChanged}" Width="150"/>
+                                    <DataGridTextColumn Header="Номер теста" Binding="{Binding PrPacketNumber, UpdateSourceTrigger=PropertyChanged}" Width="150"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Grid>
+                    </Grid>
+                </TabItem>
+                <TabItem Name="PrintReportMode">
+                    <Grid Margin="0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="107*"/>
+                            <RowDefinition Height="559*"/>
+                        </Grid.RowDefinitions>
+
+                        <Grid Grid.RowSpan="2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                                <ColumnDefinition Width="42"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="42"/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+
+                            <Label Name="CurrentSubjectName8" HorizontalAlignment="Center" FontStretch="ExtraExpanded" Grid.Row="0" Grid.Column="0" Margin="0,0,0,10"></Label>
+                            <Label Name="CurrentSubjectType8" HorizontalAlignment="Center" FontStretch="ExtraExpanded" Grid.Row="0" Grid.Column="1" Margin="0,0,0,10"></Label>
+                            <Button Name="PrintReportButton" Grid.Column="3" ToolTip="Отправить отчет на печать" Click="PrintReportButton_Click">
+                                <Image Source="Icons/Print.png"/>
+                            </Button>
+
+                            <DataGrid Name="PrintReportsList" Grid.ColumnSpan="3" Grid.Row="1" IsReadOnly="True" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" CanUserReorderColumns="True" CanUserResizeColumns="True" CanUserSortColumns="False" IsSynchronizedWithCurrentItem="True" SelectionMode="Single">
+                                <DataGrid.Resources>
+                                    <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="LightSteelBlue"/>
+                                </DataGrid.Resources>
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="№" Binding="{Binding Number, UpdateSourceTrigger=PropertyChanged}" Width="50"/>
+                                    <DataGridTextColumn Header="Код ОУ" Binding="{Binding CodeOU, UpdateSourceTrigger=PropertyChanged}" Width="60"/>
+                                    <DataGridTextColumn Header="Фамилия" Binding="{Binding SecondName, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
+                                    <DataGridTextColumn Header="Имя" Binding="{Binding FirstName, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
+                                    <DataGridTextColumn Header="Отчество" Binding="{Binding Patronymic, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
+                                    <DataGridTextColumn Header="Задания с кратким ответом" Binding="{Binding ScoreA, UpdateSourceTrigger=PropertyChanged}" Width="200"/>
+                                    <DataGridTextColumn Header="Задания с развернутым ответом" Binding="{Binding ScoreB, UpdateSourceTrigger=PropertyChanged}" Width="200"/>
+                                    <DataGridTextColumn Header="Первичный балл" Binding="{Binding FirstScore, UpdateSourceTrigger=PropertyChanged}" Width="150"/>
+                                    <DataGridTextColumn Header="Балл" Binding="{Binding Score, UpdateSourceTrigger=PropertyChanged}" Width="50"/>
                                 </DataGrid.Columns>
                             </DataGrid>
                         </Grid>

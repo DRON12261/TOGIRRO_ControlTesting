@@ -1,14 +1,22 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="TOGIRRO_ControlTesting.App" BaseTypeListCollapsed="true">
+    <Position X="24.25" Y="0.5" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAA=</HashCode>
+      <FileName>App.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
   <Class Name="TOGIRRO_ControlTesting.INIReader">
-    <Position X="11" Y="8" Width="2.25" />
+    <Position X="20" Y="0.5" Width="2.25" />
     <TypeIdentifier>
       <HashCode>AgAAAAAAAAAAkAIQAAAAAAAgAACgAAAAAAAAAAEAAAA=</HashCode>
       <FileName>INIReader.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="TOGIRRO_ControlTesting.SQLErrorWindow" BaseTypeListCollapsed="true">
-    <Position X="8.75" Y="5.75" Width="2" />
+    <Position X="24.25" Y="1.75" Width="2.75" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>SQLErrorWindow.xaml.cs</FileName>
@@ -16,98 +24,154 @@
     <Lollipop Position="0.2" Collapsed="true" />
   </Class>
   <Class Name="TOGIRRO_ControlTesting.Workfield">
-    <Position X="0.5" Y="0.5" Width="2.25" />
+    <Position X="24.25" Y="6.5" Width="2.75" />
     <TypeIdentifier>
       <HashCode>TAAAAFABQCAAggAgIABAACBAEEoAAAUgCIAyJIAABBI=</HashCode>
       <FileName>Workfield.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="TOGIRRO_ControlTesting.ScaleUnit">
-    <Position X="3" Y="2.5" Width="1.5" />
+    <Position X="5" Y="5" Width="1.75" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAACAAAAAAAA=</HashCode>
       <FileName>Workfield.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="TOGIRRO_ControlTesting.Subject">
-    <Position X="8.75" Y="0.5" Width="2" />
+    <Position X="0.5" Y="4" Width="2.25" />
     <TypeIdentifier>
       <HashCode>AiAsABAAEAAgAgACAIAAAAQAAQGAAgAEIQAAAAAAIAI=</HashCode>
       <FileName>Workfield.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="TOGIRRO_ControlTesting.Variant">
-    <Position X="3" Y="4.5" Width="1.5" />
+    <Position X="5" Y="7" Width="1.75" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAACAABAAAAAAAAAQAAAAAAAAAABAAAAAAAAA=</HashCode>
       <FileName>Workfield.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="TOGIRRO_ControlTesting.AnswerCharacteristic">
-    <Position X="11" Y="0.5" Width="2.25" />
+    <Position X="0.5" Y="0.5" Width="2.25" />
     <TypeIdentifier>
       <HashCode>AABIAAAIEAAAAVAAAEAAAAAACAAAAAAAQBAAgAAAAAA=</HashCode>
       <FileName>Workfield.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="TOGIRRO_ControlTesting.Question">
-    <Position X="7" Y="0.5" Width="1.5" />
+    <Position X="11.75" Y="2.75" Width="2" />
     <TypeIdentifier>
       <HashCode>BABIAAAIEAAAAFAAAEAAAAAACAAAAAAAQAAAgAQAAAA=</HashCode>
       <FileName>Workfield.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="TOGIRRO_ControlTesting.Answer">
-    <Position X="3" Y="6.75" Width="1.5" />
+    <Position X="9.25" Y="5.25" Width="2.25" />
     <TypeIdentifier>
       <HashCode>AAACAAAAAAAAAAgAAAAAAAAAEAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Workfield.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="TOGIRRO_ControlTesting.ErrorScaleUnit">
-    <Position X="11" Y="4" Width="2.25" />
+    <Position X="3" Y="7" Width="1.75" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAABAAAAgACAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Workfield.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="TOGIRRO_ControlTesting.Alert">
-    <Position X="7" Y="4" Width="1.5" />
+    <Position X="5" Y="0.5" Width="1.75" />
     <TypeIdentifier>
       <HashCode>BAABAAAAAAAgAAAAEAAAIAAAAAAAAAAAABAAAAEAAAA=</HashCode>
       <FileName>Workfield.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="TOGIRRO_ControlTesting.PostAlert">
-    <Position X="3" Y="0.5" Width="1.5" />
+    <Position X="5" Y="3" Width="1.75" />
     <TypeIdentifier>
       <HashCode>AIAAAAAAAEAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAABA=</HashCode>
       <FileName>Workfield.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="TOGIRRO_ControlTesting.BlankCSV">
-    <Position X="7" Y="6.5" Width="1.5" />
+  <Class Name="TOGIRRO_ControlTesting.Blank">
+    <Position X="7" Y="2.5" Width="2" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAgAAAAQAAAAAAAAAAAAIAAQAAAAAAAAA=</HashCode>
+      <HashCode>AAAAAAACAAAAgAIAAQAAAAAAIAAAAAAAAQAAAAAAAAA=</HashCode>
       <FileName>Workfield.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="TOGIRRO_ControlTesting.PrintBlank">
-    <Position X="3" Y="8.75" Width="1.5" />
+    <Position X="3" Y="0.5" Width="1.75" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAARAAACAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Workfield.cs</FileName>
     </TypeIdentifier>
   </Class>
+  <Class Name="TOGIRRO_ControlTesting.CodeField">
+    <Position X="7" Y="5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAABAAAAQAAAAAAAAADAAAAAIABAAAgAQAABAAAAAA=</HashCode>
+      <FileName>Workfield.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TOGIRRO_ControlTesting.BlankCSV">
+    <Position X="7" Y="0.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAgAAAAQAAAAAAAAAAAAIAAQAAAAAAAAA=</HashCode>
+      <FileName>Workfield.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TOGIRRO_ControlTesting.Kit">
+    <Position X="9.25" Y="0.5" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAGoAAMAUAABQAEIAEAKAABAQAAAAQAAAAAAAAgA=</HashCode>
+      <FileName>Workfield.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TOGIRRO_ControlTesting.ActualAnswer">
+    <Position X="9.25" Y="7.25" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAABAAAAAAAAAAAAAAAAAAEAAAAAgAAAAA=</HashCode>
+      <FileName>Workfield.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TOGIRRO_ControlTesting.ScannedBlank">
+    <Position X="3" Y="4.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAACAAAAAAAAAAAAAAAAgACAAAAoAgAAAAAAAAA=</HashCode>
+      <FileName>Workfield.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TOGIRRO_ControlTesting.FullAnswerBlank">
+    <Position X="11.75" Y="0.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>gAAAAAAAAAAAAAAAAAAAAADAEAAAAAAAAAAAAAAIAAA=</HashCode>
+      <FileName>Workfield.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TOGIRRO_ControlTesting.Protocol">
+    <Position X="3" Y="2.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAEAAAAEAAAAAAAAAAAAAAAAAEAA=</HashCode>
+      <FileName>Workfield.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TOGIRRO_ControlTesting.WorkChecker">
+    <Position X="24.25" Y="3.25" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAA=</HashCode>
+      <FileName>Workfield.cs</FileName>
+    </TypeIdentifier>
+  </Class>
   <Class Name="TOGIRRO_ControlTesting.AlertManager">
-    <Position X="0.5" Y="9" Width="2.25" />
+    <Position X="24.25" Y="4.5" Width="2.75" />
     <TypeIdentifier>
       <HashCode>CAAAAAAACAAAAgAACAAAAAAgAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Workfield.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="TOGIRRO_ControlTesting.WorkWindow" BaseTypeListCollapsed="true">
-    <Position X="4.75" Y="0.5" Width="2" />
+    <Position X="27.25" Y="0.5" Width="4.25" />
     <TypeIdentifier>
       <HashCode>BCVEQCYlACAO5UJDLsAgAJMAQFACIUnMAw4g82IAAgQ=</HashCode>
       <FileName>WorkWindow.xaml.cs</FileName>
@@ -115,14 +179,14 @@
     <Lollipop Position="0.2" Collapsed="true" />
   </Class>
   <Class Name="TOGIRRO_ControlTesting.DescriptionConverter">
-    <Position X="8.75" Y="9" Width="2" />
+    <Position X="15" Y="0.5" Width="2.25" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAA=</HashCode>
       <FileName>WPFSupport.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="TOGIRRO_ControlTesting.RowToIndexConverter" BaseTypeListCollapsed="true">
-    <Position X="11" Y="6" Width="2.25" />
+    <Position X="15" Y="2" Width="2.25" />
     <TypeIdentifier>
       <HashCode>AABACAAAAAAAAAAAAIAAAAAAAAgAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>WPFSupport.cs</FileName>
@@ -130,14 +194,14 @@
     <Lollipop Position="0.2" Collapsed="true" />
   </Class>
   <Class Name="TOGIRRO_ControlTesting.DataGridNumericColumn">
-    <Position X="8.75" Y="7.25" Width="2" />
+    <Position X="17.5" Y="0.5" Width="2.25" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAgAAAAAAAAAACAAAAAIAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>WPFSupport.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Enum Name="TOGIRRO_ControlTesting.AlertType">
-    <Position X="0.5" Y="7.5" Width="2.25" />
+    <Position X="17.5" Y="2.25" Width="2.25" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAABABAAABAAAAAAAAgAAAAAAAAAAAAAAQA=</HashCode>
       <FileName>Workfield.cs</FileName>

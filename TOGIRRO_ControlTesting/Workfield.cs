@@ -107,6 +107,12 @@ using Microsoft.Data.SqlClient;
 
 допилить алерты под коды
 допилить правильное обновление состояния прямоугольника
+
+наносить номер в прямоугольнике
+формировать пдф
+отправлять на печать
+
+
 */
 
 namespace TOGIRRO_ControlTesting
@@ -151,6 +157,10 @@ namespace TOGIRRO_ControlTesting
 		static public Dictionary<int, Dictionary<int, string>> BlankTypes = new Dictionary<int, Dictionary<int, string>>() { };
 		static public Dictionary<int, string> CodeTypes = new Dictionary<int, string>() { };
 		static public Dictionary<int, string> OrientationTypes = new Dictionary<int, string>() { };
+
+		static public ObservableCollection<BlankCSV> blankCSVs = new ObservableCollection<BlankCSV>() { };
+		static public ObservableCollection<Kit> kits = new ObservableCollection<Kit>() { };
+		static public ObservableCollection<Report> reports = new ObservableCollection<Report>() { };
 
 		/*
 			Получение ключа по значению из Dictionary
@@ -347,6 +357,187 @@ namespace TOGIRRO_ControlTesting
 		#region
 		static public void PreLoad()
 		{
+			kits.Add(new Kit()
+			{
+				SecondName = "Иванов",
+				FirstName = "Иван",
+				Patronymic = "Иванович",
+				Serial = "7118",
+				Number = "076111",
+				School = 237020,
+				ClassNumber = 11,
+				ClassLetter = "A",
+				VariantName = "1101",
+				RegPacketNumber = "3101110100067",
+				Ans1PacketNumber = "1101110100067",
+				Ans2PacketNumber = "2101110100067",
+				PrPacketNumber = "5101110100067"
+			});
+			kits.Add(new Kit()
+			{
+				SecondName = "Жуков",
+				FirstName = "Георгий",
+				Patronymic = "Анатольевич",
+				Serial = "7118",
+				Number = "076121",
+				School = 237020,
+				ClassNumber = 11,
+				ClassLetter = "A",
+				VariantName = "1103",
+				RegPacketNumber = "3101110300075",
+				Ans1PacketNumber = "1101110300075",
+				Ans2PacketNumber = "2101110300075",
+				PrPacketNumber = "5101110300075"
+			});
+			kits.Add(new Kit()
+			{
+				SecondName = "Кузнецова",
+				FirstName = "Полина",
+				Patronymic = "Семеновна",
+				Serial = "7118",
+				Number = "076728",
+				School = 237020,
+				ClassNumber = 11,
+				ClassLetter = "А",
+				VariantName = "1102",
+				RegPacketNumber = "3101110200041",
+				Ans1PacketNumber = "1101110200041",
+				Ans2PacketNumber = "2101110200041",
+				PrPacketNumber = "5101110200041"
+			});
+			kits.Add(new Kit()
+			{
+				SecondName = "Григорьев",
+				FirstName = "Олег",
+				Patronymic = "Александрович",
+				Serial = "7118",
+				Number = "076344",
+				School = 237020,
+				ClassNumber = 11,
+				ClassLetter = "А",
+				VariantName = "1104",
+				RegPacketNumber = "3101110400077",
+				Ans1PacketNumber = "1101110400077",
+				Ans2PacketNumber = "2101110400077",
+				PrPacketNumber = "5101110400077"
+			});
+			kits.Add(new Kit()
+			{
+				SecondName = "Серый",
+				FirstName = "Петр",
+				Patronymic = "Петрович",
+				Serial = "7118",
+				Number = "076112",
+				School = 237020,
+				ClassNumber = 11,
+				ClassLetter = "А",
+				VariantName = "1102",
+				RegPacketNumber = "3101110200098",
+				Ans1PacketNumber = "1101110200098",
+				Ans2PacketNumber = "2101110200098",
+				PrPacketNumber = "5101110200098"
+			});
+			kits.Add(new Kit()
+			{
+				SecondName = "Борисенко",
+				FirstName = "Вадим",
+				Patronymic = "Евгеньевич",
+				Serial = "7118",
+				Number = "076624",
+				School = 237020,
+				ClassNumber = 11,
+				ClassLetter = "А",
+				VariantName = "1103",
+				RegPacketNumber = "3101110300024",
+				Ans1PacketNumber = "1101110300024",
+				Ans2PacketNumber = "2101110300024",
+				PrPacketNumber = "5101110300024"
+			});
+
+			reports.Add(new Report()
+			{
+				Number = 1,
+				CodeOU = 237020,
+				SecondName = "Иванов",
+				FirstName = "Иван",
+				Patronymic = "Иванович",
+				VariantName = "1101",
+				FirstScore = 49,
+				Score = 80,
+				ScoreA = "+++++++4+++++++-+++++-+++4",
+				ScoreB = "1(1)4(6)1(1)1(1)2(2)1(2)3(3)2(3)1(2)1(2)1(1)1(1)",
+				Percent = "94%"
+			});
+			reports.Add(new Report()
+			{
+				Number = 2,
+				CodeOU = 237020,
+				SecondName = "Жуков",
+				FirstName = "Георгий",
+				Patronymic = "Анатольевич",
+				VariantName = "1103",
+				FirstScore = 51,
+				Score = 85,
+				ScoreA = "+++++++5-+++++++++-++++++4",
+				ScoreB = "1(1)5(6)1(1)1(1)2(2)1(2)3(3)1(3)2(2)1(2)1(1)1(1)",
+				Percent = "64%"
+			});
+			reports.Add(new Report()
+			{
+				Number = 3,
+				CodeOU = 237020,
+				SecondName = "Кузнецова",
+				FirstName = "Полина",
+				Patronymic = "Семеновна",
+				VariantName = "1102",
+				FirstScore = 47,
+				Score = 76,
+				ScoreA = "-+++++-4-++-++++++-+++---4",
+				ScoreB = "1(1)6(6)1(1)1(1)2(2)2(2)2(3)2(3)2(2)2(2)1(1)1(1)",
+				Percent = "80%"
+			});
+			reports.Add(new Report()
+			{
+				Number = 4,
+				CodeOU = 237020,
+				SecondName = "Григорьев",
+				FirstName = "Олег",
+				Patronymic = "Александрович",
+				VariantName = "1104",
+				FirstScore = 25,
+				Score = 48,
+				ScoreA = "--+-++-3--+-+-+------+-+-2",
+				ScoreB = "1(1)3(6)1(1)1(1)1(2)1(2)1(3)0(3)0(2)1(2)1(1)1(1)",
+				Percent = "80%"
+			});
+			reports.Add(new Report()
+			{
+				Number = 5,
+				CodeOU = 237020,
+				SecondName = "Серый",
+				FirstName = "Петр",
+				Patronymic = "Петрович",
+				VariantName = "1102",
+				FirstScore = 43,
+				Score = 70,
+				ScoreA = "-+++-++4+++-+++-+++--++++4",
+				ScoreB = "1(1)4(6)0(1)0(1)1(2)2(2)3(3)1(3)2(2)1(2)1(1)1(1)",
+				Percent = "80%"
+			});
+			reports.Add(new Report()
+			{
+				Number = 6,
+				CodeOU = 237020,
+				SecondName = "Борисенко",
+				FirstName = "Вадим",
+				Patronymic = "Евгеньевич",
+				VariantName = "1103",
+				FirstScore = 45,
+				Score = 72,
+				ScoreA = "+++++++3++--+--++++++++++4",
+				ScoreB = "1(1)2(6)1(1)0(1)2(2)2(2)3(3)2(3)1(2)2(2)1(1)1(1)",
+				Percent = "80%"
+			});
 		}
 		#endregion
 
@@ -430,13 +621,13 @@ namespace TOGIRRO_ControlTesting
 
 			return -1;
 		}
-		#endregion
+        #endregion
 
-		/*
-			Итераторы перечислений (для корректного вывода описания перечислений)
+        /*
+			Получение дочернего элемента в древе WPF
 		*/
-
-		static public T GetVisualChild<T>(Visual parent) where T : Visual
+        #region
+        static public T GetVisualChild<T>(Visual parent) where T : Visual
 		{
 			T child = default(T);
 			int numVisuals = VisualTreeHelper.GetChildrenCount(parent);
@@ -455,7 +646,12 @@ namespace TOGIRRO_ControlTesting
 			}
 			return child;
 		}
+		#endregion
 
+		/*
+			Получение элемента DataGridCell в DataGrid
+		*/
+		#region
 		static public DataGridCell GetCell(this DataGrid grid, DataGridRow row, int columnIndex)
 		{
 			if (row != null)
@@ -473,12 +669,11 @@ namespace TOGIRRO_ControlTesting
 			}
 			return null;
 		}
+		#endregion
 
-		public static void SelectRowByIndex(DataGrid grid, int index)
-		{
-			//DataGridRow row = dataGrid.ItemContainerGenerator.ContainerFromIndex(rowIndex) as DataGridRow;
-			
-		}
+		/*
+			Итераторы перечислений
+		*/
 		#region
 		static public IEnumerable<AlertType> AlertTypeValues => Enum.GetValues(typeof(AlertType)).Cast<AlertType>();
 		#endregion
@@ -577,6 +772,7 @@ namespace TOGIRRO_ControlTesting
 		public ObservableCollection<AnswerCharacteristic> Questions = null;
 		public ObservableCollection<Blank> Blanks = null;
 		public ObservableCollection<PrintBlank> PrintBlanks = null;
+		public ObservableCollection<Kit> Kits = null;
 
 		public Subject()
 		{
@@ -594,6 +790,7 @@ namespace TOGIRRO_ControlTesting
 			ScaleSystem = new ObservableCollection<ScaleUnit>() { };
 			Blanks = new ObservableCollection<Blank>() { };
 			PrintBlanks = new ObservableCollection<PrintBlank>() { };
+			Kits = new ObservableCollection<Kit>() { };
 			Alerts = new ObservableCollection<Alert>() 
 			{ 
 				new Alert(AlertType.FieldNotFilled),
@@ -979,6 +1176,227 @@ namespace TOGIRRO_ControlTesting
 			X1 = 0; Y1 = 0; X2 = 0; Y2 = 0; 
 			CodeType = Workfield.CodeTypes[1];
 		}
+	}
+	#endregion
+	//----------------------------------------------------------------------------------------------------------------------------------------
+
+	//----------------------------------------------------------------------------------------------------------------------------------------
+	//---Класс BlankCSV для загрузки CSV фалов бланков----------------------------------------------------------------------------------------
+	//----------------------------------------------------------------------------------------------------------------------------------------
+	#region
+	class BlankCSV
+	{
+		public string Type { get; set; }
+		public int TypeKey
+		{
+			get
+			{
+				return Workfield.KeyByValue<int, string>(CurrentBlankTypes, Type);
+			}
+			set
+			{
+				Type = CurrentBlankTypes[value];
+			}
+		}
+		public string CSVPath { get; set; }
+		public Dictionary<int, string> CurrentBlankTypes { get; set; }
+
+		public BlankCSV()
+		{
+			CSVPath = "";
+			Type = Workfield.BlankTypes[0][1];
+			CurrentBlankTypes = Workfield.BlankTypes[Workfield.KeyByValue<int, string>(Workfield.SubjectTypes, Workfield.CurrentSubject.Type)];
+		}
+	}
+	#endregion
+	//----------------------------------------------------------------------------------------------------------------------------------------
+
+	//----------------------------------------------------------------------------------------------------------------------------------------
+	//---Класс Kit для тестируемых-----------------------------------------------------------------------------------------------------
+	//----------------------------------------------------------------------------------------------------------------------------------------
+	#region
+	class Kit
+	{
+		public int KitID { get; set; }
+		public string SecondName { get; set; }
+		public string FirstName { get; set; }
+		public string Patronymic { get; set; }
+		public string Serial { get; set; }
+		public string Number { get; set; }
+		public int School { get; set; }
+		public int ClassNumber { get; set; }
+		public string ClassLetter { get; set; }
+		public DateTime TestingDate { get; set; }
+		public string VariantName { get; set; }
+		public bool HasAnswerBlank1 { get; set; }
+		public bool HasAnswerBlank2 { get; set; }
+		public string RegPacketNumber { get; set; }
+		public int RegImageNumber { get; set; }
+		public string Ans1PacketNumber { get; set; }
+		public int Ans1ImageNumber { get; set; }
+		public string Ans2PacketNumber { get; set; }
+		public int Ans2ImageNumber { get; set; }
+		public string PrPacketNumber { get; set; }
+		public int PrImageNumber { get; set; }
+		public ObservableCollection<ScannedBlank> ScannedBlanks { get; set; }
+
+		public Kit()
+		{
+			SecondName = "";
+			FirstName = "";
+			Patronymic = "";
+			Serial = ""; Number = "";
+			School = 0; ClassNumber = 0;
+			ClassLetter = "";
+			TestingDate = new DateTime();
+			HasAnswerBlank1 = false;
+			HasAnswerBlank2 = false;
+			RegPacketNumber = ""; RegImageNumber = 0;
+			Ans1PacketNumber = ""; Ans1ImageNumber = 0;
+			Ans2PacketNumber = ""; Ans2ImageNumber = 0;
+			PrPacketNumber = ""; PrImageNumber = 0;
+			VariantName = "";
+			ScannedBlanks = new ObservableCollection<ScannedBlank>() { };
+		}
+	}
+	#endregion
+	//----------------------------------------------------------------------------------------------------------------------------------------
+
+	//----------------------------------------------------------------------------------------------------------------------------------------
+	//---Класс ActualAnswer для отсканированных ответов---------------------------------------------------------------------------------------
+	//----------------------------------------------------------------------------------------------------------------------------------------
+	#region
+	class ActualAnswer
+	{
+		public int ActualAnswerID { get; set; }
+		public Question Question { get; set; }
+		public string Answer { get; set; }
+
+		public ActualAnswer()
+		{
+			Question = null;
+			Answer = "";
+		}
+	}
+	#endregion
+	//----------------------------------------------------------------------------------------------------------------------------------------
+
+	//----------------------------------------------------------------------------------------------------------------------------------------
+	//---Класс ScannedBlank для отсканированных бланков---------------------------------------------------------------------------------------
+	//----------------------------------------------------------------------------------------------------------------------------------------
+	#region
+	class ScannedBlank
+	{
+		public int BlankID { get; set; }
+		public string RegBlankCode { get; set; }
+		public string AnswerBlank1Code { get; set; }
+		public string AnswerBlank2Code { get; set; }
+		public string TestCode { get; set; }
+		public Variant Variant { get; set; }
+		public string Test9Code { get; set; }
+
+		public ScannedBlank()
+		{
+			RegBlankCode = "";
+			AnswerBlank1Code = "";
+			AnswerBlank2Code = "";
+			TestCode = ""; Test9Code = "";
+			Variant = null;
+		}
+	}
+	#endregion
+	//----------------------------------------------------------------------------------------------------------------------------------------
+
+	//----------------------------------------------------------------------------------------------------------------------------------------
+	//---Класс FullAnswerBlank для отсканированных бланков с полным ответом-------------------------------------------------------------------
+	//----------------------------------------------------------------------------------------------------------------------------------------
+	#region
+	class FullAnswerBlank
+	{
+		public int FullAnswerBlankID { get; set; }
+		public ScannedBlank ScannedBlank { get; set; }
+		public Protocol Protocol { get; set; }
+		public string PacketNumber { get; set; }
+		public int ImageNumber { get; set; }
+
+		public FullAnswerBlank()
+		{
+			PacketNumber = ""; ImageNumber = 0;
+			ScannedBlank = null; Protocol = null;
+		}
+	}
+	#endregion
+	//----------------------------------------------------------------------------------------------------------------------------------------
+
+	//----------------------------------------------------------------------------------------------------------------------------------------
+	//---Класс Protocol для протоколов--------------------------------------------------------------------------------------------------------
+	//----------------------------------------------------------------------------------------------------------------------------------------
+	#region
+	class Protocol
+	{
+		public int ProtocolID { get; set; }
+		public string CSVFile { get; set; }
+		public bool IsPrinted { get; set; }
+		public string Number { get; set; }
+
+		public Protocol()
+		{
+			CSVFile = ""; Number = "";
+			IsPrinted = false;
+		}
+	}
+	#endregion
+	//----------------------------------------------------------------------------------------------------------------------------------------
+
+	//----------------------------------------------------------------------------------------------------------------------------------------
+	//---Класс Report для формирования записей в отчете---------------------------------------------------------------------------------------
+	//----------------------------------------------------------------------------------------------------------------------------------------
+	#region
+	class Report
+    {
+		public string SecondName { get; set; }
+		public string FirstName { get; set; }
+		public string Patronymic { get; set; }
+		public int Number { get; set; }
+		public int CodeOU { get; set; }
+		public string VariantName { get; set; }
+		public int FirstScore { get; set; }
+		public string Percent { get; set; }
+		public int Score { get; set; }
+		public string ScoreA { get; set; }
+		public string ScoreB { get; set; }
+		public Report()
+        {
+			SecondName = "";
+			FirstName = "";
+			Patronymic = "";
+			Number = 0;
+			CodeOU = 0;
+			VariantName = "";
+			FirstScore = 0;
+			Percent = "";
+			Score = 0;
+			ScoreA = "";
+			ScoreB = "";
+        }
+    }
+	#endregion
+	//----------------------------------------------------------------------------------------------------------------------------------------
+
+	//----------------------------------------------------------------------------------------------------------------------------------------
+	//---Класс WorkChecker для проверки прорешанных бланков-----------------------------------------------------------------------------------
+	//----------------------------------------------------------------------------------------------------------------------------------------
+	#region
+	static class WorkChecker
+	{
+		static public bool CheckWork(Subject currentSubject, Kit currentKit)
+        {
+			bool result = false;
+
+
+
+			return result;
+        }
 	}
 	#endregion
 	//----------------------------------------------------------------------------------------------------------------------------------------

@@ -13,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Reflection;
 using Microsoft.Win32;
+using System.IO;
 
 namespace TOGIRRO_ControlTesting
 {
@@ -21,19 +22,21 @@ namespace TOGIRRO_ControlTesting
 	//========================================================================================================================================
 	public partial class WorkWindow : Window
 	{
-		//------------------------------------------------------------------------------------------------------------------------------------
-		//---Конструктор и вспомогательные методы---------------------------------------------------------------------------------------------
-		//------------------------------------------------------------------------------------------------------------------------------------
-		#region
-		/*
+        //------------------------------------------------------------------------------------------------------------------------------------
+        //---Конструктор и вспомогательные методы---------------------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------------------------------------------------------------
+        #region
+
+        /*
 			Конструктор, инициализация параметров
 		*/
-		public WorkWindow()
+        #region
+        public WorkWindow()
 		{
 			InitializeComponent();
 			Workfield.WorkWindow = this;
-			//Workfield.PreLoad();
 			Workfield.Init();
+			Workfield.PreLoad();
 			Workfield.LoadFromDB();
 
 			SearchTypes.ItemsSource = Workfield.SubjectTypes;
@@ -77,28 +80,38 @@ namespace TOGIRRO_ControlTesting
 			{
 				QuestionList_VisibilityButton.Source = new BitmapImage(new Uri(@"/Icons/Show.png", UriKind.Relative));
 			}
+
+			CSVList.ItemsSource = Workfield.blankCSVs;
+			CheckResultsList.ItemsSource = Workfield.kits;
+			PrintReportsList.ItemsSource = Workfield.reports;
 		}
+		#endregion
 
 		/*
 			Ограничение ввода для числового TextBox
 		*/
+		#region
 		private void NumberValidationTextBox(object sender, TextCompositionEventArgs e)
 		{
 			Regex regex = new Regex("[^0-9]+");
 			e.Handled = regex.IsMatch(e.Text);
 		}
+        #endregion
 
-		/*
+        /*
 			Событие закрытия окна WorkWindow
 		*/
-		private void WorkWindow_Closing(object sender, CancelEventArgs e)
+        #region
+        private void WorkWindow_Closing(object sender, CancelEventArgs e)
 		{
 			Application.Current.Shutdown();
 		}
+		#endregion
 
 		/*
 			Переключение видимости вложенных таблиц в таблице вопросов
 		*/
+		#region
 		private void AnswerList_ChangeTableVisibilityButton_Click(object sender, RoutedEventArgs e)
 		{
 			if (AnswerList.RowDetailsVisibilityMode == DataGridRowDetailsVisibilityMode.VisibleWhenSelected)
@@ -112,10 +125,12 @@ namespace TOGIRRO_ControlTesting
 				AnswerList_VisibilityButton.Source = new BitmapImage(new Uri(@"/Icons/Hide.png", UriKind.Relative));
 			}
 		}
+		#endregion
 
 		/*
 			Переключение видимости вложенных таблиц в таблице шаблонов вопросов
 		*/
+		#region
 		private void QuestionList_ChangeTableVisibilityButton_Click(object sender, RoutedEventArgs e)
 		{
 			if (QuestionList.RowDetailsVisibilityMode == DataGridRowDetailsVisibilityMode.VisibleWhenSelected)
@@ -130,6 +145,8 @@ namespace TOGIRRO_ControlTesting
 			}
 		}
 		#endregion
+
+		#endregion
 		//------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -138,9 +155,11 @@ namespace TOGIRRO_ControlTesting
 		//---Создание, редактирование и удаление предметов------------------------------------------------------------------------------------
 		//------------------------------------------------------------------------------------------------------------------------------------
 		#region
+
 		/*
 			Кнопка включения окна создания предмета
 		*/
+		#region
 		private void ButtonC_CreateSubject(object sender, RoutedEventArgs e)
 		{
 			if (Subjects_CreateTab.IsSelected) 
@@ -166,10 +185,12 @@ namespace TOGIRRO_ControlTesting
 			CreateSubject_ScoreSystem.IsChecked = true;
 			Subjects_CreateTab.IsSelected = true;
 		}
+		#endregion
 
 		/*
 			Кнопка включения окна редактирования предмета
 		*/
+		#region
 		private void ButtonC_EditSubject(object sender, RoutedEventArgs e)
 		{
 			if (Subjects_EditTab.IsSelected) 
@@ -201,10 +222,12 @@ namespace TOGIRRO_ControlTesting
 				Subjects_EditTab.IsSelected = true;
 			}
 		}
+		#endregion
 
 		/*
 			Удаление предмета
 		*/
+		#region
 		private void ButtonC_DeleteSubject(object sender, RoutedEventArgs e)
 		{
 			try
@@ -255,14 +278,22 @@ namespace TOGIRRO_ControlTesting
 			CurrentSubjectType4.Content = "";
 			CurrentSubjectName5.Content = "";
 			CurrentSubjectType5.Content = "";
+			CurrentSubjectName6.Content = "";
+			CurrentSubjectType6.Content = "";
+			CurrentSubjectName7.Content = "";
+			CurrentSubjectType7.Content = "";
+			CurrentSubjectName8.Content = "";
+			CurrentSubjectType8.Content = "";
 			MaxScoreTextBlock.Text = "-";
 			UpdateSubjectList();
 		}
+        #endregion
 
-		/*
+        /*
 			Создание предмета
 		*/
-		private void ButtonC_CreateSubject_Create(object sender, RoutedEventArgs e)
+        #region
+        private void ButtonC_CreateSubject_Create(object sender, RoutedEventArgs e)
 		{
 			if (CreateSubject_Name.Text.Trim(' ') != "" && CreateSubject_Type.SelectedIndex != 0)
 			{
@@ -351,20 +382,24 @@ namespace TOGIRRO_ControlTesting
 				UpdateSubjectList();
 			}
 		}
+		#endregion
 
 		/*
 			Отмена создания предмета
 		*/
+		#region
 		private void ButtonC_CreateSubject_Cancel(object sender, RoutedEventArgs e)
 		{
 			CreateSubjectMenu_Button.IsChecked = false;
 			EditSubjectMenu_Button.IsChecked = false;
 			Subjects_ListTab.IsSelected = true;
 		}
+		#endregion
 
 		/*
 			Редактирование предмета
 		*/
+		#region
 		private void ButtonC_EditSubject_Edit(object sender, RoutedEventArgs e)
 		{
 			if (EditSubject_Name.Text.Trim(' ') != "" && EditSubject_Type.SelectedIndex != 0)
@@ -419,6 +454,16 @@ namespace TOGIRRO_ControlTesting
 				CurrentSubjectType2.Content = Workfield.CurrentSubject.Type;
 				CurrentSubjectName3.Content = Workfield.CurrentSubject.Name;
 				CurrentSubjectType3.Content = Workfield.CurrentSubject.Type;
+				CurrentSubjectName4.Content = Workfield.CurrentSubject.Name;
+				CurrentSubjectType4.Content = Workfield.CurrentSubject.Type;
+				CurrentSubjectName5.Content = Workfield.CurrentSubject.Name;
+				CurrentSubjectType5.Content = Workfield.CurrentSubject.Type;
+				CurrentSubjectName6.Content = Workfield.CurrentSubject.Name;
+				CurrentSubjectType6.Content = Workfield.CurrentSubject.Type;
+				CurrentSubjectName7.Content = Workfield.CurrentSubject.Name;
+				CurrentSubjectType7.Content = Workfield.CurrentSubject.Type;
+				CurrentSubjectName8.Content = Workfield.CurrentSubject.Name;
+				CurrentSubjectType8.Content = Workfield.CurrentSubject.Type;
 				CreateSubjectMenu_Button.IsChecked = false;
 				EditSubjectMenu_Button.IsChecked = false;
 				UpdateSubjectList();
@@ -457,16 +502,20 @@ namespace TOGIRRO_ControlTesting
 				BlankList.Items.Refresh();
 			}
 		}
+        #endregion
 
-		/*
+        /*
 			Отмена редактирования предмета
 		*/
-		private void ButtonC_EditSubject_Cancel(object sender, RoutedEventArgs e)
+        #region
+        private void ButtonC_EditSubject_Cancel(object sender, RoutedEventArgs e)
 		{
 			CreateSubjectMenu_Button.IsChecked = false;
 			EditSubjectMenu_Button.IsChecked = false;
 			Subjects_ListTab.IsSelected = true;
 		}
+		#endregion
+
 		#endregion
 		//------------------------------------------------------------------------------------------------------------------------------------
 
@@ -476,9 +525,11 @@ namespace TOGIRRO_ControlTesting
 		//---Кнопки переключения режимов настройки мероприятия--------------------------------------------------------------------------------
 		//------------------------------------------------------------------------------------------------------------------------------------
 		#region
+
 		/*
 			Кнопка перехода в режим редактирования шаблонов вопросов
 		*/
+		#region
 		private void ButtonC_EditQuestionsMode(object sender, RoutedEventArgs e)
 		{
 			EditQuestionsMode.IsSelected = true;
@@ -487,13 +538,16 @@ namespace TOGIRRO_ControlTesting
 			EditAnswersMode_Button.IsChecked = false;
 			EditBlanksMode_Button.IsChecked = false;
 			PrintBlanksMode_Button.IsChecked = false;
+			LoadCSV_Button.IsChecked = false;
 			CheckResultsMode_Button.IsChecked = false;
 			PrintReportMode_Button.IsChecked = false;
 		}
+		#endregion
 
 		/*
 			Кнопка перехода в режим редактирования системы шкалирования
 		*/
+		#region
 		private void ButtonC_EditScaleMode(object sender, RoutedEventArgs e)
 		{
 			EditScaleMode.IsSelected = true;
@@ -502,13 +556,16 @@ namespace TOGIRRO_ControlTesting
 			EditAnswersMode_Button.IsChecked = false;
 			EditBlanksMode_Button.IsChecked = false;
 			PrintBlanksMode_Button.IsChecked = false;
+			LoadCSV_Button.IsChecked = false;
 			CheckResultsMode_Button.IsChecked = false;
 			PrintReportMode_Button.IsChecked = false;
 		}
+		#endregion
 
 		/*
 			Кнопка перехода в режим редактирования ответов
 		*/
+		#region
 		private void ButtonC_EditAnswersMode(object sender, RoutedEventArgs e)
 		{
 			EditAnswersMode.IsSelected = true;
@@ -517,14 +574,17 @@ namespace TOGIRRO_ControlTesting
 			EditAnswersMode_Button.IsChecked = true;
 			EditBlanksMode_Button.IsChecked = false;
 			PrintBlanksMode_Button.IsChecked = false;
+			LoadCSV_Button.IsChecked = false;
 			CheckResultsMode_Button.IsChecked = false;
 			PrintReportMode_Button.IsChecked = false;
 		}
+        #endregion
 
-		/*
+        /*
 			Кнопка перехода в режим редактирования бланков
 		*/
-		private void ButtonC_EditBlanksMode(object sender, RoutedEventArgs e)
+        #region
+        private void ButtonC_EditBlanksMode(object sender, RoutedEventArgs e)
 		{
 			EditBlanksMode.IsSelected = true;
 			EditQuestionsMode_Button.IsChecked = false;
@@ -532,14 +592,17 @@ namespace TOGIRRO_ControlTesting
 			EditAnswersMode_Button.IsChecked = false;
 			EditBlanksMode_Button.IsChecked = true;
 			PrintBlanksMode_Button.IsChecked = false;
+			LoadCSV_Button.IsChecked = false;
 			CheckResultsMode_Button.IsChecked = false;
 			PrintReportMode_Button.IsChecked = false;
 		}
+        #endregion
 
-		/*
+        /*
 			Кнопка перехода в режим печати бланков
 		*/
-		private void ButtonC_PrintBlanksMode(object sender, RoutedEventArgs e)
+        #region
+        private void ButtonC_PrintBlanksMode(object sender, RoutedEventArgs e)
 		{
 			PrintBlankMode.IsSelected = true;
 			EditQuestionsMode_Button.IsChecked = false;
@@ -547,59 +610,92 @@ namespace TOGIRRO_ControlTesting
 			EditAnswersMode_Button.IsChecked = false;
 			EditBlanksMode_Button.IsChecked = false;
 			PrintBlanksMode_Button.IsChecked = true;
+			LoadCSV_Button.IsChecked = false;
 			CheckResultsMode_Button.IsChecked = false;
 			PrintReportMode_Button.IsChecked = false;
 		}
+        #endregion
 
-		/*
-			Кнопка перехода в режим просмотра результатов
+        /*
+			Кнопка перехода в режим загрузки данных из CSV файлов
 		*/
-		private void ButtonC_CheckResultMode(object sender, RoutedEventArgs e)
+        #region
+        private void LoadCSV_Button_Click(object sender, RoutedEventArgs e)
 		{
+			LoadCSVMode.IsSelected = true;
 			EditQuestionsMode_Button.IsChecked = false;
 			EditScaleMode_Button.IsChecked = false;
 			EditAnswersMode_Button.IsChecked = false;
 			EditBlanksMode_Button.IsChecked = false;
 			PrintBlanksMode_Button.IsChecked = false;
+			LoadCSV_Button.IsChecked = true;
+			CheckResultsMode_Button.IsChecked = false;
+			PrintReportMode_Button.IsChecked = false;
+		}
+        #endregion
+
+        /*
+			Кнопка перехода в режим просмотра результатов
+		*/
+        #region
+        private void ButtonC_CheckResultMode(object sender, RoutedEventArgs e)
+		{
+			CheckResultsMode.IsSelected = true;
+			EditQuestionsMode_Button.IsChecked = false;
+			EditScaleMode_Button.IsChecked = false;
+			EditAnswersMode_Button.IsChecked = false;
+			EditBlanksMode_Button.IsChecked = false;
+			PrintBlanksMode_Button.IsChecked = false;
+			LoadCSV_Button.IsChecked = false;
 			CheckResultsMode_Button.IsChecked = true;
 			PrintReportMode_Button.IsChecked = false;
 		}
+        #endregion
 
-		/*
+        /*
 			Кнопка перехода в режим печати отчета
 		*/
-		private void ButtonC_PrintReportMode(object sender, RoutedEventArgs e)
+        #region
+        private void ButtonC_PrintReportMode(object sender, RoutedEventArgs e)
 		{
+			PrintReportMode.IsSelected = true;
 			EditQuestionsMode_Button.IsChecked = false;
 			EditScaleMode_Button.IsChecked = false;
 			EditAnswersMode_Button.IsChecked = false;
 			EditBlanksMode_Button.IsChecked = false;
 			PrintBlanksMode_Button.IsChecked = false;
+			LoadCSV_Button.IsChecked = false;
 			CheckResultsMode_Button.IsChecked = false;
 			PrintReportMode_Button.IsChecked = true;
 		}
-		#endregion
-		//------------------------------------------------------------------------------------------------------------------------------------
+        #endregion
+
+        #endregion
+        //------------------------------------------------------------------------------------------------------------------------------------
 
 
 
-		//------------------------------------------------------------------------------------------------------------------------------------
-		//---Создание, редактирование и удаление вариантов------------------------------------------------------------------------------------
-		//------------------------------------------------------------------------------------------------------------------------------------
-		#region
-		/*
+        //------------------------------------------------------------------------------------------------------------------------------------
+        //---Создание, редактирование и удаление вариантов------------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------------------------------------------------------------
+        #region
+
+        /*
 			Кнопка перехода в режим редактирования названия варианта
 		*/
-		private void ButtonC_EditVariantNameMode(object sender, RoutedEventArgs e)
+        #region
+        private void ButtonC_EditVariantNameMode(object sender, RoutedEventArgs e)
 		{
 			CurrentVariantTextbox.Text = Workfield.CurrentVariant.Name;
 			EditVariantMode.IsSelected = true;
 		}
+        #endregion
 
-		/*
+        /*
 			Кнопка создания варианта
 		*/
-		private void ButtonC_CreateVariant(object sender, RoutedEventArgs e)
+        #region
+        private void ButtonC_CreateVariant(object sender, RoutedEventArgs e)
 		{
 
 			Workfield.CurrentSubject.Variants.Add(new Variant());
@@ -745,11 +841,13 @@ namespace TOGIRRO_ControlTesting
 			AnswerList.ItemsSource = Workfield.CurrentVariant.QuestionsPerVar;
 			AnswerList.Items.Refresh();
 		}
+        #endregion
 
-		/*
+        /*
 			Кнопка удаления варианта
 		*/
-		private void ButtonC_DeleteVariant(object sender, RoutedEventArgs e)
+        #region
+        private void ButtonC_DeleteVariant(object sender, RoutedEventArgs e)
 		{
 			if (Workfield.CurrentVariant == null) return;
 
@@ -801,11 +899,13 @@ namespace TOGIRRO_ControlTesting
 			}
 			AnswerList.Items.Refresh();
 		}
+        #endregion
 
-		/*
+        /*
 			Кнопка редактирования названия варианта
 		*/
-		private void ButtonC_EditVariantSuccess(object sender, RoutedEventArgs e)
+        #region
+        private void ButtonC_EditVariantSuccess(object sender, RoutedEventArgs e)
 		{
 			Workfield.CurrentVariant.Name = CurrentVariantTextbox.Text.Trim(' ');
 			if (Workfield.CurrentVariant.Name.Length > 20) Workfield.CurrentVariant.Name = Workfield.CurrentVariant.Name.Substring(0, 20);
@@ -849,20 +949,24 @@ namespace TOGIRRO_ControlTesting
 			FocusManager.SetFocusedElement(FocusManager.GetFocusScope(CurrentVariantTextbox), null);
 			Keyboard.ClearFocus();
 		}
+        #endregion
 
-		/*
+        /*
 			Кнопка отмены редактирования названия варианта
 		*/
-		private void ButtonC_EditVariantCancel(object sender, RoutedEventArgs e)
+        #region
+        private void ButtonC_EditVariantCancel(object sender, RoutedEventArgs e)
 		{
 			CurrentVariantTextbox.Text = "";
 			SelectVariantMode.IsSelected = true;
 		}
+        #endregion
 
-		/*
+        /*
 			Событие выбора варианта в ComboBox
 		*/
-		private void CurrentVariantCBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        #region
+        private void CurrentVariantCBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
 			if (CurrentVariantCBox.SelectedIndex < 0) return;
 			if (Workfield.CurrentSubject.Variants.Count <= 0) return;
@@ -875,22 +979,26 @@ namespace TOGIRRO_ControlTesting
 			AnswerList.ItemsSource = Workfield.CurrentVariant.QuestionsPerVar;
 			AnswerList.Items.Refresh();
 		}
+        #endregion
 
-		/*
+        /*
 			Событие нажатия Enter при редактировании названия варианта
 		*/
-		private void CurrentVariantTextbox_KeyDown(object sender, KeyEventArgs e)
+        #region
+        private void CurrentVariantTextbox_KeyDown(object sender, KeyEventArgs e)
 		{
 			if (e.Key == Key.Enter)
 			{
 				ButtonC_EditVariantSuccess(sender, e);
 			}
 		}
+        #endregion
 
-		/*
+        /*
 			Кнопка выбора файла бланка варианта
 		*/
-		private void OpenVariantBlankButton_Click(object sender, RoutedEventArgs e)
+        #region
+        private void OpenVariantBlankButton_Click(object sender, RoutedEventArgs e)
 		{
 			OpenFileDialog openFileDialog = new OpenFileDialog();
 			if (Workfield.CurrentVariant != null && openFileDialog.ShowDialog() == true)
@@ -919,19 +1027,23 @@ namespace TOGIRRO_ControlTesting
 				}
 			}
 		}
-		#endregion
-		//------------------------------------------------------------------------------------------------------------------------------------
+        #endregion
+
+        #endregion
+        //------------------------------------------------------------------------------------------------------------------------------------
 
 
 
-		//------------------------------------------------------------------------------------------------------------------------------------
-		//---Поиск и выбор предметов----------------------------------------------------------------------------------------------------------
-		//------------------------------------------------------------------------------------------------------------------------------------
-		#region
-		/*
+        //------------------------------------------------------------------------------------------------------------------------------------
+        //---Поиск и выбор предметов----------------------------------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------------------------------------------------------------
+        #region
+
+        /*
 			Событие выбора предмета в DataGrid
 		*/
-		private void SubjectsList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        #region
+        private void SubjectsList_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
             if (!(SubjectsList.CurrentItem is Subject currentSubject)) return;
 
@@ -1296,6 +1408,12 @@ namespace TOGIRRO_ControlTesting
 			CurrentSubjectType4.Content = currentSubject.Type;
 			CurrentSubjectName5.Content = currentSubject.Name;
 			CurrentSubjectType5.Content = currentSubject.Type;
+			CurrentSubjectName6.Content = currentSubject.Name;
+			CurrentSubjectType6.Content = currentSubject.Type;
+			CurrentSubjectName7.Content = currentSubject.Name;
+			CurrentSubjectType7.Content = currentSubject.Type;
+			CurrentSubjectName8.Content = currentSubject.Name;
+			CurrentSubjectType8.Content = currentSubject.Type;
 			ScaleList.ItemsSource = currentSubject.ScaleSystem;
 			ScaleList.Items.Refresh();
 			QuestionList.ItemsSource = currentSubject.Questions;
@@ -1324,11 +1442,13 @@ namespace TOGIRRO_ControlTesting
 			PrintBlankList.Items.Refresh();
 			MainField.IsEnabled = true;
 		}
+        #endregion
 
-		/*
+        /*
 			Обновление списка предметов во время поиска
 		*/
-		public void UpdateSubjectList()
+        #region
+        public void UpdateSubjectList()
 		{
 			string searchName = SearchBox.Text.ToLower().Trim(' ');
 
@@ -1346,22 +1466,28 @@ namespace TOGIRRO_ControlTesting
 			SubjectsList.ItemsSource = Workfield.ActualSubjects;
 			SubjectsList.Items.Refresh();
 		}
+        #endregion
 
-		/*
+        /*
 			События изменения текста в TextBox поиска предметов
 		*/
-		private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
+        #region
+        private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
 		{
 			UpdateSubjectList();
 		}
+        #endregion
 
-		/*
+        /*
 			Событие выбора типа предмета при поиске в ComboBox
 		*/
-		private void SearchTypes_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        #region
+        private void SearchTypes_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
 			UpdateSubjectList();
 		}
+        #endregion
+
         #endregion
         //------------------------------------------------------------------------------------------------------------------------------------
 
@@ -1371,9 +1497,11 @@ namespace TOGIRRO_ControlTesting
         //---Создание, редактирование и удаление шаблонов вопросов----------------------------------------------------------------------------
         //------------------------------------------------------------------------------------------------------------------------------------
         #region
+
         /*
 			Событие добавления нового шаблона вопросов в DataGrid
 		*/
+        #region
         private void QuestionList_AddingNewItem(object sender, AddingNewItemEventArgs e)
 		{
 			e.NewItem = new AnswerCharacteristic();
@@ -1589,11 +1717,13 @@ namespace TOGIRRO_ControlTesting
 			}
 			AnswerList.Items.Refresh();
 		}
+        #endregion
 
-		/*
+        /*
 			Событие удаления шаблона вопроса в DataGrid
 		*/
-		private void QuestionList_PreviewCanExecute(object sender, CanExecuteRoutedEventArgs e)
+        #region
+        private void QuestionList_PreviewCanExecute(object sender, CanExecuteRoutedEventArgs e)
 		{
 			DataGrid grid = (DataGrid)sender;
 			if (e.Command == DataGrid.DeleteCommand)
@@ -1722,11 +1852,13 @@ namespace TOGIRRO_ControlTesting
 				AlertManager.CheckAlerts(AlertType.NoErrorScaleSystem, new List<object>() { Workfield.CurrentSubject, currentQuestion, false }, true);
 			}
 		}
+        #endregion
 
-		/*
+        /*
 			Событие подтверждения редактирования шаблона вопроса в DataGrid
 		*/
-		private bool flagfix = true;
+        #region
+        private bool flagfix = true;
 		private void QuestionList_RowEditEnding(object sender, DataGridRowEditEndingEventArgs e)
 		{
 			if (e.EditAction == DataGridEditAction.Commit && flagfix)
@@ -2030,16 +2162,18 @@ namespace TOGIRRO_ControlTesting
 
 				flagfix = false;
 				QuestionList.CommitEdit();
-				QuestionList.CommitEdit();  //shit
+				QuestionList.CommitEdit();
 				flagfix = true;
 				QuestionList.Items.Refresh();
 			}
 		}
+        #endregion
 
-		/*
+        /*
 			Проверка наличия номера вопроса в базе
 		*/
-		private bool CheckQuestionNumber(int number, string criterion)
+        #region
+        private bool CheckQuestionNumber(int number, string criterion)
         {
 			bool result = false;
 
@@ -2069,11 +2203,13 @@ namespace TOGIRRO_ControlTesting
 
 			return result;
         }
+        #endregion
 
-		/*
+        /*
 			Перезагрузка содержимого datagrid
 		*/
-		private void QuestionList_SelectedCellsChanged(object sender, SelectedCellsChangedEventArgs e)
+        #region
+        private void QuestionList_SelectedCellsChanged(object sender, SelectedCellsChangedEventArgs e)
 		{
 			int temp = QuestionList.SelectedIndex;
 			try
@@ -2098,6 +2234,8 @@ namespace TOGIRRO_ControlTesting
 			catch { }
 		}
 		#endregion
+
+		#endregion
 		//------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -2106,9 +2244,11 @@ namespace TOGIRRO_ControlTesting
 		//---Создание, редактирование и удаление эталонных ответов----------------------------------------------------------------------------
 		//------------------------------------------------------------------------------------------------------------------------------------
 		#region
+
 		/*
 			Событие добавления нового эталонного ответа в DataGrid 
 		*/
+		#region
 		private void AnswersPerQuestionList_AddingNewItem(object sender, AddingNewItemEventArgs e)
 		{
 			Question currentQuestion = AnswerList.SelectedItem as Question;
@@ -2162,11 +2302,13 @@ namespace TOGIRRO_ControlTesting
 				return;
 			}
 		}
+        #endregion
 
-		/*
+        /*
 			Событие удаления эталонного ответа в DataGrid 
 		*/
-		private void AnswersPerQuestionList_PreviewCanExecute(object sender, CanExecuteRoutedEventArgs e)
+        #region
+        private void AnswersPerQuestionList_PreviewCanExecute(object sender, CanExecuteRoutedEventArgs e)
 		{
 			DataGrid grid = (DataGrid)sender;
 			if (e.Command == DataGrid.DeleteCommand)
@@ -2199,11 +2341,13 @@ namespace TOGIRRO_ControlTesting
 				AlertManager.CheckAlerts(AlertType.NoReferenceResponce, new List<object>() { Workfield.CurrentSubject, Workfield.CurrentVariant, currentQuestion, true });
 			}
 		}
+        #endregion
 
-		/*
+        /*
 			Событие подтверждения редактирования эталонного ответа в DataGrid
 		*/
-		private void AnswersPerQuestionList_RowEditEnding(object sender, DataGridRowEditEndingEventArgs e)
+        #region
+        private void AnswersPerQuestionList_RowEditEnding(object sender, DataGridRowEditEndingEventArgs e)
 		{
 			if (e.EditAction == DataGridEditAction.Commit)
 			{
@@ -2237,19 +2381,23 @@ namespace TOGIRRO_ControlTesting
 				AlertManager.CheckAlerts(AlertType.NoReferenceResponce, new List<object>() { Workfield.CurrentSubject, Workfield.CurrentVariant, currentQuestion, false });
 			}
 		}
-		#endregion
-		//------------------------------------------------------------------------------------------------------------------------------------
+        #endregion
+
+        #endregion
+        //------------------------------------------------------------------------------------------------------------------------------------
 
 
 
-		//------------------------------------------------------------------------------------------------------------------------------------
-		//---Редактирование системы шкалирования----------------------------------------------------------------------------------------------
-		//------------------------------------------------------------------------------------------------------------------------------------
-		#region
-		/*
+        //------------------------------------------------------------------------------------------------------------------------------------
+        //---Редактирование системы шкалирования----------------------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------------------------------------------------------------
+        #region
+
+        /*
 			Событие подтверждения редактирования в DataGrid системы шкалирования
 		*/
-		private void ScaleList_RowEditEnding(object sender, DataGridRowEditEndingEventArgs e)
+        #region
+        private void ScaleList_RowEditEnding(object sender, DataGridRowEditEndingEventArgs e)
 		{
 			if (e.EditAction == DataGridEditAction.Commit)
 			{
@@ -2284,19 +2432,23 @@ namespace TOGIRRO_ControlTesting
 				AlertManager.CheckAlerts(AlertType.ScoreInconsequence, new List<object>() { Workfield.CurrentSubject });
 			}
 		}
-		#endregion
-		//------------------------------------------------------------------------------------------------------------------------------------
+        #endregion
+
+        #endregion
+        //------------------------------------------------------------------------------------------------------------------------------------
 
 
 
-		//------------------------------------------------------------------------------------------------------------------------------------
-		//---Создание, редактирование и удаление разбаловки ошибок----------------------------------------------------------------------------
-		//------------------------------------------------------------------------------------------------------------------------------------
-		#region
-		/*
+        //------------------------------------------------------------------------------------------------------------------------------------
+        //---Создание, редактирование и удаление разбалловки ошибок---------------------------------------------------------------------------
+        //------------------------------------------------------------------------------------------------------------------------------------
+        #region
+
+        /*
 			Событие добавления нового юнита разбаловки ошибок в DataGrid
 		*/
-		private void ErrorsPerQuestionList_AddingNewItem(object sender, AddingNewItemEventArgs e)
+        #region
+        private void ErrorsPerQuestionList_AddingNewItem(object sender, AddingNewItemEventArgs e)
 		{
 			e.NewItem = new ErrorScaleUnit();
 			ErrorScaleUnit newErrorScaleUnit = e.NewItem as ErrorScaleUnit;
@@ -2348,11 +2500,13 @@ namespace TOGIRRO_ControlTesting
 				return;
 			}
 		}
+        #endregion
 
-		/*
+        /*
 			Событие удаления юнита разбаловки ошибок в DataGrid
 		*/
-		private void ErrorsPerQuestionList_PreviewCanExecute(object sender, CanExecuteRoutedEventArgs e)
+        #region
+        private void ErrorsPerQuestionList_PreviewCanExecute(object sender, CanExecuteRoutedEventArgs e)
 		{
 			DataGrid grid = (DataGrid)sender;
 			if (e.Command == DataGrid.DeleteCommand)
@@ -2383,11 +2537,13 @@ namespace TOGIRRO_ControlTesting
 				AlertManager.CheckAlerts(AlertType.NoErrorScaleSystem, new List<object>() { Workfield.CurrentSubject, currentAnswerCharacteristic, true });
 			}
 		}
+        #endregion
 
-		/*
+        /*
 			Событие подтверждения редактирования юнита разбаловки ошибок в DataGrid
 		*/
-		private void ErrorsPerQuestionList_RowEditEnding(object sender, DataGridRowEditEndingEventArgs e)
+        #region
+        private void ErrorsPerQuestionList_RowEditEnding(object sender, DataGridRowEditEndingEventArgs e)
 		{
 			if (e.EditAction == DataGridEditAction.Commit)
 			{
@@ -2419,19 +2575,23 @@ namespace TOGIRRO_ControlTesting
 				AlertManager.CheckAlerts(AlertType.NoErrorScaleSystem, new List<object>() { Workfield.CurrentSubject, currentAnswerCharacteristic, false });
 			}
 		}
-		#endregion
-		//------------------------------------------------------------------------------------------------------------------------------------
+        #endregion
+
+        #endregion
+        //------------------------------------------------------------------------------------------------------------------------------------
 
 
 
-		//------------------------------------------------------------------------------------------------------------------------------------
-		//---Создание, редактирование и удаление бланков--------------------------------------------------------------------------------------
-		//------------------------------------------------------------------------------------------------------------------------------------
-		#region
-		/*
+        //------------------------------------------------------------------------------------------------------------------------------------
+        //---Создание, редактирование и удаление бланков--------------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------------------------------------------------------------
+        #region
+
+        /*
 			Событие добавления нового бланка в DataGrid
 		*/
-		private void BlankList_AddingNewItem(object sender, AddingNewItemEventArgs e)
+        #region
+        private void BlankList_AddingNewItem(object sender, AddingNewItemEventArgs e)
 		{
 			e.NewItem = new Blank();
 			Blank newBlank = e.NewItem as Blank;
@@ -2482,11 +2642,13 @@ namespace TOGIRRO_ControlTesting
 				return;
 			}
 		}
+        #endregion
 
-		/*
+        /*
 			Событие удаления бланка в DataGrid
 		*/
-		private void BlankList_PreviewCanExecute(object sender, CanExecuteRoutedEventArgs e)
+        #region
+        private void BlankList_PreviewCanExecute(object sender, CanExecuteRoutedEventArgs e)
 		{
 			DataGrid grid = (DataGrid)sender;
 			if (e.Command == DataGrid.DeleteCommand)
@@ -2517,11 +2679,13 @@ namespace TOGIRRO_ControlTesting
 				AlertManager.CheckAlerts(AlertType.FieldNotFilled, new List<object>() { (int)5, Workfield.CurrentSubject, currentBlank }, true);
 			}
 		}
+        #endregion
 
-		/*
+        /*
 			Событие подтверждения редактирования бланка в DataGrid
 		*/
-		private void BlankList_RowEditEnding(object sender, DataGridRowEditEndingEventArgs e)
+        #region
+        private void BlankList_RowEditEnding(object sender, DataGridRowEditEndingEventArgs e)
 		{
 			if (e.EditAction == DataGridEditAction.Commit)
 			{
@@ -2552,11 +2716,13 @@ namespace TOGIRRO_ControlTesting
 				AlertManager.CheckAlerts(AlertType.FieldNotFilled, new List<object>() { (int)5, Workfield.CurrentSubject, currentBlank });
 			}
 		}
+        #endregion
 
-		/*
+        /*
 			Кнопка выбора файла бланка
 		*/
-		private void OpenFileBlankButton_Click(object sender, RoutedEventArgs e)
+        #region
+        private void OpenFileBlankButton_Click(object sender, RoutedEventArgs e)
 		{
 			OpenFileDialog openFileDialog = new OpenFileDialog();
 			Blank currentBlank = BlankList.SelectedItem as Blank;
@@ -2572,34 +2738,46 @@ namespace TOGIRRO_ControlTesting
 				}
             }
 		}
+        #endregion
 
-		/*
+        /*
 			Выбор типа бланка
 		*/
-		private void BlankList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        #region
+        private void BlankList_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
 			Blank currentBlank = BlankList.SelectedItem as Blank;
 
 			if (currentBlank != null)
             {
 				Workfield.CurrentBlank = currentBlank;
-				if (currentBlank.Path.Trim(' ') != "")
+				if (currentBlank.Path.Trim(' ') != "" && File.Exists(currentBlank.Path) 
+					&& (currentBlank.Path.ToLower().Substring(Math.Max(0, currentBlank.Path.Length - 4)) == ".jpg" ||
+					currentBlank.Path.ToLower().Substring(Math.Max(0, currentBlank.Path.Length - 4)) == ".png" ||
+					currentBlank.Path.ToLower().Substring(Math.Max(0, currentBlank.Path.Length - 5)) == ".jpeg"))
 				{
 					BlankImageField.Source = new BitmapImage(new Uri(currentBlank.Path, UriKind.Absolute));
 					CodeFieldsList.ItemsSource = currentBlank.CodeFields;
 				}
 			}
 		}
-		#endregion
-		//------------------------------------------------------------------------------------------------------------------------------------
+        #endregion
+
+        #endregion
+        //------------------------------------------------------------------------------------------------------------------------------------
 
 
 
-		//------------------------------------------------------------------------------------------------------------------------------------
-		//---Создание, редактирование и удаление полей кодов--------------------------------------------------------------------------------------
-		//------------------------------------------------------------------------------------------------------------------------------------
-		#region
-		private void CodeFieldsList_AddingNewItem(object sender, AddingNewItemEventArgs e)
+        //------------------------------------------------------------------------------------------------------------------------------------
+        //---Создание, редактирование и удаление полей кода-----------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------------------------------------------------------------
+        #region
+
+        /*
+			Событие добавления поля кода в DataGrid
+		*/
+        #region
+        private void CodeFieldsList_AddingNewItem(object sender, AddingNewItemEventArgs e)
 		{
 			e.NewItem = new CodeField();
 			CodeField newCodeField = e.NewItem as CodeField;
@@ -2651,8 +2829,13 @@ namespace TOGIRRO_ControlTesting
 				return;
 			}
 		}
+        #endregion
 
-		private void CodeFieldsList_PreviewCanExecute(object sender, CanExecuteRoutedEventArgs e)
+        /*
+			Событие подтверждения редактирования поля кода в DataGrid
+		*/
+        #region
+        private void CodeFieldsList_PreviewCanExecute(object sender, CanExecuteRoutedEventArgs e)
 		{
 			DataGrid grid = (DataGrid)sender;
 			if (e.Command == DataGrid.DeleteCommand)
@@ -2684,8 +2867,13 @@ namespace TOGIRRO_ControlTesting
 				CodeBorder.Visibility = Visibility.Hidden;
 			}
 		}
+        #endregion
 
-		private void CodeFieldsList_RowEditEnding(object sender, DataGridRowEditEndingEventArgs e)
+        /*
+			Событие удаления поля кода в DataGrid
+		*/
+        #region
+        private void CodeFieldsList_RowEditEnding(object sender, DataGridRowEditEndingEventArgs e)
 		{
 			if (e.EditAction == DataGridEditAction.Commit)
 			{
@@ -2718,8 +2906,13 @@ namespace TOGIRRO_ControlTesting
 				AlertManager.CheckAlerts(AlertType.FieldNotFilled, new List<object>() { (int)6, Workfield.CurrentSubject, Workfield.CurrentBlank, currentCodeField });
 			}
 		}
+        #endregion
 
-		private void CodeFieldsList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        /*
+			Выбор поля кода
+		*/
+        #region
+        private void CodeFieldsList_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
 			CodeField currentCodeField = CodeFieldsList.SelectedItem as CodeField;
 
@@ -2730,18 +2923,98 @@ namespace TOGIRRO_ControlTesting
 				CodeBorder.Visibility = Visibility.Visible;
             }
 		}
+        #endregion
 
-		private void BlankImageField_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        /*
+			Нажатие ЛКМ по полю изображения бланка
+		*/
+        #region
+        private void BlankImageField_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
 		{
-			if (Workfield.CurrentCodeField != null)
-            {
-				Image currentImage = sender as Image;
+			LMBBlankImageEvent(sender, e.GetPosition(BlankImageField));
+		}
+        #endregion
 
-				if (currentImage != null && currentImage.Source != null)
+        /*
+			Нажатие ПКМ по полю изображения бланка
+		*/
+        #region
+        private void BlankImageField_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
+		{
+			RMBBlankImageEvent(sender, e.GetPosition(BlankImageField));
+		}
+        #endregion
+
+        /*
+			Событие обновления визуализации поля кода
+		*/
+        #region
+        private void UpdateRectangle()
+        {
+			if (Workfield.CurrentCodeField == null) return;
+			if (Workfield.CurrentCodeField.X2 < Workfield.CurrentCodeField.X1)
+			{
+				Canvas.SetLeft(CodeBorder, (double)Workfield.CurrentCodeField.X2 * BlankImageField.ActualWidth / (BlankImageField.Source as BitmapSource).PixelWidth);
+				CodeBorder.SetValue(Canvas.WidthProperty, (double)(Workfield.CurrentCodeField.X1 - Workfield.CurrentCodeField.X2) * BlankImageField.ActualWidth / (BlankImageField.Source as BitmapSource).PixelWidth);
+			}
+			else
+			{
+				Canvas.SetLeft(CodeBorder, (double)Workfield.CurrentCodeField.X1 * BlankImageField.ActualWidth / (BlankImageField.Source as BitmapSource).PixelWidth);
+				CodeBorder.SetValue(Canvas.WidthProperty, (double)(Workfield.CurrentCodeField.X2 - Workfield.CurrentCodeField.X1) * BlankImageField.ActualWidth / (BlankImageField.Source as BitmapSource).PixelWidth);
+			}
+			if (Workfield.CurrentCodeField.Y2 < Workfield.CurrentCodeField.Y1)
+			{
+				Canvas.SetTop(CodeBorder, (double)Workfield.CurrentCodeField.Y2 * BlankImageField.ActualHeight / (BlankImageField.Source as BitmapSource).PixelHeight);
+				CodeBorder.SetValue(Canvas.HeightProperty, (double)(Workfield.CurrentCodeField.Y1 - Workfield.CurrentCodeField.Y2) * BlankImageField.ActualHeight / (BlankImageField.Source as BitmapSource).PixelHeight);
+			}
+			else
+			{
+				Canvas.SetTop(CodeBorder, (double)Workfield.CurrentCodeField.Y1 * BlankImageField.ActualHeight / (BlankImageField.Source as BitmapSource).PixelHeight);
+				CodeBorder.SetValue(Canvas.HeightProperty, (double)(Workfield.CurrentCodeField.Y2 - Workfield.CurrentCodeField.Y1) * BlankImageField.ActualHeight / (BlankImageField.Source as BitmapSource).PixelHeight);
+			}
+		}
+        #endregion
+
+        /*
+			Событие изменения размеров области изображения
+		*/
+        #region
+        private void BlankImageField_SizeChanged(object sender, SizeChangedEventArgs e)
+		{
+			UpdateRectangle();
+		}
+        #endregion
+
+        /*
+			Событие движения мыши по области изображения
+		*/
+        #region
+        private void BlankImageField_MouseMove(object sender, MouseEventArgs e)
+		{
+			if (e.LeftButton == MouseButtonState.Pressed)
+            {
+				LMBBlankImageEvent(sender, e.GetPosition(BlankImageField));
+            }
+			if (e.RightButton == MouseButtonState.Pressed)
+            {
+				RMBBlankImageEvent(sender, e.GetPosition(BlankImageField));
+            }
+		}
+        #endregion
+
+        /*
+			Метод обработки первой точки поля на изображении бланка
+		*/
+        #region
+        private void LMBBlankImageEvent(object sender, Point mousePosition)
+        {
+			if (Workfield.CurrentCodeField != null)
+			{
+				if (BlankImageField != null && BlankImageField.Source != null)
 				{
 					// Convert from control space to image space
-					int x = (int)Math.Floor(e.GetPosition(currentImage).X * (currentImage.Source as BitmapSource).PixelWidth / currentImage.ActualWidth);
-					int y = (int)Math.Floor(e.GetPosition(currentImage).Y * (currentImage.Source as BitmapSource).PixelHeight / currentImage.ActualHeight);
+					int x = (int)Math.Floor(mousePosition.X * (BlankImageField.Source as BitmapSource).PixelWidth / BlankImageField.ActualWidth);
+					int y = (int)Math.Floor(mousePosition.Y * (BlankImageField.Source as BitmapSource).PixelHeight / BlankImageField.ActualHeight);
 
 					Workfield.CurrentCodeField.X1 = x;
 					Workfield.CurrentCodeField.Y1 = y;
@@ -2776,16 +3049,21 @@ namespace TOGIRRO_ControlTesting
 				}
 			}
 		}
+        #endregion
 
-		private void BlankImageField_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
-		{
+        /*
+			Метод обработки второй точки поля на изображении бланка
+		*/
+        #region
+        private void RMBBlankImageEvent(object sender, Point mousePosition)
+        {
 			if (Workfield.CurrentCodeField != null)
 			{
 				if (BlankImageField != null && BlankImageField.Source != null)
 				{
 					// Convert from control space to image space
-					int x = (int)Math.Floor(e.GetPosition(BlankImageField).X * (BlankImageField.Source as BitmapSource).PixelWidth / BlankImageField.ActualWidth);
-					int y = (int)Math.Floor(e.GetPosition(BlankImageField).Y * (BlankImageField.Source as BitmapSource).PixelHeight / BlankImageField.ActualHeight);
+					int x = (int)Math.Floor(mousePosition.X * (BlankImageField.Source as BitmapSource).PixelWidth / BlankImageField.ActualWidth);
+					int y = (int)Math.Floor(mousePosition.Y * (BlankImageField.Source as BitmapSource).PixelHeight / BlankImageField.ActualHeight);
 
 					Workfield.CurrentCodeField.X2 = x;
 					Workfield.CurrentCodeField.Y2 = y;
@@ -2820,48 +3098,111 @@ namespace TOGIRRO_ControlTesting
 				}
 			}
 		}
+        #endregion
 
-		private void UpdateRectangle()
-        {
-			if (Workfield.CurrentCodeField.X2 < Workfield.CurrentCodeField.X1)
-			{
-				Canvas.SetLeft(CodeBorder, (double)Workfield.CurrentCodeField.X2 * BlankImageField.ActualWidth / (BlankImageField.Source as BitmapSource).PixelWidth);
-				CodeBorder.SetValue(Canvas.WidthProperty, (double)(Workfield.CurrentCodeField.X1 - Workfield.CurrentCodeField.X2) * BlankImageField.ActualWidth / (BlankImageField.Source as BitmapSource).PixelWidth);
-			}
-			else
-			{
-				Canvas.SetLeft(CodeBorder, (double)Workfield.CurrentCodeField.X1 * BlankImageField.ActualWidth / (BlankImageField.Source as BitmapSource).PixelWidth);
-				CodeBorder.SetValue(Canvas.WidthProperty, (double)(Workfield.CurrentCodeField.X2 - Workfield.CurrentCodeField.X1) * BlankImageField.ActualWidth / (BlankImageField.Source as BitmapSource).PixelWidth);
-			}
-			if (Workfield.CurrentCodeField.Y2 < Workfield.CurrentCodeField.Y1)
-			{
-				Canvas.SetTop(CodeBorder, (double)Workfield.CurrentCodeField.Y2 * BlankImageField.ActualHeight / (BlankImageField.Source as BitmapSource).PixelHeight);
-				CodeBorder.SetValue(Canvas.HeightProperty, (double)(Workfield.CurrentCodeField.Y1 - Workfield.CurrentCodeField.Y2) * BlankImageField.ActualHeight / (BlankImageField.Source as BitmapSource).PixelHeight);
-			}
-			else
-			{
-				Canvas.SetTop(CodeBorder, (double)Workfield.CurrentCodeField.Y1 * BlankImageField.ActualHeight / (BlankImageField.Source as BitmapSource).PixelHeight);
-				CodeBorder.SetValue(Canvas.HeightProperty, (double)(Workfield.CurrentCodeField.Y2 - Workfield.CurrentCodeField.Y1) * BlankImageField.ActualHeight / (BlankImageField.Source as BitmapSource).PixelHeight);
-			}
-		}
+        #endregion
+        //------------------------------------------------------------------------------------------------------------------------------------
 
-		private void BlankImageField_SizeChanged(object sender, SizeChangedEventArgs e)
+
+
+        //------------------------------------------------------------------------------------------------------------------------------------
+        //---Создание, редактирование и удаление настроек загрузки CSV файлов-----------------------------------------------------------------
+        //------------------------------------------------------------------------------------------------------------------------------------
+        #region
+
+        /*
+			Событие добавления настройки загрузки CSV файла в DataGrid
+		*/
+        #region
+        private void CSVList_AddingNewItem(object sender, AddingNewItemEventArgs e)
 		{
-			UpdateRectangle();
+
 		}
-		#endregion
-		//------------------------------------------------------------------------------------------------------------------------------------
+        #endregion
+
+        /*
+			Событие подтверждения редактирования настройки загрузки CSV файла в DataGrid
+		*/
+        #region
+        private void CSVList_RowEditEnding(object sender, DataGridRowEditEndingEventArgs e)
+		{
+
+		}
+        #endregion
+
+        /*
+			Событие удаления настройки загрузки CSV файла в DataGrid
+		*/
+        #region
+        private void CSVList_PreviewCanExecute(object sender, CanExecuteRoutedEventArgs e)
+		{
+
+		}
+        #endregion
+
+        /*
+			Событие загрузки CSV файла
+		*/
+        #region
+        private void OpenCSVBlankButton_Click(object sender, RoutedEventArgs e)
+		{
+			OpenFileDialog openFileDialog = new OpenFileDialog();
+			BlankCSV currentBlank = CSVList.SelectedItem as BlankCSV;
+
+			openFileDialog.Filter = "Файл с данными отсканированных бланков|*csv";
+
+			if (currentBlank != null && openFileDialog.ShowDialog() == true)
+			{
+				currentBlank.CSVPath = openFileDialog.FileName;
+			}
+		}
+        #endregion
+
+        #endregion
+        //------------------------------------------------------------------------------------------------------------------------------------
 
 
 
-		//------------------------------------------------------------------------------------------------------------------------------------
-		//---Обработка ошибок предметов-------------------------------------------------------------------------------------------------------
-		//------------------------------------------------------------------------------------------------------------------------------------
-		#region
-		/*
+        //------------------------------------------------------------------------------------------------------------------------------------
+        //---Редактирование и удаление записей о тестируемых----------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------------------------------------------------------------
+        #region
+
+        /*
+			Событие подтверждения редактирования записи о тестируемых в DataGrid
+		*/
+        #region
+        private void CheckResultsList_RowEditEnding(object sender, DataGridRowEditEndingEventArgs e)
+		{
+
+		}
+        #endregion
+
+        /*
+			Событие удаления записи о тестируемых в DataGrid
+		*/
+        #region
+        private void CheckResultsList_PreviewCanExecute(object sender, CanExecuteRoutedEventArgs e)
+		{
+
+		}
+        #endregion
+
+        #endregion
+        //------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+        //------------------------------------------------------------------------------------------------------------------------------------
+        //---Обработка ошибок предметов-------------------------------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------------------------------------------------------------
+        #region
+
+        /*
 			Событие наведения мыши на иконку ошибки
 		*/
-		private void Alert_MouseEnter(object sender, MouseEventArgs e)
+        #region
+        private void Alert_MouseEnter(object sender, MouseEventArgs e)
 		{
 			//Image AlertImage = sender as Image;
 			//Border AlertBorder = AlertImage.Parent as Border;
@@ -2872,11 +3213,13 @@ namespace TOGIRRO_ControlTesting
 			Popup currentPopup = currentListBoxItem.ContentTemplate.FindName("AlertPopup", currentListBoxItem) as Popup;
 			currentPopup.IsOpen = true;
 		}
+        #endregion
 
-		/*
+        /*
 			Событие выхода курсора мыши из окна ошибки
 		*/
-		private void AlertPopup_MouseLeave(object sender, MouseEventArgs e)
+        #region
+        private void AlertPopup_MouseLeave(object sender, MouseEventArgs e)
 		{
 			Popup currentPopup = sender as Popup;
 			Grid AlertGrid = currentPopup.Parent as Grid;
@@ -2886,11 +3229,13 @@ namespace TOGIRRO_ControlTesting
 			if (!currentIcon.IsMouseOver)
 				currentPopup.IsOpen = false;
 		}
+        #endregion
 
-		/*
+        /*
 			Событие выхода курсора мыши из иконки ошибки
 		*/
-		private void Alert_MouseLeave(object sender, MouseEventArgs e)
+        #region
+        private void Alert_MouseLeave(object sender, MouseEventArgs e)
         {
 			//Image AlertImage = sender as Image;
 			//Border AlertBorder = AlertImage.Parent as Border;
@@ -2902,41 +3247,54 @@ namespace TOGIRRO_ControlTesting
 			if (!currentPopup.IsMouseOver)
 				currentPopup.IsOpen = false;
 		}
-		#endregion
-		//------------------------------------------------------------------------------------------------------------------------------------
+        #endregion
+
+        #endregion
+        //------------------------------------------------------------------------------------------------------------------------------------
 
 
 
-		//------------------------------------------------------------------------------------------------------------------------------------
-		//---Обработка справки----------------------------------------------------------------------------------------------------------------
-		//------------------------------------------------------------------------------------------------------------------------------------
-		#region
-		/*
+        //------------------------------------------------------------------------------------------------------------------------------------
+        //---Обработка справки----------------------------------------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------------------------------------------------------------
+        #region
+
+        /*
 			Событие наведения мыши на иконку советов
 		*/
-		private void Info_MouseEnter(object sender, MouseEventArgs e)
+        #region
+        private void Info_MouseEnter(object sender, MouseEventArgs e)
 		{
 			InfoPopup.IsOpen = true;
 		}
+        #endregion
 
-		/*
+        /*
 			Событие выхода курсора мыши из окна советов
 		*/
-		private void InfoPopup_MouseLeave(object sender, MouseEventArgs e)
+        #region
+        private void InfoPopup_MouseLeave(object sender, MouseEventArgs e)
 		{
 			if (!InfoIcon.IsMouseOver)
 				InfoPopup.IsOpen = false;
 		}
+        #endregion
 
-		/*
+        /*
 			Событие выхода курсора мыши из иконки советов
 		*/
-		private void Info_MouseLeave(object sender, MouseEventArgs e)
+        #region
+        private void Info_MouseLeave(object sender, MouseEventArgs e)
 		{
 			if (!InfoPopup.IsMouseOver)
 				InfoPopup.IsOpen = false;
 		}
+        #endregion
 
+        /*
+			Кнопка очистки очереди на печать
+		*/
+        #region
         private void ButtonC_ClearQueueButton(object sender, RoutedEventArgs e)
         {
 			Workfield.CurrentSubject.PrintBlanks = new ObservableCollection<PrintBlank>() { };
@@ -2944,7 +3302,49 @@ namespace TOGIRRO_ControlTesting
 			PrintBlankList.Items.Refresh();
         }
         #endregion
+
+        /*
+			Кнопка загрузки результатов
+		*/
+        #region
+        private void LoadResultsButton_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+        #endregion
+
+        /*
+			Кнопка отправки отчета на печать
+		*/
+        #region
+        private void PrintReportButton_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+        #endregion
+
+        /*
+			Кнопка подготовки кодов в бланках
+		*/
+        #region
+        private void PrepareCodesButton_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+        #endregion
+
+        /*
+			Кнопка отправки бланков на печать
+		*/
+        #region
+        private void PrintBlanksButton_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+        #endregion
+
+        #endregion
         //------------------------------------------------------------------------------------------------------------------------------------
     }
-	//========================================================================================================================================
+    //========================================================================================================================================
 }
