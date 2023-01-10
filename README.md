@@ -4,4 +4,4 @@
 
 (Не реализован до конечного состояния)
 
-![Фейкшот Majourney](https://ibb.co/NtKTZvH "Фейкшот Majourney")
+![Схема базы данных](https://i.ibb.co/djDmGTz/1.png "Схема базы данных")
