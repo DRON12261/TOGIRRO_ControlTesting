@@ -4,3 +4,4 @@
 
 (Не реализован до конечного состояния)
 
+![Фейкшот Majourney](https://ibb.co/NtKTZvH "Фейкшот Majourney")
